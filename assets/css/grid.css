@@ -1,0 +1,59 @@
+#musicgrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    grid-auto-rows: 130px;
+    overflow: auto;
+    height: 100vh;
+    position: relative;
+    scroll-behavior: smooth
+}
+
+.cell {
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.3s ease
+}
+
+.cell:hover {
+    transform: scale(1.2)
+}
+
+.video-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    overflow: hidden
+}
+
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%
+}
+
+#youtubePlayerContainer {
+    position: fixed;
+    /* Adjust as necessary for background playback */
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    max-width: fit-content;
+    z-index: -1;
+    /* Behind other content; adjust as necessary */
+    display: none;
+}
+
+#videoInfo {
+    padding: 20px;
+    
+}
+
+.video-info {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+  }
