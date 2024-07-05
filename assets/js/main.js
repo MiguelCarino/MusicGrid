@@ -1,161 +1,162 @@
-! function(e) {
-    var t = e(window),
-        o = e("body"),
-        n = e("#wrapper"),
-        a = e("#header"),
-        i = e("#banner");
-    breakpoints({
-        xlarge: ["1281px", "1680px"],
-        large: ["981px", "1280px"],
-        medium: ["737px", "980px"],
-        small: ["481px", "736px"],
-        xsmall: ["361px", "480px"],
-        xxsmall: [null, "360px"]
-    }), e.fn._parallax = "ie" == browser.name || "edge" == browser.name || browser.mobile ? function() {
-        return e(this)
-    } : function(t) {
-        var o = e(window),
-            n = e(this);
-        if (0 == this.length || 0 === t) return n;
-        if (this.length > 1) {
-            for (var a = 0; a < this.length; a++) e(this[a])._parallax(t);
-            return n
-        }
-        return t || (t = .25), n.each((function() {
-            var n, a, i = e(this);
-            n = function() {
-                i.css("background-position", "center 100%, center 100%, center 0px"), o.on("scroll._parallax", (function() {
-                    var e = parseInt(o.scrollTop()) - parseInt(i.position().top);
-                    i.css("background-position", "center " + e * (-1 * t) + "px")
-                }))
-            }, a = function() {
-                i.css("background-position", ""), o.off("scroll._parallax")
-            }, breakpoints.on("<=medium", a), breakpoints.on(">medium", n)
-        })), o.off("load._parallax resize._parallax").on("load._parallax resize._parallax", (function() {
-            o.trigger("scroll")
-        })), e(this)
-    }, t.on("load", (function() {
-        window.setTimeout((function() {
-            o.removeClass("is-preload")
-        }), 100)
-    })), t.on("unload pagehide", (function() {
-        window.setTimeout((function() {
-            e(".is-transitioning").removeClass("is-transitioning")
-        }), 250)
-    })), "ie" != browser.name && "edge" != browser.name || o.addClass("is-ie"), e(".scrolly").scrolly({
-        offset: function() {
-            return a.height() - 2
-        }
-    }), e(".tiles > article").each((function() {
-        var t, o = e(this),
-            a = o.find(".image"),
-            i = a.find("img"),
-            r = o.find(".link");
-        o.css("background-image", "url(" + i.attr("src") + ")"), (t = i.data("position")) && a.css("background-position", t), a.hide(), r.length > 0 && ($x = r.clone().text("").addClass("primary").appendTo(o), (r = r.add($x)).on("click", (function(e) {
-            var t = r.attr("href");
-            e.stopPropagation(), e.preventDefault(), "_blank" == r.attr("target") ? window.open(t) : (o.addClass("is-transitioning"), n.addClass("is-transitioning"), window.setTimeout((function() {
-                location.href = t
-            }), 500))
-        })))
-    })), i.length > 0 && a.hasClass("alt") && (t.on("resize", (function() {
-        t.trigger("scroll")
-    })), t.on("load", (function() {
-        i.scrollex({
-            bottom: a.height() + 10,
-            terminate: function() {
-                a.removeClass("alt")
-            },
-            enter: function() {
-                a.addClass("alt")
-            },
-            leave: function() {
-                a.removeClass("alt"), a.addClass("reveal")
-            }
-        }), window.setTimeout((function() {
-            t.triggerHandler("scroll")
-        }), 100)
-    }))), i.each((function() {
-        var t = e(this),
-            o = t.find(".image"),
-            n = o.find("img");
-        t._parallax(.275), o.length > 0 && (t.css("background-image", "url(" + n.attr("src") + ")"), o.hide())
-    }));
-    var r, s = e("#menu");
-    s.wrapInner('<div class="inner"></div>'), r = s.children(".inner"), s._locked = !1, s._lock = function() {
-        return !s._locked && (s._locked = !0, window.setTimeout((function() {
-            s._locked = !1
-        }), 350), !0)
-    }, s._show = function() {
-        s._lock() && o.addClass("is-menu-visible")
-    }, s._hide = function() {
-        s._lock() && o.removeClass("is-menu-visible")
-    }, s._toggle = function() {
-        s._lock() && o.toggleClass("is-menu-visible")
-    }, r.on("click", (function(e) {
-        e.stopPropagation()
-    })).on("click", "a", (function(t) {
-        var o = e(this).attr("href");
-        t.preventDefault(), t.stopPropagation(), s._hide(), window.setTimeout((function() {
-            window.location.href = o
-        }), 250)
-    })), s.appendTo(o).on("click", (function(e) {
-        e.stopPropagation(), e.preventDefault(), o.removeClass("is-menu-visible")
-    })).append('<a class="close" href="#menu">Close</a>'), o.on("click", 'a[href="#menu"]', (function(e) {
-        e.stopPropagation(), e.preventDefault(), s._toggle()
-    })).on("click", (function(e) {
-        s._hide()
-    })).on("keydown", (function(e) {
-        27 == e.keyCode && s._hide()
-    }));
-    const l = ["「 In doubt, reboot 」", "「 Viruses are mostly explicitly accepted, but you didn't notice 」", "「 Never trust brands, only reviews 」", "「 Always copy your files, never cut them 」", "「 Update your system if you have some spare time, otherwise it will update when you don't 」", "「 You can't download RAM 」", "「 Most cloud services you use are on land, and even underwater 」", "「 Clean your keyboard throughly at least twice a year, don't ask why 」", "「 Antivirus are malware that hate competition 」", "「 All software is licensed, even if it's free 」", "「 The less social networks you have, the more sane you are 」", "「 There's no way you can be %100 anonymous on the internet 」", "「 A real backup is made by three copies, on two different types of storage, with one copy offsite 」", "「 Data redundancy is not a backup 」", "「 Remembering your passwords is a fatal security flaw, use a password manager instead 」", "「 AI is a misleading commercial term, same as High Definition 」", "「 Automation doesn't imply optimization 」"];
-    window.onload = function() {
-        const e = Math.floor(Math.random() * l.length),
-            t = l[e];
-        document.getElementById("random-phrase").textContent = t
-    };
-    const c = document.getElementById("softwareid"),
-        d = document.getElementById("searchInput");
-    d.addEventListener("input", (function() {
-        c.innerHTML = "";
-        const e = d.value.trim().toLowerCase();
-        software.filter((t => t.id.toLowerCase().includes(e))).forEach(addCell)
-    })), albums.forEach(addCell), document.addEventListener("DOMContentLoaded", (e => {
-        document.querySelectorAll(".fedora-button").forEach((e => {
-            e.addEventListener("click", (function() {
-                const e = this.getAttribute("data-text");
-                navigator.clipboard.writeText(e).then((() => {
-                    console.log("Text copied to clipboard")
-                })).catch((e => {
-                    console.error("Error in copying text: ", e)
-                }))
-            }))
-        }))
-    })), document.addEventListener("DOMContentLoaded", (e => {
-        document.querySelectorAll(".windows-button").forEach((e => {
-            e.addEventListener("click", (function() {
-                const e = this.getAttribute("data-text");
-                navigator.clipboard.writeText(e).then((() => {
-                    console.log("Text copied to clipboard")
-                })).catch((e => {
-                    console.error("Error in copying text: ", e)
-                }))
-            }))
-        }))
-    })), document.addEventListener("DOMContentLoaded", (e => {
-        document.querySelectorAll(".macos-button").forEach((e => {
-            e.addEventListener("click", (function() {
-                const e = this.getAttribute("data-text");
-                navigator.clipboard.writeText(e).then((() => {
-                    console.log("Text copied to clipboard")
-                })).catch((e => {
-                    console.error("Error in copying text: ", e)
-                }))
-            }))
-        }))
-    }));
+const albums = [{url: 'dQw4w9WgXcQ',image: 'mu_1.webp'
+},{url: 'pO6PKohD3eM',image: 'mu_2.webp'
+},{url: 'pO6PKohD3eM',image: 'mu_3.webp'
+},{url: 'pO6PKohD3eM',image: 'mu_4.webp'
+},{url: 'pO6PKohD3eM',image: 'mu_5.webp'
+},{url: 'pO6PKohD3eM',image: 'mu_6.webp'
+},{url: 'pO6PKohD3eM',image: 'mu_7.webp'
+},{url: 'pO6PKohD3eM',image: 'mu_8.webp'
+},
+// add more albums here
+];
+
+// Function to fetch video details
+function fetchVideoDetails(album) {
+const API_KEY = 'AIzaSyCxJJiioJa44xJ8OA9jrLNKqmTBblZlArc'; // Replace with your YouTube Data API key
+const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${album.url}&key=${API_KEY}`;
+
+fetch(url)
+.then(response => response.json())
+.then(data => {
+    if (data.items.length > 0) {
+        const videoDetails = data.items[0].snippet;
+        console.log("Video Details:", videoDetails); // Check videoDetails object
+        console.log("Album Image:", album.image); // Check album object
+        displayVideoInfo(videoDetails, album); // Pass album to displayVideoInfo
+    } else {
+        console.log("No video details found.");
+    }
+})
+.catch(error => console.error('Failed to fetch video details:', error));
+}
+
+// Function to display video details in your page
+function displayVideoInfo(details, album) {
+const videoInfoDiv = document.getElementById('videoInfo');
+const videoUrl = `https://www.youtube.com/watch?v=${album.url}`;
+const videoUrlInvidious = `https://redirect.invidious.io/watch?v=${album.url}`;
+
+videoInfoDiv.innerHTML = `
+<style>
+.container {
+display: flex;
+flex-wrap: wrap;
+max-width: 55%; //It is globally defined in main.css
+}
+
+.column {
+flex: 1;
+padding: 5px;
+box-sizing: border-box;
+vertical-align: center;
+}
+
+@media (max-width: 600px) {
+.column {
+flex: 100%;
+max-height: 12em;
+font-size: 17px;
+}
+}
+</style>
+<div class="container">
+<div class="column">
+<img src="images/${album.image}" style="max-height: 10em;"></img>
+</div>
+<div class="column">
+<p style="font-size: 26px;">Now playing - <b>${details.title}</b>
+</div>
+<div class="column">
+<br>Play on <a href="${videoUrl}" target="_blank"><b>YouTube</b></a>
+<br>Play on <a href="${videoUrlInvidious}" target="_blank"><b>Invidious</b></a></p>
+</div>
+</div>
+<div class="container">
+<div class="column">
     
+</div>
+<div class="column" style="font-size: 18px;">
     
+</div>
+</div>                
+`;
+}
 
+const musicgrid = document.getElementById('musicgrid');
+let player; // This will hold our YouTube player
 
+// This function creates an iframe (YouTube player) after the API code downloads.
+function onYouTubeIframeAPIReady() {
+player = new YT.Player('youtubePlayer', {
+    height: '750em', // Adjust the size as needed
+    width: '60%',
+    videoId: '', // Initial video ID (can be empty or any valid YouTube video ID)
+    events: {
+        'onReady': onPlayerReady,
+        // 'onStateChange': onPlayerStateChange,
+    }
+});
+}
+// Function to slowly scroll the grid downwards
+function autoScroll() {
+const scrollSpeed = 4; // Adjust the speed as needed
+musicgrid.scrollTop += scrollSpeed;
+}
 
-}(jQuery);
+// Call autoScroll function every 50 milliseconds (adjust the interval as needed)
+setInterval(autoScroll, 50);
+
+function onPlayerReady(event) {
+// Player is ready. You can set up additional options here.
+}
+
+function addCell(album) {
+const musiccell = document.createElement('div');
+musiccell.className = 'cell';
+musiccell.style.backgroundImage = `url(images/${album.image})`;
+musiccell.onclick = function() {
+    fetchVideoDetails(album); // Fetch and display video details
+    player.loadVideoById(album.url);
+    document.getElementById('youtubePlayerContainer').style.display = 'inline';
+};
+musicgrid.appendChild(musiccell);
+}
+
+function closePlayer() {
+document.getElementById('youtubePlayerContainer').style.display = 'none';
+player.stopVideo(); // Stops the video when closing the player
+}
+
+function shuffle(array) {
+for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+}
+return array;
+}
+
+function populateGrid() {
+let shuffledAlbums = shuffle([...albums]); // Create a shuffled copy of the albums array
+
+for (let i = 0; i < 60; i++) {
+    if (i % albums.length === 0) {
+        shuffledAlbums = shuffle([...albums]); // Re-shuffle after every full cycle
+    }
+    addCell(shuffledAlbums[i % albums.length]);
+}
+}
+
+function checkScroll() {
+if (musicgrid.scrollTop + musicgrid.clientHeight >= musicgrid.scrollHeight) {
+    populateGrid();
+}
+}
+
+populateGrid();
+musicgrid.addEventListener('scroll', checkScroll);
+
+// Load the YouTube Iframe API script asynchronously
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
