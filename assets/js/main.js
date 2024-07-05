@@ -2,6 +2,7 @@
 const navContent = `
 <div class="logo"><a href="index.html"><b style="color: #ffffff">Music</b> <b style="color: #000000">Grid</b></a></div>
 <ul>
+    <li><a href="#menu">Watch the video</a></li>
     <li><a href="https://github.com/MiguelCarino" class=""><span class="label">Github</span></a></li>
 </ul>
 `;
@@ -40,28 +41,6 @@ const videoUrl = `https://www.youtube.com/watch?v=${album.url}`;
 const videoUrlInvidious = `https://redirect.invidious.io/watch?v=${album.url}`;
 
 videoInfoDiv.innerHTML = `
-<style>
-.container {
-display: flex;
-flex-wrap: wrap;
-max-width: 55%; //It is globally defined in main.css
-}
-
-.column {
-flex: 1;
-padding: 5px;
-box-sizing: border-box;
-vertical-align: center;
-}
-
-@media (max-width: 600px) {
-.column {
-flex: 100%;
-max-height: 12em;
-font-size: 17px;
-}
-}
-</style>
 <div class="container">
 <div class="column">
 <img src="images/${album.image}" style="max-height: 10em;"></img>
