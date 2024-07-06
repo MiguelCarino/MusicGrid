@@ -25,7 +25,7 @@ function displayVideoInfo(details, album) {
     const videoUrl = `https://www.youtube.com/watch?v=${album.url}`;
     const videoUrlInvidious = `https://redirect.invidious.io/watch?v=${album.url}`;
 
-    albumImageDiv.innerHTML = `<img src="images/${album.image}" alt="${details.title}">`;
+    albumImageDiv.innerHTML = `<img src="assets/covers/${album.image}" alt="${details.title}">`;
     videoTitleDiv.innerHTML = `<div class="video-title"><b>${details.title}</b></div>`;
     videoLinksDiv.innerHTML = `
         <p>
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function() {
     function addCell(album) {
         const musiccell = document.createElement('div');
         musiccell.className = 'cell';
-        musiccell.style.backgroundImage = `url(images/${album.image})`;
+        musiccell.style.backgroundImage = `url(assets/covers/${album.image})`;
         musiccell.onclick = function() {
             fetchVideoDetails(album); // Fetch and display video details
         };
