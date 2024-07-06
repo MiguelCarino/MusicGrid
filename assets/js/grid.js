@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", function() {
     function populateGrid() {
         let shuffledAlbums = shuffle([...albums]); // Create a shuffled copy of the albums array
 
-        for (let i = 0; i < 155; i++) {
+        for (let i = 0; i < 170; i++) {
             if (i % albums.length === 0) {
                 shuffledAlbums = shuffle([...albums]); // Re-shuffle after every full cycle
             }

@@ -3,7 +3,7 @@
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     grid-auto-rows: 130px;
     overflow: auto;
-    height: calc(100vh - 20vh); /* Adjust height considering the video bar */
+    height: calc(100vh - 0vh); /* Adjust height considering the video bar */
     position: relative;
     scroll-behavior: smooth;
 }
@@ -22,19 +22,20 @@
 #videoInfoBar {
     position: relative;
     width: 100%;
-    height: 20vh;
     color: white;
     display: flex;
     align-items: center;
     justify-content: space-around;
     z-index: 1;
     transition: top 0.3s ease;
-    top: -20vh; /* Hidden initially */
+    height: 0vh; /*To hide by default*/
+    background: rgba(0, 0, 0, 0.9); /* Semi-transparent background */
 }
 
 #videoInfoBar.show {
     top: 0; /* Slide down into view */
     background: rgba(0, 0, 0, 0.9); /* Semi-transparent background */
+    height: 20vh;
 }
 
 .column {
