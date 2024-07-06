@@ -1,3 +1,4 @@
+/* Declared Fonts */
 @font-face {
     font-family: 'LiberationSans';
     src: url('../webfonts/LiberationSans-Regular.ttf') format('opentype');
@@ -100,23 +101,6 @@ a:active {
     color: rgb(243, 243, 248);
 } 
 
-/* Header Styling */
-header {
-    background: #000000;
-    color: #333;
-    padding: 40px 0;
-    text-align: center;
-    color: #fff;
-}
-
-header h1 {
-    margin-bottom: 10px;
-}
-
-header p {
-    font-size: 1.2em;
-}
-
 /* Main Content Area */
 main {
     padding: 20px;
@@ -124,58 +108,6 @@ main {
     justify-content: center;
     flex: 1; /* Ensure main takes up all available space */
     background-color: #000000;
-}
-
-/* Highlight Container */
-.main-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    width: 90%;
-}
-
-/* Highlight Div Style */
-.highlight {
-    flex: 1 1 calc(33.333% - 40px);
-    height: 30vh;
-    background: url('https://picsum.photos/200/300') no-repeat center center;
-    background-size: cover;
-    border-radius: 8px;
-    color: white;
-    text-align: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: transform 0.3s ease;
-}
-
-.highlight a {
-    color: inherit;
-    text-decoration: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-}
-
-.highlight:hover {
-    transform: scale(1.02);
-}
-
-.highlight h2 {
-    margin: 0;
-}
-
-/* Content Div Style */
-.content {
-    width: 80%;
-    max-width: 800px;
-    margin: 20px 0;
-    padding: 20px;
-    background: #e4e4e4;
-    border-radius: 8px;
 }
 
 /* Footer Styling */
@@ -196,10 +128,9 @@ footer p {
 
 /* Resolution Styles */
 @media screen and (max-width: 480px) {
-
     body,
     html {
-        min-width: 320px
+        min-width: 320px;
     }
     .main-container {
         flex-direction: column;

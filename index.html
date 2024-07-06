@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="assets/css/styles.css">
     <link rel="stylesheet" href="assets/css/grid.css">
     <link rel="icon" href="assets/images/logo.webp">
+    <script src="assets/js/catalog.js" defer></script>
     <script src="assets/js/main.js" defer></script>
-    <script src="assets/js/catalog.js"></script>
     <!-- Open Graph Protocol Meta Tags -->
     <meta property="og:title" content="Music Grid"/>
     <meta property="twitter:title" content="Music Grid"/>
@@ -22,12 +22,17 @@
 <body>
     <!-- Navigation Bar -->
     <nav id="navbar"></nav>
-    <!-- Main Content Area -->
-    <div id="musicgrid"></div>
-    <div id="youtubePlayerContainer" class="actions" style="display:none;">
-    <div id="youtubePlayer"></div>
+    <!-- Hidden Video Info Bar -->
+    <div id="Catalog">
+        <div id="videoInfoBar" class="hidden">
+            <div class="column" id="albumImage"></div>
+            <div class="column" id="videoTitle"></div>
+            <div class="column" id="videoLinks"></div>
+            <div class="column" id="videoPlayer"></div>
+        </div>
+        <!-- Main Content Area -->
+        <div id="musicgrid"></div>
     </div>
-
     <!-- Footer -->
     <footer id="footer"></footer>
 </body>

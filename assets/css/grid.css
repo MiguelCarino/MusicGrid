@@ -3,58 +3,54 @@
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     grid-auto-rows: 130px;
     overflow: auto;
-    height: 100vh;
+    height: calc(100vh - 20vh); /* Adjust height considering the video bar */
     position: relative;
-    scroll-behavior: smooth
+    scroll-behavior: smooth;
 }
 
 .cell {
     background-size: cover;
     background-position: center;
-    transition: transform 0.3s ease
+    transition: transform 0.3s ease;
 }
 
 .cell:hover {
-    transform: scale(1.2)
+    transform: scale(1.2);
 }
 
-.video-container {
+/* Video Info Bar */
+#videoInfoBar {
     position: relative;
     width: 100%;
-    padding-bottom: 56.25%;
-    overflow: hidden
-}
-
-.video-container iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%
-}
-
-#youtubePlayerContainer {
-    position: fixed;
-    /* Adjust as necessary for background playback */
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    max-width: fit-content;
-    z-index: -1;
-    /* Behind other content; adjust as necessary */
-    display: none;
-}
-
-#videoInfo {
-    padding: 20px;
-    
-}
-
-.video-info {
-    position: relative;
+    height: 20vh;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
     z-index: 1;
+    transition: top 0.3s ease;
+    top: -20vh; /* Hidden initially */
+}
+
+#videoInfoBar.show {
+    top: 0; /* Slide down into view */
+    background: rgba(0, 0, 0, 0.9); /* Semi-transparent background */
+}
+
+.column {
+    padding: 10px;
+    flex-grow: 1;
+    text-align: center;
+}
+
+#albumImage img {
+    max-height: 10%;
+    width: auto;
+    height: 18vh;
+    max-width: 100%;
+}
+
+#videoPlayer iframe {
     width: 100%;
     height: 100%;
-  }
-
+}
