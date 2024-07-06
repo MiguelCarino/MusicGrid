@@ -39,52 +39,60 @@ function displayVideoInfo(details, album) {
     document.getElementById('videoInfoBar').classList.add('show'); // Show the info bar
 }
 
-const musicgrid = document.getElementById('musicgrid');
-let player; // This will hold our YouTube player
+document.addEventListener("DOMContentLoaded", function() {
+    const musicgrid = document.getElementById('musicgrid');
 
-// Function to slowly scroll the grid downwards
-function autoScroll() {
-    const scrollSpeed = 4; // Adjust the speed as needed
-    musicgrid.scrollTop += scrollSpeed;
-}
-
-// Call autoScroll function every 50 milliseconds (adjust the interval as needed)
-setInterval(autoScroll, 50);
-
-function addCell(album) {
-    const musiccell = document.createElement('div');
-    musiccell.className = 'cell';
-    musiccell.style.backgroundImage = `url(images/${album.image})`;
-    musiccell.onclick = function() {
-        fetchVideoDetails(album); // Fetch and display video details
-    };
-    musicgrid.appendChild(musiccell);
-}
-
-function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]]; // Swap elements
+    if (!musicgrid) {
+        console.error('MusicGrid element not found.');
+        return;
     }
-    return array;
-}
 
-function populateGrid() {
-    let shuffledAlbums = shuffle([...albums]); // Create a shuffled copy of the albums array
+    let player; // This will hold our YouTube player
 
-    for (let i = 0; i < 155; i++) {
-        if (i % albums.length === 0) {
-            shuffledAlbums = shuffle([...albums]); // Re-shuffle after every full cycle
+    // Function to slowly scroll the grid downwards
+    function autoScroll() {
+        const scrollSpeed = 4; // Adjust the speed as needed
+        musicgrid.scrollTop += scrollSpeed;
+    }
+
+    // Call autoScroll function every 50 milliseconds (adjust the interval as needed)
+    setInterval(autoScroll, 50);
+
+    function addCell(album) {
+        const musiccell = document.createElement('div');
+        musiccell.className = 'cell';
+        musiccell.style.backgroundImage = `url(images/${album.image})`;
+        musiccell.onclick = function() {
+            fetchVideoDetails(album); // Fetch and display video details
+        };
+        musicgrid.appendChild(musiccell);
+    }
+
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]]; // Swap elements
         }
-        addCell(shuffledAlbums[i % albums.length]);
+        return array;
     }
-}
 
-function checkScroll() {
-    if (musicgrid.scrollTop + musicgrid.clientHeight >= musicgrid.scrollHeight) {
-        populateGrid();
+    function populateGrid() {
+        let shuffledAlbums = shuffle([...albums]); // Create a shuffled copy of the albums array
+
+        for (let i = 0; i < 155; i++) {
+            if (i % albums.length === 0) {
+                shuffledAlbums = shuffle([...albums]); // Re-shuffle after every full cycle
+            }
+            addCell(shuffledAlbums[i % albums.length]);
+        }
     }
-}
 
-populateGrid();
-musicgrid.addEventListener('scroll', checkScroll);
+    function checkScroll() {
+        if (musicgrid.scrollTop + musicgrid.clientHeight >= musicgrid.scrollHeight) {
+            populateGrid();
+        }
+    }
+
+    populateGrid();
+    musicgrid.addEventListener('scroll', checkScroll);
+});
