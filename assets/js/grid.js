@@ -29,6 +29,7 @@ function displayVideoInfo(details, album) {
     videoTitleDiv.innerHTML = `<div class="video-title"><b>${details.title}</b></div>`;
     videoLinksDiv.innerHTML = `
         <p>
+            Watch on:
             <a href="${videoUrl}" target="_blank"><b>YouTube</b></a>
             <br>
             <a href="${videoUrlInvidious}" target="_blank"><b>Invidious</b></a>
