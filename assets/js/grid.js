@@ -1,6 +1,6 @@
 // Function to fetch video details
 function fetchVideoDetails(album) {
-    const API_KEY = 'AIzaSyCxJJiioJa44xJ8OA9jrLNKqmTBblZlArc'; // Replace with your YouTube Data API key
+    const API_KEY = 'AIzaSyCmtV8QIecdM2A-5YCGRPanLqIsOIjoV74'; // Replace with your YouTube Data API key
     const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${album.url}&key=${API_KEY}`;
 
     fetch(url)
