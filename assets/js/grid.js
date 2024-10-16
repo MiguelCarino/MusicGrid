@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Function to slowly scroll the grid downwards
     function autoScroll() {
-        const scrollSpeed = 4; // Adjust the speed as needed
+        const scrollSpeed = 2; // Adjust the speed as needed
         musicgrid.scrollTop += scrollSpeed;
     }
 
