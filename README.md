@@ -6,9 +6,9 @@ https://miguelcarino.github.io/MusicGrid/
 You can set your custom images and youtube links to play with a click. The wall gets randomly generated.
 ![mpv-shot0002](https://github.com/MiguelCarino/MusicGrid/assets/6355310/175d165f-b21e-4361-8afa-e77a104764be)
 
-Put the cover images inside
+Put the cover images inside<br>
 assets/covers
-Then fill the YouTube IDs on
+Then fill the YouTube IDs on<br>
 assets/js/catalog.js
 
 I have a custom deployment at https://carino.systems/music.html
