@@ -49,15 +49,28 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     let player; // This will hold our YouTube player
-
+    //Set different speeds for gecko and blink browsers
+    function getScrollSpeed() {
+        const userAgent = navigator.userAgent;
+        if (userAgent.includes("Firefox")) {
+            return 3; // Speed for Firefox
+        } else if (userAgent.includes("Chrome")) {
+            return 1; // Speed for Chrome
+        } else if (userAgent.includes("Safari") && !userAgent.includes("Chrome")) {
+            return 1; // Speed for Safari (WebKit)
+        }
+        return 2; // Default speed for other browsers
+    }
+    
     // Function to slowly scroll the grid downwards
     function autoScroll() {
-        const scrollSpeed = 2; // Adjust the speed as needed
+        const scrollSpeed = getScrollSpeed(); // Call the function to get the speed
         musicgrid.scrollTop += scrollSpeed;
     }
-
+    
     // Call autoScroll function every 50 milliseconds (adjust the interval as needed)
     setInterval(autoScroll, 50);
+    
 
     function addCell(album) {
         const musiccell = document.createElement('div');
