@@ -6,6 +6,7 @@
     height: calc(100vh - 0vh); /* Adjust height considering the video bar */
     position: relative;
     scroll-behavior: smooth;
+    m
 }
 
 .cell {
@@ -20,22 +21,24 @@
 
 /* Video Info Bar */
 #videoInfoBar {
-    position: relative;
-    width: 100%;
+    position: fixed; /* Keep it fixed in place */
+    width: 30vh; /* Set width to cover the right side */
+    height: 100vh; /* Full height to cover the right side */
     color: white;
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
+    display: none;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center items horizontally */
+    justify-content: flex-start; /* Align items to the top */
     z-index: 1;
-    transition: top 0.3s ease;
-    height: 0vh; /*To hide by default*/
+    transition: right 0.3s ease; /* Transition for sliding in */
     background: rgba(0, 0, 0, 0.9); /* Semi-transparent background */
 }
 
 #videoInfoBar.show {
-    top: 0; /* Slide down into view */
+    right: 0; /* Slide into view */
     background: rgba(0, 0, 0, 0.9); /* Semi-transparent background */
-    height: 30vh;
+    height: 100vh; /* Full height */
+    display: flex;
 }
 
 .column {
@@ -45,9 +48,7 @@
 }
 
 #albumImage img {
-    max-height: 10%;
-    width: auto;
-    height: 28vh;
+    height: auto;
     max-width: 100%;
 }
 
