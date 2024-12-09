@@ -37,7 +37,7 @@
 #videoInfoBar.show {
     right: 0; /* Slide into view */
     background: rgba(0, 0, 0, 0.9); /* Semi-transparent background */
-    height: 100vh; /* Full height */
+    height: 90vh; /* Full height */
     display: flex;
 }
 
@@ -49,7 +49,8 @@
 
 #albumImage img {
     height: auto;
-    max-width: 100%;
+    max-width: 65%;
+    padding-bottom: 30%;
 }
 
 #videoPlayer iframe {
