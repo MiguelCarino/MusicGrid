@@ -29,16 +29,22 @@ function displayVideoInfo(details, album) {
     videoTitleDiv.innerHTML = `<div class="video-title"><b>${details.title}</b></div>`;
     videoLinksDiv.innerHTML = `
         <p>
-            Watch on:<br>
+            Listen on:<br>
             <a href="${videoUrl}" target="_blank"><b>YouTube</b></a>
             <br>
             <a href="${videoUrlInvidious}" target="_blank"><b>Invidious</b></a>
+            <br>
+            <a href="${videoUrlInvidious}" target="_blank"><b>Spotify</b></a>
+            <br>
+            <a href="${videoUrlInvidious}" target="_blank"><b>Apple Music</b></a>
         </p>
     `;
     videoPlayerDiv.innerHTML = `<iframe src="https://www.youtube.com/embed/${album.url}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
 
-    document.getElementById('videoInfoBar').classList.add('show'); // Show the info bar
+    // Add the 'show' class to trigger the animation
+    videoInfoBar.classList.add('show');
 }
+
 
 document.addEventListener("DOMContentLoaded", function() {
     const musicgrid = document.getElementById('musicgrid');
