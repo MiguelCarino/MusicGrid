@@ -22,29 +22,58 @@ function displayVideoInfo(details, album) {
     const videoTitleDiv = document.getElementById('videoTitle');
     const videoLinksDiv = document.getElementById('videoLinks');
     const videoPlayerDiv = document.getElementById('videoPlayer');
+
     const videoUrl = `https://www.youtube.com/watch?v=${album.url}`;
     const videoUrlInvidious = `https://redirect.invidious.io/watch?v=${album.url}`;
+    const spotifyUrl = `https://open.spotify.com/track/${album.spotifyurl}`;
+    const applemusicUrl = `https://music.apple.com/${album.applemusicurl}`;
 
-    albumImageDiv.innerHTML = `<img src="assets/covers/${album.image}" alt="${details.title}">`;
-    videoTitleDiv.innerHTML = `<div class="video-title"><b>${details.title}</b></div>`;
-    videoLinksDiv.innerHTML = `
-        <p>
-            Listen on:<br>
-            <a href="${videoUrl}" target="_blank"><b>YouTube</b></a>
-            <br>
-            <a href="${videoUrlInvidious}" target="_blank"><b>Invidious</b></a>
-            <br>
-            <a href="${videoUrlInvidious}" target="_blank"><b>Spotify</b></a>
-            <br>
-            <a href="${videoUrlInvidious}" target="_blank"><b>Apple Music</b></a>
-        </p>
+    // Clear previous content
+    albumImageDiv.innerHTML = '';
+    videoTitleDiv.innerHTML = '';
+    videoLinksDiv.innerHTML = '';
+    videoPlayerDiv.innerHTML = '';
+
+    // Create and append new elements
+    const albumImage = document.createElement('img');
+    albumImage.src = `assets/covers/${album.image}`;
+    albumImage.alt = details.title;
+    albumImageDiv.appendChild(albumImage);
+
+    const titleDiv = document.createElement('div');
+    titleDiv.className = 'video-title';
+    titleDiv.innerHTML = `<b>${details.title}</b>`;
+    videoTitleDiv.appendChild(titleDiv);
+
+    const linksPara = document.createElement('p');
+    linksPara.innerHTML = `
+        Listen on:<br>
+        <a href="${videoUrl}" target="_blank"><b>YouTube</b></a>
+        <br>
+        <a href="${videoUrlInvidious}" target="_blank"><b>Invidious</b></a>
+        <br>
+        <a href="${spotifyUrl}" target="_blank"><b>Spotify</b></a>
+        <br>
+        <a href="${applemusicUrl}" target="_blank"><b>Apple Music</b></a>
     `;
-    videoPlayerDiv.innerHTML = `<iframe src="https://www.youtube.com/embed/${album.url}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
+    videoLinksDiv.appendChild(linksPara);
+
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube.com/embed/${album.url}?autoplay=1`;
+    iframe.frameborder = "0";
+    iframe.allowfullscreen = true;
+    videoPlayerDiv.appendChild(iframe);
+
+    // Check screen width and hide the album image on mobile
+    if (window.innerWidth <= 768) {
+        albumImageDiv.style.display = 'none'; // Hide the album image div for mobile
+    } else {
+        albumImageDiv.style.display = 'block'; // Ensure the album image is shown on desktop
+    }
 
     // Add the 'show' class to trigger the animation
     videoInfoBar.classList.add('show');
 }
-
 
 document.addEventListener("DOMContentLoaded", function() {
     const musicgrid = document.getElementById('musicgrid');
