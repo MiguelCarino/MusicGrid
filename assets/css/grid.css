@@ -19,26 +19,84 @@
 }
 
 /* Video Info Bar */
+/* Base styling for the Video Info Bar */
 #videoInfoBar {
     position: fixed;
-    width: 25vw;
+    bottom: 20px; /* Start at the bottom of the screen for both devices */
+    right: 20px; /* Position slightly from the edge */
+    width: 300px; /* Fixed width for desktops */
+    max-width: 80vw; /* For mobile, make sure it’s not too wide */
+    background: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
     color: white;
+    border-radius: 15px;
+    padding: 15px;
+    display: flex;
     flex-direction: column;
-    justify-content: space-around;
-    z-index: 1;
-    background: rgba(0, 0, 0, 0.9);
-    border-radius: 25px;
-    padding: 20px;
-    top: 5vh; /* Start off-screen above the viewport */
-    right: 2vh;
-    opacity: 0; /* Start invisible */
-    transition: all 0.5s ease; /* Smooth transition for position and opacity */
+    justify-content: space-between;
+    align-items: center;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+    z-index: 10;
 }
 
+/* When the video info bar is active (visible) */
 #videoInfoBar.show {
-    top: 10vh; /* Slide into view */
-    opacity: 1; /* Fully visible */
+    opacity: 1;
+    transform: translateY(0);
 }
+
+/* Content inside the info bar */
+#videoInfoBar .content {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* Album image inside the video info bar */
+#videoInfoBar #albumImage img {
+    width: 60%;
+    height: auto;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+/* Text content: Title and description */
+#videoInfoBar .title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+#videoInfoBar .description {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 10px;
+}
+
+/* Controls section */
+#videoInfoBar .controls {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+}
+
+/* Individual control buttons */
+#videoInfoBar .controls button {
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    padding: 8px 16px;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+/* Hover effect for buttons */
+#videoInfoBar .controls button:hover {
+    background: rgba(255, 255, 255, 0.6);
+}
+
 
 .column {
     padding: 10px;
@@ -56,4 +114,27 @@
 #videoPlayer iframe {
     width: 100;
     height: 100;
+}
+
+/* Media query for smaller devices */
+@media (max-width: 768px) {
+    #musicgrid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* Smaller grid items for mobile */
+    }
+}
+
+/* Disable hover effect on mobile */
+@media (max-width: 768px) {
+    .cell:hover {
+        transform: none; /* Remove hover scale effect on touch devices */
+    }
+}
+
+@media (max-width: 768px) {
+    #videoInfoBar {
+        width: 80vw; /* Make it take most of the screen width on mobile */
+        bottom: 10px; /* Keep it near the bottom */
+        right: 10px; /* Position from the right */
+        max-width: 100%; /* Full-width on very small devices */
+    }
 }
