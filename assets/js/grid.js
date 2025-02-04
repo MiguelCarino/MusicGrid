@@ -50,8 +50,8 @@ function displayVideoInfo(details, album) {
         Listen on:<br>
         <a href="${videoUrl}" target="_blank"><b>YouTube</b></a>
         <br>
-        <a href="${videoUrlInvidious}" target="_blank"><b>Invidious</b></a>
-        <br>
+        <!--<a href="${videoUrlInvidious}" target="_blank"><b>Invidious</b></a>
+        <br>-->
         <a href="${spotifyUrl}" target="_blank"><b>Spotify</b></a>
         <br>
         <a href="${applemusicUrl}" target="_blank"><b>Apple Music</b></a>
