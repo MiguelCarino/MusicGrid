@@ -1,9 +1,35 @@
+// Dynamically add the Font Awesome CSS
+    const faLink = document.createElement('link');
+    faLink.rel = 'stylesheet';
+    faLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css';
+    document.head.appendChild(faLink);
+    const style = document.createElement('style');
+    style.textContent = `
+        .icon-link {
+            text-decoration: none; /* Remove link underline */
+            color: #333; /* Default color */
+            transition: color 0.3s; /* Smooth color transition */
+        }
+        .icon-link:hover {
+            color: #120a8f; /* Change color on hover */
+            text-decoration: none;
+        }
+        .icon-link i {
+            font-size: 20px; /* Adjust icon size */
+        }
+    `;
+    document.head.appendChild(style);
 // Navigation content
 const navContent = `
 <div class="logo"><a href="index.html"><b style="color: #ffffff">Music</b> <b style="color: #000000">Grid</b></a></div>
-<ul>
-    <li><a href="https://github.com/MiguelCarino" class=""><span class="label">Github</span></a></li>
-</ul>
+ <ul>
+            <li><a href="https://github.com/MiguelCarino/MusicGrid" target="_blank" class="icon-link">
+                <i class="fab fa-github"></i> <span class="label"></span>
+            </a></li>
+            <li><a href="https://www.linkedin.com/in/miguelcarino94" target="_blank" class="icon-link">
+                <i class="fab fa-linkedin"></i> <span class="label"></span>
+            </a></li>
+        </ul>
 `;
 document.getElementById('navbar').innerHTML = navContent;
 
