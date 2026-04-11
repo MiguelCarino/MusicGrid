@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- Comentario -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,7 +9,6 @@
     <link rel="icon" href="assets/images/logo.webp">
     <script src="assets/json/catalog.json" defer></script>
     <script src="assets/js/grid.js" defer></script>
-    <!-- Open Graph Protocol Meta Tags -->
     <meta property="og:title" content="Music Grid"/>
     <meta property="twitter:title" content="Music Grid"/>
     <meta property="og:type" content="website">
@@ -21,20 +19,39 @@
     <meta property="og:locale" content="en_US"/>
 </head>
 <body>
-    <!-- Navigation Bar -->
     <nav id="navbar"></nav>
-    <!-- Hidden Video Info Bar -->
-    <div id="catalog">
-        <div id="videoInfoBar" class="hidden">
-            <div class="column" id="videoTitle"></div>
-            <div class="column" id="videoPlayer"></div>
-            <div class="column" id="videoLinks"></div>
-            <div class="column" id="albumImage"></div>
-        </div>
-        <!-- Main Content Area -->
-        <div id="musicgrid"></div>
+
+    <!-- Controls: search + category filters + random + scroll toggle -->
+    <div id="controls">
+        <input type="text" id="searchBar" placeholder="Search tags…" autocomplete="off" spellcheck="false">
+        <div id="sectionFilters"></div>
+        <button id="randomBtn" title="Play a random song">⇌</button>
+        <button id="scrollToggle" title="Pause auto-scroll">⏸ Pause</button>
     </div>
-    <!-- Footer -->
-    <!--<footer id="footer"></footer>-->
+
+    <!-- Queue strip — hidden until songs are queued -->
+    <div id="queueBar"></div>
+
+    <!--
+        Lyrics overlay — position: fixed, covers the screen area to the LEFT
+        of the info panel. Displayed as a full karaoke view when a .lrc file
+        exists for the playing video. Separate from the panel intentionally.
+    -->
+    <div id="lyricsSection">
+        <div id="lyricsContainer"></div>
+    </div>
+
+    <!-- Info panel (fixed, right side) -->
+    <div id="videoInfoBar">
+        <button id="closeInfoBar" aria-label="Close panel">✕</button>
+        <div id="albumImage"></div>
+        <div id="videoTitle"></div>
+        <div id="videoLinks"></div>
+        <div id="videoPlayer">
+            <div id="ytPlayerSlot"></div>
+        </div>
+    </div>
+
+    <div id="musicgrid"></div>
 </body>
 </html>

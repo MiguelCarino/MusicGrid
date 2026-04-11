@@ -1,0 +1,30 @@
+# ──────────────────────────────────────────────────────────────
+# MusicGrid lyrics format — LRC with optional translation
+# ──────────────────────────────────────────────────────────────
+#
+# NAMING:  lyrics file must match the album's image filename.
+#          e.g.  image: "mu_1.webp"  →  lyrics: "mu_1.lrc"
+#
+# FORMAT:  [MM:SS.xx]Original text | Translation text
+#
+#   • Timestamp    [MM:SS.xx] — minutes, seconds, hundredths.
+#                  Thousandths are also accepted: [01:23.456]
+#   • Separator    " | " (space-pipe-space) between original and
+#                  translation.  Omit it entirely for lines with
+#                  no translation.
+#   • Translation  Optional per-line and per-song.  The toggle
+#                  tab only appears when at least one line has a
+#                  translation.
+#   • Blank lines and lines not matching [MM:SS] are ignored,
+#     so you can use them freely as comments or spacers.
+#
+# ──────────────────────────────────────────────────────────────
+
+[00:00.00]♪ | ♪
+[00:05.20]First line of the song | Primera línea de la canción
+[00:09.80]Second line here | Segunda línea aquí
+[00:14.50]This line has no translation
+[00:19.10]Back to bilingual | De vuelta al bilingüe
+[00:24.00]Instrumental section
+[01:02.35]Verse two begins | Comienza el segundo verso
+[01:07.90]Carry on | Continúa

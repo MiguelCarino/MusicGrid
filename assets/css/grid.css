@@ -1,140 +1,459 @@
+/* ============================================================
+   Music Grid — grid.css
+   ============================================================ */
+
+/* ── Reset ────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { height: 100%; overflow: hidden; }
+
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden;
+    background: #000;
+}
+
+/* ── Custom properties ────────────────────────────────────── */
+:root {
+    --controls-h: 44px;
+    --panel-w:    320px;
+    --radius:     14px;
+}
+
+/* ── Controls bar ─────────────────────────────────────────── */
+#controls {
+    flex-shrink: 0;
+    position: relative; /* own stacking context — stays above lyrics overlay */
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    height: var(--controls-h);
+    background: rgba(10, 10, 10, 0.97);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    overflow: hidden;
+}
+
+/* Search input — expands on focus */
+#searchBar {
+    flex-shrink: 0;
+    width: 130px;
+    background: rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 20px;
+    color: #fff;
+    font-size: 0.78rem;
+    padding: 4px 12px;
+    outline: none;
+    transition: width 0.25s ease, background 0.2s, border-color 0.2s;
+}
+
+#searchBar::placeholder { color: rgba(255, 255, 255, 0.35); }
+
+#searchBar:focus {
+    width: 200px;
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Category pills */
+#sectionFilters {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+#sectionFilters::-webkit-scrollbar { display: none; }
+
+.filter-btn {
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 20px;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.78rem;
+    padding: 4px 13px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+}
+
+.filter-btn:hover { background: rgba(255, 255, 255, 0.16); color: #fff; }
+
+.filter-btn.active {
+    background: #fff;
+    border-color: #fff;
+    color: #000;
+    font-weight: 600;
+}
+
+/* Random + scroll toggle — shared pill style */
+#randomBtn, #scrollToggle {
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 20px;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.78rem;
+    padding: 4px 13px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+#randomBtn:hover, #scrollToggle:hover {
+    background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+}
+
+/* ── Queue strip ──────────────────────────────────────────── */
+#queueBar {
+    flex-shrink: 0;
+    position: relative; /* stays above lyrics overlay */
+    z-index: 60;
+    display: none;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: rgba(8, 8, 8, 0.98);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+#queueBar.has-items {
+    display: flex;
+    animation: qSlideDown 0.25s ease;
+}
+
+@keyframes qSlideDown {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+#queueBar::-webkit-scrollbar { display: none; }
+
+.queue-label {
+    flex-shrink: 0;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.3);
+    margin-right: 2px;
+}
+
+.queue-item {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 6px;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.queue-item:hover { transform: scale(1.1); }
+.queue-item.playing { box-shadow: 0 0 0 2px #fff; }
+
+.queue-remove {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: rgba(20, 20, 20, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 9px;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+
+.queue-remove:hover { background: rgba(180, 30, 30, 0.95); }
+
+/* ── Music Grid ───────────────────────────────────────────── */
 #musicgrid {
+    flex: 1;
+    min-height: 0;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    grid-auto-rows: 130px;
-    overflow: auto;
-    height: calc(100vh - 0vh); /* Adjust height considering the video bar */
-    position: relative;
-    scroll-behavior: smooth;
+    grid-auto-rows: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .cell {
+    aspect-ratio: 1 / 1;
     background-size: cover;
     background-position: center;
-    transition: transform 0.3s ease;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    position: relative;
 }
 
-.cell:hover {
-    transform: scale(1.1);
+.cell:hover { transform: scale(1.08); z-index: 2; }
+
+.cell.active::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 0 3px #fff;
+    pointer-events: none;
+    z-index: 3;
 }
 
-/* Video Info Bar */
-/* Base styling for the Video Info Bar */
+/* ── Info panel (right side, fixed) ───────────────────────── */
 #videoInfoBar {
     position: fixed;
-    bottom: 20px; /* Start at the bottom of the screen for both devices */
-    right: 20px; /* Position slightly from the edge */
-    width: 300px; /* Fixed width for desktops */
-    max-width: 80vw; /* For mobile, make sure it’s not too wide */
-    background: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
-    color: white;
-    border-radius: 15px;
-    padding: 15px;
+    bottom: 20px;
+    right: 20px;
+    width: var(--panel-w);
+    max-width: calc(100vw - 40px);
+    max-height: calc(100dvh - 40px);
+    overflow-y: auto;
+    scrollbar-width: none;
+    background: rgba(12, 12, 12, 0.93);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    color: #fff;
+    border-radius: var(--radius);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 16px;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
+    gap: 10px;
     opacity: 0;
-    transform: translateY(20px);
-    transition: all 0.5s ease;
-    z-index: 10;
+    transform: translateY(24px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 100;
+    pointer-events: none;
 }
 
-/* When the video info bar is active (visible) */
-#videoInfoBar.show {
-    opacity: 1;
-    transform: translateY(0);
-}
+#videoInfoBar::-webkit-scrollbar { display: none; }
+#videoInfoBar.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
 
-/* Content inside the info bar */
-#videoInfoBar .content {
-    width: 100%;
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-/* Album image inside the video info bar */
-#videoInfoBar #albumImage img {
-    width: 60%;
-    height: auto;
-    border-radius: 10px;
-    margin-bottom: 10px;
-}
-
-/* Text content: Title and description */
-#videoInfoBar .title {
-    font-size: 1.2rem;
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
-#videoInfoBar .description {
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.7);
-    margin-bottom: 10px;
-}
-
-/* Controls section */
-#videoInfoBar .controls {
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
-}
-
-/* Individual control buttons */
-#videoInfoBar .controls button {
-    background: rgba(255, 255, 255, 0.3);
+#closeInfoBar {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
     border: none;
-    padding: 8px 16px;
-    color: white;
-    border-radius: 5px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 13px;
     cursor: pointer;
-    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.2s;
 }
 
-/* Hover effect for buttons */
-#videoInfoBar .controls button:hover {
-    background: rgba(255, 255, 255, 0.6);
-}
-
-
-.column {
-    padding: 10px;
-    flex-grow: 1;
-    text-align: center;
-    width: 100;
-}
+#closeInfoBar:hover { background: rgba(255, 255, 255, 0.25); }
 
 #albumImage img {
-    height: 28vh;
-    max-width: 28vh;
-    padding: 0;
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    display: block;
+}
+
+#videoTitle {
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.35;
+    padding-right: 24px;
+}
+
+#videoLinks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+#videoLinks a {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.78rem;
+    color: #fff;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+#videoLinks a:hover { background: rgba(255, 255, 255, 0.28); }
+
+/* "+ Queue" button */
+#queueAddBtn {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 20px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+    padding: 4px 13px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+#queueAddBtn:hover { background: rgba(255, 255, 255, 0.15); color: #fff; }
+#queueAddBtn:disabled { opacity: 0.45; cursor: default; }
+
+/* YouTube player wrapper */
+#videoPlayer {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #000;
+    flex-shrink: 0;
 }
 
 #videoPlayer iframe {
-    width: 100;
-    height: 100;
+    width: 100% !important;
+    height: 100% !important;
+    border: none;
+    display: block;
 }
 
-/* Media query for smaller devices */
+/* ── Lyrics overlay ───────────────────────────────────────── */
+/*
+   Covers the screen area NOT occupied by the info panel.
+   Position: fixed, left edge to just before the panel starts.
+   Hidden via display:none + opacity so backdrop-filter is inactive when closed.
+
+   File naming: assets/lyrics/<youtube-video-id>.lrc
+   Format:
+     [MM:SS.xx]Original line | Translation line
+     [MM:SS.xx]Line without translation
+
+   Current line: original large & bright + translation below (expanded).
+   Other lines: original dimmed, translation collapsed.
+   "Splits space" when translation is active = both texts share the
+   center vertically, original above and translation below.
+*/
+#lyricsSection {
+    position: fixed;
+    top: var(--controls-h); /* sits below controls bar */
+    left: 0;
+    bottom: 0;
+    right: calc(var(--panel-w) + 20px); /* stops where panel begins */
+    z-index: 50;
+    display: none; /* JS sets to flex, then triggers opacity transition */
+    flex-direction: column;
+    overflow: hidden;
+    background: linear-gradient(
+        160deg,
+        rgba(0, 0, 0, 0.9) 0%,
+        rgba(0, 0, 0, 0.78) 100%
+    );
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    opacity: 0;
+    transition: opacity 0.45s ease;
+}
+
+#lyricsSection.visible { opacity: 1; }
+
+#lyricsContainer {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+    /*
+     * Large vertical padding keeps the active line centered in the viewport
+     * rather than clipped at the top or bottom.
+     */
+    padding: 30vh 10vw;
+    scroll-behavior: smooth;
+}
+
+#lyricsContainer::-webkit-scrollbar { display: none; }
+
+.lyric-line {
+    padding: 8px 0;
+    text-align: center;
+    transition: padding 0.3s ease;
+}
+
+.lyric-line.current { padding: 12px 0; }
+
+.lyric-original {
+    font-size: clamp(0.9rem, 1.4vw, 1.15rem);
+    color: rgba(255, 255, 255, 0.18);
+    line-height: 1.4;
+    transition: font-size 0.3s ease, color 0.3s ease,
+                font-weight 0.3s ease, text-shadow 0.3s ease;
+}
+
+.lyric-line.current .lyric-original {
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 0 48px rgba(255, 255, 255, 0.45);
+}
+
+/*
+ * Translation collapses (max-height + font-size transitions) for non-current
+ * lines. For the current line it expands to split the space with the original.
+ */
+.lyric-translation {
+    overflow: hidden;
+    max-height: 0;
+    font-size: 0;
+    color: transparent;
+    margin-top: 0;
+    line-height: 1.4;
+    transition: max-height 0.35s ease, font-size 0.35s ease,
+                color 0.35s ease, margin-top 0.25s ease;
+}
+
+.lyric-line.current .lyric-translation {
+    max-height: 120px;
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    color: rgba(255, 255, 255, 0.52);
+    margin-top: 10px;
+}
+
+/* ── Mobile ───────────────────────────────────────────────── */
 @media (max-width: 768px) {
+    #searchBar       { width: 100px; }
+    #searchBar:focus { width: 140px; }
+
     #musicgrid {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* Smaller grid items for mobile */
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
     }
-}
 
-/* Disable hover effect on mobile */
-@media (max-width: 768px) {
-    .cell:hover {
-        transform: none; /* Remove hover scale effect on touch devices */
-    }
-}
+    .cell:hover { transform: none; }
 
-@media (max-width: 768px) {
+    /* Lyrics overlay doesn't fit alongside the mobile bottom sheet — hide it */
+    #lyricsSection { display: none !important; }
+
     #videoInfoBar {
-        width: 80vw; /* Make it take most of the screen width on mobile */
-        bottom: 10px; /* Keep it near the bottom */
-        right: 10px; /* Position from the right */
-        max-width: 100%; /* Full-width on very small devices */
+        bottom: 0; right: 0; left: 0;
+        width: 100%; max-width: 100%;
+        max-height: 80dvh;
+        border-radius: var(--radius) var(--radius) 0 0;
     }
+
+    #albumImage { display: none; }
 }
