@@ -19,6 +19,7 @@
     let lyricsData   = [];
     let lyricsCueIdx = -1;
     let lyricsTimer  = null;
+    let lyricsHidden = false; /* user-toggled preference */
 
     /* ── YouTube IFrame API ─────────────────────────────────── */
     let ytPlayer    = null;
@@ -95,18 +96,26 @@
         cell.className = 'cell';
         cell.style.backgroundImage = `url(assets/covers/${album.image})`;
         if (album.tag) cell.title = album.tag;
+
+        /* Clicking the cover always plays immediately */
         cell.addEventListener('click', function () {
-            /*
-             * If a song is already playing, route the click to the queue
-             * instead of replacing the current song. Random always plays now.
-             */
-            if (currentAlbum) {
-                addToQueue(album);
-            } else {
-                setActiveCell(cell);
-                openPanel(album);
-            }
+            setActiveCell(cell);
+            openPanel(album);
         });
+
+        /* Small + button to queue without interrupting current playback */
+        const qBtn = document.createElement('button');
+        qBtn.className = 'cell-queue-btn';
+        qBtn.textContent = '+';
+        qBtn.setAttribute('aria-label', 'Add to queue');
+        qBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            addToQueue(album);
+            qBtn.textContent = '✓';
+            setTimeout(function () { qBtn.textContent = '+'; }, 1000);
+        });
+        cell.appendChild(qBtn);
+
         grid.appendChild(cell);
     }
 
@@ -262,6 +271,17 @@
     }
 
     /* ── Lyrics overlay ─────────────────────────────────────── */
+    function updateLyricsToggle() {
+        const btn = document.getElementById('lyricsToggle');
+        if (!btn) return;
+        const hasLyrics = lyricsData.length > 0;
+        btn.style.display = hasLyrics ? '' : 'none';
+        if (hasLyrics) {
+            btn.textContent = lyricsHidden ? '♪ Lyrics' : '♪ Hide';
+            btn.classList.toggle('active', !lyricsHidden);
+        }
+    }
+
     function buildLyricsPanel(cues) {
         lyricsData   = cues;
         lyricsCueIdx = -1;
@@ -289,7 +309,11 @@
             container.appendChild(line);
         });
 
-        /* Show with opacity fade-in (display:none → flex, then trigger opacity) */
+        updateLyricsToggle();
+
+        /* Only show if the user hasn't hidden lyrics */
+        if (lyricsHidden) return;
+
         const section = document.getElementById('lyricsSection');
         section.style.display = 'flex';
         void section.offsetWidth; /* force reflow */
@@ -303,6 +327,7 @@
         lyricsData   = [];
         lyricsCueIdx = -1;
         stopLyricsSync();
+        updateLyricsToggle();
     }
 
     function highlightLine(idx) {
@@ -459,12 +484,13 @@
 
     /* ── Init ───────────────────────────────────────────────── */
     document.addEventListener('DOMContentLoaded', function () {
-        const musicgrid = document.getElementById('musicgrid');
-        const filtersEl = document.getElementById('sectionFilters');
-        const toggleBtn = document.getElementById('scrollToggle');
-        const randomBtn = document.getElementById('randomBtn');
-        const searchEl  = document.getElementById('searchBar');
-        const closeBtn  = document.getElementById('closeInfoBar');
+        const musicgrid   = document.getElementById('musicgrid');
+        const filtersEl   = document.getElementById('sectionFilters');
+        const toggleBtn   = document.getElementById('scrollToggle');
+        const randomBtn   = document.getElementById('randomBtn');
+        const searchEl    = document.getElementById('searchBar');
+        const closeBtn    = document.getElementById('closeInfoBar');
+        const lyricsTgl   = document.getElementById('lyricsToggle');
 
         if (!musicgrid) { console.error('MusicGrid element not found.'); return; }
 
@@ -495,6 +521,35 @@
         });
 
         closeBtn.addEventListener('click', closePanel);
+
+        /* Lyrics toggle */
+        lyricsTgl.addEventListener('click', function () {
+            lyricsHidden = !lyricsHidden;
+            const section = document.getElementById('lyricsSection');
+            if (lyricsHidden) {
+                section.classList.remove('visible');
+                /* keep display:flex briefly so transition plays, then hide */
+                setTimeout(function () {
+                    if (lyricsHidden) section.style.display = 'none';
+                }, 460);
+            } else if (lyricsData.length) {
+                section.style.display = 'flex';
+                void section.offsetWidth;
+                section.classList.add('visible');
+            }
+            updateLyricsToggle();
+        });
+
+        /* Grid layout fix — aspect-ratio in CSS Grid can get stuck until resize.
+           ResizeObserver forces a style recalc whenever the container changes. */
+        if (window.ResizeObserver) {
+            new ResizeObserver(function () {
+                musicgrid.style.gridTemplateColumns = 'none';
+                requestAnimationFrame(function () {
+                    musicgrid.style.gridTemplateColumns = '';
+                });
+            }).observe(musicgrid);
+        }
 
         /* Tab-out fix: browsers throttle setInterval in background tabs */
         document.addEventListener('visibilitychange', function () {

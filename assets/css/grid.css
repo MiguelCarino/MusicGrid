@@ -97,8 +97,8 @@ body {
     font-weight: 600;
 }
 
-/* Random + scroll toggle — shared pill style */
-#randomBtn, #scrollToggle {
+/* Lyrics toggle + Random + scroll toggle — shared pill style */
+#lyricsToggle, #randomBtn, #scrollToggle {
     flex-shrink: 0;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.14);
@@ -110,8 +110,14 @@ body {
     transition: background 0.2s, color 0.2s;
 }
 
-#randomBtn:hover, #scrollToggle:hover {
+#lyricsToggle:hover, #randomBtn:hover, #scrollToggle:hover {
     background: rgba(255, 255, 255, 0.16);
+    color: #fff;
+}
+
+#lyricsToggle.active {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.35);
     color: #fff;
 }
 
@@ -195,11 +201,13 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     grid-auto-rows: auto;
+    align-content: start; /* prevent row stretching when content is short */
     overflow-y: auto;
     overflow-x: hidden;
 }
 
 .cell {
+    width: 100%; /* ensures aspect-ratio resolves correctly in CSS Grid */
     aspect-ratio: 1 / 1;
     background-size: cover;
     background-position: center;
@@ -209,6 +217,37 @@ body {
 }
 
 .cell:hover { transform: scale(1.08); z-index: 2; }
+
+/* Per-cell queue button */
+.cell-queue-btn {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s;
+    z-index: 4;
+}
+
+.cell:hover .cell-queue-btn {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.cell-queue-btn:hover { background: rgba(255, 255, 255, 0.25); color: #fff; }
 
 .cell.active::after {
     content: '';
