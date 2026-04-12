@@ -33,15 +33,19 @@
 
     /* ── URL state ──────────────────────────────────────────── */
     /*
-     * URL format: ?v=VIDEO_ID&q=ID1,ID2,ID3
-     *   v  = currently playing video
-     *   q  = comma-separated queue video IDs
+     * URL format: ?v=VIDEO_ID&q=ID1,ID2,ID3&cat=CATEGORY&s=SEARCH
+     *   v   = currently playing video
+     *   q   = comma-separated queue video IDs
+     *   cat = active category filter
+     *   s   = search query
      * Use replaceState so every song-change doesn't spam browser history.
      */
     function updateURL() {
         const p = new URLSearchParams();
-        if (currentAlbum)  p.set('v', currentAlbum.url);
-        if (queue.length)  p.set('q', queue.map(a => a.url).join(','));
+        if (currentAlbum)   p.set('v', currentAlbum.url);
+        if (queue.length)   p.set('q', queue.map(a => a.url).join(','));
+        if (activeCategory) p.set('cat', activeCategory);
+        if (searchQuery)    p.set('s', searchQuery);
         const qs = p.toString();
         history.replaceState(null, '', qs ? '?' + qs : location.pathname);
     }
@@ -50,6 +54,16 @@
         return albums.find(a => a.url === vid) || null;
     }
 
+    /* Reads cat + s from URL into state — must run before buildFilters/populateGrid */
+    function seedStateFromURL() {
+        const p = new URLSearchParams(location.search);
+        const cat = p.get('cat');
+        const s   = p.get('s');
+        if (cat) activeCategory = cat;
+        if (s)   searchQuery    = s;
+    }
+
+    /* Restores queue + playing video — run after grid is populated */
     function restoreFromURL() {
         const p    = new URLSearchParams(location.search);
         const qStr = p.get('q');
@@ -71,7 +85,7 @@
 
     /* ── Helpers ────────────────────────────────────────────── */
     function getScrollSpeed() {
-        return navigator.userAgent.includes('Firefox') ? 3 : 1;
+        return navigator.userAgent.includes('Firefox') ? 1.4 : 1;
     }
 
     function shuffle(arr) {
@@ -119,13 +133,34 @@
         grid.appendChild(cell);
     }
 
+    function cellsNeeded(grid) {
+        /* Enough cells to fill ~3× the visible area so auto-scroll has room */
+        const w    = grid.clientWidth  || window.innerWidth;
+        const h    = grid.clientHeight || window.innerHeight;
+        const size = 130; /* matches minmax(130px, …) in CSS */
+        const cols = Math.max(1, Math.floor(w / size));
+        const rows = Math.max(1, Math.ceil(h / size));
+        return Math.max(200, cols * rows * 3);
+    }
+
     function populateGrid(grid) {
         const pool = visibleAlbums();
         if (!pool.length) return;
         let s = shuffle(pool);
-        for (let i = 0; i < 170; i++) {
+        const count = cellsNeeded(grid);
+        for (let i = 0; i < count; i++) {
             if (i > 0 && i % s.length === 0) s = shuffle(pool);
             addCell(grid, s[i % s.length]);
+        }
+    }
+
+    /* Keep adding cells until the grid is actually scrollable */
+    function ensureScrollable(grid) {
+        const pool = visibleAlbums();
+        if (!pool.length) return;
+        let guard = 0;
+        while (grid.scrollHeight <= grid.clientHeight + 10 && guard++ < 10) {
+            populateGrid(grid);
         }
     }
 
@@ -168,6 +203,7 @@
                 container.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 refreshGrid(grid);
+                updateURL();
             });
             return btn;
         }
@@ -363,6 +399,16 @@
         if (lyricsTimer) { clearInterval(lyricsTimer); lyricsTimer = null; }
     }
 
+    /* ── Queue auto-advance ─────────────────────────────────── */
+    function playNextInQueue() {
+        if (!queue.length) return;
+        const next = queue.shift();
+        renderQueue();
+        updateURL();
+        clearActiveCell();
+        openPanel(next);
+    }
+
     /* ── YouTube player ─────────────────────────────────────── */
     function createYTPlayer(videoId) {
         const slot = document.getElementById('ytPlayerSlot');
@@ -376,8 +422,14 @@
             playerVars: { autoplay: 1, rel: 0, modestbranding: 1 },
             events: {
                 onStateChange: function (e) {
-                    if (e.data === YT.PlayerState.PLAYING) startLyricsSync();
-                    else stopLyricsSync();
+                    if (e.data === YT.PlayerState.PLAYING) {
+                        startLyricsSync();
+                    } else if (e.data === YT.PlayerState.ENDED) {
+                        stopLyricsSync();
+                        playNextInQueue();
+                    } else {
+                        stopLyricsSync();
+                    }
                 }
             }
         });
@@ -445,13 +497,14 @@
         const linksEl = document.getElementById('videoLinks');
         linksEl.innerHTML = '';
         [
-            { label: 'YouTube',     href: `https://www.youtube.com/watch?v=${album.url}` },
-            { label: 'Spotify',     href: `https://open.spotify.com/track/${album.spotifyurl}` },
-            { label: 'Apple Music', href: `https://music.apple.com/${album.applemusicurl}` },
-        ].forEach(function ({ label, href }) {
+            { label: 'YouTube',     href: `https://www.youtube.com/watch?v=${album.url}`,          platform: 'youtube' },
+            { label: 'Spotify',     href: `https://open.spotify.com/track/${album.spotifyurl}`,    platform: 'spotify' },
+            { label: 'Apple Music', href: `https://music.apple.com/${album.applemusicurl}`,         platform: 'apple'   },
+        ].forEach(function ({ label, href, platform }) {
             const a = document.createElement('a');
             a.href = href; a.target = '_blank'; a.rel = 'noopener noreferrer';
             a.textContent = label;
+            a.dataset.platform = platform;
             linksEl.appendChild(a);
         });
 
@@ -499,11 +552,16 @@
         s.src = 'https://www.youtube.com/iframe_api';
         document.head.appendChild(s);
 
+        /* Seed category + search from URL before building filters / grid */
+        seedStateFromURL();
+        if (searchQuery) searchEl.value = searchQuery;
+
         buildFilters(filtersEl, musicgrid);
 
         searchEl.addEventListener('input', function () {
             searchQuery = this.value.trim().toLowerCase();
             refreshGrid(musicgrid);
+            updateURL();
         });
 
         /* ONLY the button pauses/resumes scroll */
@@ -561,10 +619,12 @@
             if (musicgrid.scrollTop + musicgrid.clientHeight >=
                 musicgrid.scrollHeight - musicgrid.clientHeight * 0.5) {
                 populateGrid(musicgrid);
+                ensureScrollable(musicgrid);
             }
         });
 
         populateGrid(musicgrid);
+        ensureScrollable(musicgrid);
         startAutoScroll(musicgrid);
 
         /* Restore song + queue from URL params (sharing support) */

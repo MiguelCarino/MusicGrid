@@ -330,16 +330,41 @@ body {
 }
 
 #videoLinks a {
-    background: rgba(255, 255, 255, 0.12);
     border-radius: 20px;
     padding: 4px 12px;
     font-size: 0.78rem;
     color: #fff;
     text-decoration: none;
-    transition: background 0.2s;
+    transition: background 0.2s, color 0.2s;
+    border: 1px solid transparent;
 }
 
-#videoLinks a:hover { background: rgba(255, 255, 255, 0.28); }
+#videoLinks a[data-platform="youtube"] {
+    background: rgba(255, 40, 40, 0.18);
+    border-color: rgba(255, 40, 40, 0.38);
+    color: #ff5555;
+}
+#videoLinks a[data-platform="youtube"]:hover {
+    background: rgba(255, 40, 40, 0.32);
+    color: #ff7777;
+}
+
+#videoLinks a[data-platform="spotify"] {
+    background: rgba(30, 215, 96, 0.15);
+    border-color: rgba(30, 215, 96, 0.38);
+    color: #1ed760;
+}
+#videoLinks a[data-platform="spotify"]:hover {
+    background: rgba(30, 215, 96, 0.28);
+    color: #3ffe7a;
+}
+
+#videoLinks a[data-platform="apple"] {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+#videoLinks a[data-platform="apple"]:hover { background: rgba(255, 255, 255, 0.22); }
 
 /* "+ Queue" button */
 #queueAddBtn {
@@ -374,39 +399,27 @@ body {
     display: block;
 }
 
-/* ── Lyrics overlay ───────────────────────────────────────── */
+/* ── Lyrics floating panel ────────────────────────────────── */
 /*
-   Covers the screen area NOT occupied by the info panel.
-   Position: fixed, left edge to just before the panel starts.
+   Floating card that mirrors the info panel's visual style.
+   Sits to the left of the info panel, filling most of the screen.
    Hidden via display:none + opacity so backdrop-filter is inactive when closed.
-
-   File naming: assets/lyrics/<youtube-video-id>.lrc
-   Format:
-     [MM:SS.xx]Original line | Translation line
-     [MM:SS.xx]Line without translation
-
-   Current line: original large & bright + translation below (expanded).
-   Other lines: original dimmed, translation collapsed.
-   "Splits space" when translation is active = both texts share the
-   center vertically, original above and translation below.
 */
 #lyricsSection {
     position: fixed;
-    top: var(--controls-h); /* sits below controls bar */
-    left: 0;
-    bottom: 0;
-    right: calc(var(--panel-w) + 20px); /* stops where panel begins */
+    top: calc(var(--controls-h) + 10px);
+    left: 10px;
+    bottom: 20px;
+    right: calc(var(--panel-w) + 30px);
     z-index: 50;
     display: none; /* JS sets to flex, then triggers opacity transition */
     flex-direction: column;
     overflow: hidden;
-    background: linear-gradient(
-        160deg,
-        rgba(0, 0, 0, 0.9) 0%,
-        rgba(0, 0, 0, 0.78) 100%
-    );
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    border-radius: var(--radius);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(12, 12, 12, 0.93);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     opacity: 0;
     transition: opacity 0.45s ease;
 }
