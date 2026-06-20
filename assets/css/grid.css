@@ -22,7 +22,118 @@ body {
     --controls-h: 44px;
     --panel-w:    320px;
     --radius:     14px;
+
+    /* Carino navbar palette (self-contained — mirrors carino.systems) */
+    --nav-h:        58px;
+    --cs-bg-header: #050505;
+    --cs-bg-card:   #111111;
+    --cs-accent:    #eab308;     /* sharp gold */
+    --cs-accent-2:  #b45309;
+    --cs-accent-faint: rgba(234, 179, 8, 0.06);
+    --cs-accent-glow:  rgba(234, 179, 8, 0.18);
+    --cs-border:    #262626;
+    --cs-text:      #ffffff;
+    --cs-text-sec:  #a3a3a3;
+    --cs-text-muted:#8a8a8a;
+    --cs-ok:        #22c55e;
+    --cs-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --cs-display: 'Red Hat Display', system-ui, -apple-system, sans-serif;
 }
+
+/* ── Carino navbar (top-header) ───────────────────────────── */
+.top-header {
+    height: var(--nav-h);
+    flex-shrink: 0;
+    background: linear-gradient(180deg, #0f0f0f 0%, #050505 100%);
+    border-bottom: 1px solid var(--cs-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 18px;
+    position: relative;
+    z-index: 80;            /* above controls (60) and lyrics/info panel */
+    gap: 16px;
+}
+.header-left  { display: flex; align-items: center; gap: 22px; min-width: 0; }
+.header-right { display: flex; align-items: center; gap: 12px; }
+
+.brand-name {
+    font-family: var(--cs-display);
+    font-size: 1.5rem; font-weight: 900; line-height: 1;
+    background: linear-gradient(130deg, #fef08a 0%, #eab308 50%, #b45309 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    cursor: pointer; white-space: nowrap; text-decoration: none;
+}
+.brand-name .app-tag {
+    -webkit-text-fill-color: var(--cs-accent);
+    font-family: var(--cs-mono); font-size: .58rem; font-weight: 700;
+    letter-spacing: .14em; text-transform: uppercase;
+    border: 1px solid var(--cs-border); border-radius: 4px;
+    padding: 3px 7px; margin-left: 10px; vertical-align: middle;
+}
+.header-clock {
+    display: flex; align-items: baseline; gap: 10px;
+    border-left: 1px solid var(--cs-border); padding-left: 22px;
+}
+.clock-time { font-family: var(--cs-mono); font-size: 1.05rem; font-weight: 700; color: var(--cs-text); }
+.clock-tz {
+    font-family: var(--cs-mono); font-size: .58rem; font-weight: 700;
+    color: var(--cs-bg-header); background: var(--cs-accent);
+    padding: 2px 6px; border-radius: 3px;
+}
+.brand-greeting { font-family: var(--cs-mono); font-size: .7rem; color: var(--cs-text-sec); margin-left: 6px; }
+
+.social-row { display: flex; gap: 8px; }
+.icon-btn {
+    width: 32px; height: 32px;
+    border: 1px solid var(--cs-border); border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--cs-text-muted); transition: .2s; text-decoration: none;
+    background: transparent; cursor: pointer;
+}
+.icon-btn:hover {
+    border-color: var(--cs-accent); color: var(--cs-bg-header);
+    background: var(--cs-accent); transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--cs-accent-glow);
+}
+.icon-btn svg { width: 15px; height: 15px; }
+
+.status-toggle {
+    display: flex; align-items: center; gap: 8px;
+    background: transparent; border: 1px solid var(--cs-border);
+    color: var(--cs-text-sec); font-family: var(--cs-mono);
+    font-size: .68rem; text-transform: uppercase; letter-spacing: .1em;
+    padding: 0 14px; height: 32px; border-radius: 4px; cursor: pointer; transition: .2s;
+}
+.status-toggle:hover { border-color: var(--cs-accent); color: var(--cs-accent); background: var(--cs-accent-faint); }
+.pulse-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--cs-accent); box-shadow: 0 0 8px var(--cs-accent);
+    animation: cs-pulse-glow 2s ease-in-out infinite;
+}
+@keyframes cs-pulse-glow { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+
+.diag-dropdown {
+    position: absolute; top: calc(var(--nav-h) - 6px); right: 16px;
+    width: 280px; background: var(--cs-bg-card);
+    border: 1px solid var(--cs-border); border-radius: 8px;
+    padding: 16px; box-shadow: 0 18px 40px rgba(0, 0, 0, .6);
+    opacity: 0; visibility: hidden; transform: translateY(-8px);
+    transition: .18s; z-index: 210;
+}
+.diag-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
+.diag-section {
+    font-family: var(--cs-mono); font-size: .58rem; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--cs-text-muted);
+    margin: 12px 0 6px; border-bottom: 1px solid var(--cs-border); padding-bottom: 4px;
+}
+.diag-section:first-child { margin-top: 0; }
+.diag-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: .8rem; padding: 3px 0; }
+.diag-lbl { color: var(--cs-text-sec); flex-shrink: 0; }
+.diag-val { font-family: var(--cs-mono); color: var(--cs-text); }
+.diag-val.good { color: var(--cs-ok); }
+.diag-val-trunc { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; text-align: right; }
 
 /* ── Controls bar ─────────────────────────────────────────── */
 #controls {
@@ -39,28 +150,6 @@ body {
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.07);
     overflow: hidden;
-}
-
-/* Search input — expands on focus */
-#searchBar {
-    flex-shrink: 0;
-    width: 130px;
-    background: rgba(255, 255, 255, 0.09);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 20px;
-    color: #fff;
-    font-size: 0.78rem;
-    padding: 4px 12px;
-    outline: none;
-    transition: width 0.25s ease, background 0.2s, border-color 0.2s;
-}
-
-#searchBar::placeholder { color: rgba(255, 255, 255, 0.35); }
-
-#searchBar:focus {
-    width: 200px;
-    background: rgba(255, 255, 255, 0.14);
-    border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* Category pills */
@@ -97,9 +186,96 @@ body {
     font-weight: 600;
 }
 
-/* Lyrics toggle + Random + scroll toggle — shared pill style */
-#lyricsToggle, #randomBtn, #scrollToggle {
+/* ★ Carino — the personal list pill, gold-tinted to match the brand */
+.filter-btn.filter-carino {
+    color: var(--cs-accent, #eab308);
+    border-color: rgba(234, 179, 8, 0.4);
+    font-weight: 600;
+}
+.filter-btn.filter-carino:hover {
+    background: rgba(234, 179, 8, 0.12);
+    color: #fde68a;
+}
+.filter-btn.filter-carino.active {
+    background: linear-gradient(130deg, #fef08a 0%, #eab308 60%, #b45309 100%);
+    border-color: #eab308;
+    color: #1a1300;
+}
+
+/* ── Country / Genre / Mood dropdown menus ────────────────── */
+/* The button lives in the bar; the .menu-panel is appended to <body> so it is
+   never clipped by #controls (a fixed-pos containing block via backdrop-filter). */
+.filter-menu-btn.active,
+.filter-menu-btn.menu-open {
+    background: rgba(234, 179, 8, 0.16);
+    border-color: rgba(234, 179, 8, 0.55);
+    color: #fde68a;
+    font-weight: 600;
+}
+
+.menu-panel {
+    position: fixed;        /* fixed so it escapes the controls bar's overflow clipping */
+    top: 0;
+    left: 0;
+    min-width: 200px;
+    max-height: min(60vh, 420px);
+    overflow-y: auto;
+    background: rgba(17, 17, 17, 0.98);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--cs-border, #262626);
+    border-radius: 10px;
+    padding: 6px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    z-index: 150;        /* above the info panel (100), below the navbar diag (210) */
+    scrollbar-width: thin;
+}
+.menu-panel.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+.menu-panel::-webkit-scrollbar { width: 8px; }
+.menu-panel::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.14); border-radius: 8px; }
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-radius: 7px;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 0.82rem;
+    padding: 7px 10px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.12s, color 0.12s;
+    white-space: nowrap;
+}
+.menu-item:hover { background: rgba(255, 255, 255, 0.09); color: #fff; }
+.menu-item.chosen {
+    background: rgba(234, 179, 8, 0.14);
+    color: #fde68a;
+}
+.menu-count {
+    font-size: 0.68rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-variant-numeric: tabular-nums;
     flex-shrink: 0;
+}
+.menu-item.chosen .menu-count { color: rgba(253, 230, 138, 0.7); }
+
+/* Autoplay + Lyrics toggle + Random + scroll toggle — shared pill style */
+#autoplayToggle, #lyricsToggle, #randomBtn, #scrollToggle {
+    flex-shrink: 0;
+    white-space: nowrap;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 20px;
@@ -110,7 +286,7 @@ body {
     transition: background 0.2s, color 0.2s;
 }
 
-#lyricsToggle:hover, #randomBtn:hover, #scrollToggle:hover {
+#autoplayToggle:hover, #lyricsToggle:hover, #randomBtn:hover, #scrollToggle:hover {
     background: rgba(255, 255, 255, 0.16);
     color: #fff;
 }
@@ -119,6 +295,13 @@ body {
     background: rgba(255, 255, 255, 0.18);
     border-color: rgba(255, 255, 255, 0.35);
     color: #fff;
+}
+
+/* Autoplay ON — gold-tinted to match the brand */
+#autoplayToggle.active {
+    background: rgba(234, 179, 8, 0.16);
+    border-color: rgba(234, 179, 8, 0.55);
+    color: #fde68a;
 }
 
 /* ── Queue strip ──────────────────────────────────────────── */
@@ -258,146 +441,188 @@ body {
     z-index: 3;
 }
 
-/* ── Info panel (right side, fixed) ───────────────────────── */
+/* ── Info panel (right side, fixed) — redesigned ──────────── */
 #videoInfoBar {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 18px;
+    right: 18px;
     width: var(--panel-w);
-    max-width: calc(100vw - 40px);
-    max-height: calc(100dvh - 40px);
+    max-width: calc(100vw - 36px);
+    max-height: calc(100dvh - var(--nav-h) - var(--controls-h) - 28px);
     overflow-y: auto;
     scrollbar-width: none;
-    background: rgba(12, 12, 12, 0.93);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    background: linear-gradient(180deg, rgba(20, 20, 22, 0.96) 0%, rgba(10, 10, 11, 0.96) 100%);
+    backdrop-filter: blur(26px) saturate(1.3);
+    -webkit-backdrop-filter: blur(26px) saturate(1.3);
     color: #fff;
-    border-radius: var(--radius);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 16px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.4);
+    padding: 14px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 14px;
     opacity: 0;
-    transform: translateY(24px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateY(24px) scale(0.98);
+    transform-origin: bottom right;
+    transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
     z-index: 100;
     pointer-events: none;
 }
 
 #videoInfoBar::-webkit-scrollbar { display: none; }
-#videoInfoBar.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+#videoInfoBar.show { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
 
 #closeInfoBar {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 26px;
-    height: 26px;
+    top: 12px;
+    right: 12px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: rgba(255, 255, 255, 0.8);
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: rgba(255, 255, 255, 0.85);
     font-size: 13px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    transition: background 0.2s;
+    z-index: 5;
+    transition: background 0.2s, transform 0.2s;
 }
+#closeInfoBar:hover { background: rgba(220, 40, 40, 0.85); transform: rotate(90deg); }
 
-#closeInfoBar:hover { background: rgba(255, 255, 255, 0.25); }
-
-#albumImage img {
-    width: 100%;
-    height: auto;
-    border-radius: 10px;
-    display: block;
-}
-
-#videoTitle {
-    font-size: 0.9rem;
-    font-weight: 600;
-    line-height: 1.35;
-    padding-right: 24px;
-}
-
-#videoLinks {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-}
-
-#videoLinks a {
-    border-radius: 20px;
-    padding: 4px 12px;
-    font-size: 0.78rem;
-    color: #fff;
-    text-decoration: none;
-    transition: background 0.2s, color 0.2s;
-    border: 1px solid transparent;
-}
-
-#videoLinks a[data-platform="youtube"] {
-    background: rgba(255, 40, 40, 0.18);
-    border-color: rgba(255, 40, 40, 0.38);
-    color: #ff5555;
-}
-#videoLinks a[data-platform="youtube"]:hover {
-    background: rgba(255, 40, 40, 0.32);
-    color: #ff7777;
-}
-
-#videoLinks a[data-platform="spotify"] {
-    background: rgba(30, 215, 96, 0.15);
-    border-color: rgba(30, 215, 96, 0.38);
-    color: #1ed760;
-}
-#videoLinks a[data-platform="spotify"]:hover {
-    background: rgba(30, 215, 96, 0.28);
-    color: #3ffe7a;
-}
-
-#videoLinks a[data-platform="apple"] {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
-    color: #fff;
-}
-#videoLinks a[data-platform="apple"]:hover { background: rgba(255, 255, 255, 0.22); }
-
-/* "+ Queue" button */
-#queueAddBtn {
-    align-self: flex-start;
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 20px;
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 0.75rem;
-    padding: 4px 13px;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-}
-
-#queueAddBtn:hover { background: rgba(255, 255, 255, 0.15); color: #fff; }
-#queueAddBtn:disabled { opacity: 0.45; cursor: default; }
-
-/* YouTube player wrapper */
+/* YouTube player — on top, prominent */
 #videoPlayer {
     width: 100%;
     aspect-ratio: 16 / 9;
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: hidden;
     background: #000;
     flex-shrink: 0;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
 }
-
 #videoPlayer iframe {
     width: 100% !important;
     height: 100% !important;
     border: none;
     display: block;
 }
+
+/* Track header: cover thumb + title + meta chips */
+.vib-head {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+#albumImage {
+    flex-shrink: 0;
+    width: 58px;
+    height: 58px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+#albumImage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.vib-headtext { min-width: 0; flex: 1; padding-right: 20px; }
+
+#videoTitle {
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+}
+
+#videoMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 7px;
+}
+.meta-chip {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.68rem;
+    line-height: 1;
+    padding: 4px 9px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.meta-chip:hover {
+    background: rgba(234, 179, 8, 0.16);
+    border-color: rgba(234, 179, 8, 0.5);
+    color: #fde68a;
+}
+
+/* Streaming links */
+#videoLinks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+#videoLinks a {
+    flex: 1;
+    min-width: 84px;
+    text-align: center;
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s, transform 0.15s;
+    border: 1px solid transparent;
+}
+#videoLinks a:hover { transform: translateY(-2px); }
+
+#videoLinks a[data-platform="youtube"] {
+    background: rgba(255, 40, 40, 0.16);
+    border-color: rgba(255, 40, 40, 0.4);
+    color: #ff6b6b;
+}
+#videoLinks a[data-platform="youtube"]:hover { background: rgba(255, 40, 40, 0.3); color: #ff8585; }
+
+#videoLinks a[data-platform="spotify"] {
+    background: rgba(30, 215, 96, 0.14);
+    border-color: rgba(30, 215, 96, 0.4);
+    color: #1ed760;
+}
+#videoLinks a[data-platform="spotify"]:hover { background: rgba(30, 215, 96, 0.28); color: #3ffe7a; }
+
+#videoLinks a[data-platform="apple"] {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.22);
+    color: #fff;
+}
+#videoLinks a[data-platform="apple"]:hover { background: rgba(255, 255, 255, 0.22); }
+
+/* Queue action */
+#videoActions { display: flex; }
+#queueAddBtn {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 9px 13px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+#queueAddBtn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.15); color: #fff; }
+#queueAddBtn:disabled { opacity: 0.5; cursor: default; color: var(--cs-ok, #22c55e); border-color: rgba(34, 197, 94, 0.4); }
 
 /* ── Lyrics floating panel ────────────────────────────────── */
 /*
@@ -407,7 +632,7 @@ body {
 */
 #lyricsSection {
     position: fixed;
-    top: calc(var(--controls-h) + 10px);
+    top: calc(var(--nav-h) + var(--controls-h) + 10px);
     left: 10px;
     bottom: 20px;
     right: calc(var(--panel-w) + 30px);
@@ -488,8 +713,12 @@ body {
 
 /* ── Mobile ───────────────────────────────────────────────── */
 @media (max-width: 768px) {
-    #searchBar       { width: 100px; }
-    #searchBar:focus { width: 140px; }
+    /* Navbar shrinks: drop the clock/greeting, tighten spacing */
+    .top-header   { padding: 0 12px; gap: 10px; }
+    .header-clock { display: none; }
+    .brand-name   { font-size: 1.3rem; }
+    .brand-name .app-tag { display: none; }
+    .diag-dropdown { right: 10px; width: min(88vw, 280px); }
 
     #musicgrid {
         grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));

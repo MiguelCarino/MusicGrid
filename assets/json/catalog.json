@@ -1,274 +1,468 @@
-const albums = [{url: 'bc0sJvtKrRM', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_1.webp',tag: '', category: 'sa'
-},{url: 'YPrs3DqraWM', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_2.webp',tag: '', category: 'sa'
-},{url: 'EX67uWOlbgs', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_2.webp',tag: '', category: ''
-},{url: 'Hi8HjWTUqwI', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_2.webp',tag: '', category: ''
-},{url: 'WbvTdkcSzsk', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_2.webp',tag: '', category: ''
-},{url: 'ZAn3JdtSrnY', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_3.webp',tag: '', category: ''
-},{url: 'ZXu6q-6JKjA', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_4.webp',tag: '', category: ''
-},{url: 'TMAK05tpoI4', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_5.webp',tag: '', category: ''
-},{url: 'Aki1Xn36eJ8', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_6.webp',tag: '', category: ''
-},{url: 'uYU1PXV9Cx8', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_7.webp',tag: '', category: ''
-},{url: 'CZFyqzTCt-I', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_8.webp',tag: '', category: ''
-},{url: 'XXnw6gYX_IA', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_8.webp',tag: '', category: ''
-},{url: 'ktvJ2PiBgtQ', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_8.webp',tag: '', category: ''
-},{url: '4D6buHQYhUI', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_9.webp',tag: '', category: ''
-},{url: 'Z-qvTPxUlxg', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_10.webp',tag: '', category: ''
-},{url: 'PCp2iXA1uLE', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_11.webp',tag: '', category: ''
-},{url: '3EyDyxGZn_Y', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_12.webp',tag: 'Heathers', category: ''
-},{url: 'BQOoTX1Nxx8', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_12.webp',tag: 'Heathers', category: ''
-},{url: '9h80Sr15n4M', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_12.webp',tag: 'Heathers', category: ''
-},{url: 'rG9CtpWe8rM', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_13.webp',tag: '', category: ''
-},{url: 'e7kJRGPgvRQ', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_13.webp',tag: '', category: ''
-},{url: 'BGVUiMskx_U', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_14.webp',tag: '', category: ''
-},{url: 'y5X2m-tSjZE', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_15.webp',tag: '', category: ''
-},{url: '2pGoOso53bc', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_16.webp',tag: '', category: ''
-},{url: 'Tt6_65LDZ60', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_17.webp',tag: '', category: ''
-},{url: 'ywAe7okdLBQ', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_18.webp',tag: '', category: ''
-},{url: 'XKRx6V7bqQI', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_19.webp',tag: '', category: ''
-},{url: 'vxoKuhPca-A', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_20.webp',tag: '', category: ''
-},{url: 'poKI_MY0Bkw', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_21.webp',tag: '', category: ''
-},{url: 'BXTcAXEUiaM', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_22.webp',tag: '', category: ''
-},{url: 'D1lBOA_8OZ0', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_23.webp',tag: '', category: ''
-},{url: '5QpWwTtX5sI', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_24.webp',tag: '', category: ''
-},{url: '0BqPowGQWW8', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_25.webp',tag: '', category: ''
-},{url: '1bzUZ2j2sRs', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_26.webp',tag: '', category: ''
-},{url: '9PGzM6AX5Kw', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_26.webp',tag: '', category: ''
-},{url: 'Uan2Dv0qBhA', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_27.webp',tag: '', category: ''
-},{url: 'T_lC2O1oIew', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_28.webp',tag: '', category: ''
-},{url: 'wAzcN5Jot8k', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_29.webp',tag: 'Matsubara Miki', category: ''
-},{url: 'oO0vP6K9XVg', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_30.webp',tag: '', category: ''
-},{url: 'ZWaOfSeh9C8', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_31.webp',tag: '', category: ''
-},{url: '1Q3SOrb8AqM', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_32.webp',tag: '', category: ''
-},{url: 'RHpWTC_QrwA', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_33.webp',tag: '', category: ''
-},{url: '2f2jUcCP8XI', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_34.webp',tag: '', category: ''
-},{url: 'xRo-LPKAko8', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_35.webp',tag: '', category: ''
-},{url: 'zZuIMcmNZnU', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_36.webp',tag: '', category: ''
-},{url: 'Uan2Dv0qBhA', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_37.webp',tag: '', category: ''
-},{url: '25ZfPDcATCs', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_38.webp',tag: '', category: ''
-},{url: 'iTfqMZYA7OQ', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_38.webp',tag: '', category: ''
-},{url: 'E3yqv2PGugs', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_39.webp',tag: '', category: ''
-},{url: 'ZCut2rFo1bk', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_39.webp',tag: '', category: ''
-},{url: '-56x7std2pU', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_39.webp',tag: '', category: ''
-},{url: 'PriNj4gtwBs', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_40.webp',tag: '', category: ''
-},{url: 'hzFLHL-fzV8', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_41.webp',tag: '', category: ''
-},{url: 'xB2K-riHfSc', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_42.webp',tag: '', category: ''
-},{url: 'TiycWq1YOAA', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_42.webp',tag: '', category: ''
-},{url: 'Q0tO5MPGuGk', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_42.webp',tag: '', category: ''
-},{url: 'K4_Qzx-E2LQ', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_43.webp',tag: '', category: ''
-},{url: 'PKRUKalbx3s', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_44.webp',tag: '', category: ''
-},{url: 'Kq_plVrBPx4', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_44.webp',tag: '', category: ''
-},{url: 'VLW1ieY4Izw', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_45.webp',tag: '', category: ''
-},{url: 'PNGbvYSp08A', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_46.webp',tag: '', category: ''
-},{url: 'xMK7IHF69Sc', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_47.webp',tag: '', category: ''
-},{url: 'SRQGOtBVELo', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_48.webp',tag: '', category: ''
-},{url: 'y8VfziFZMGY', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_49.webp',tag: '', category: ''
-},{url: 'eDajkN_GBC4', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_49.webp',tag: '', category: ''
-},{url: '8Kl_ZhPKCgc', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_49.webp',tag: '', category: ''
-},{url: 'ei7cdynwRMA', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_50.webp',tag: '', category: ''
-},{url: '3P5F47GEsQA', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_50.webp',tag: '', category: ''
-},{url: 'w3RDwQjUekU', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_51.webp',tag: 'Kaneko Ayano', category: ''
-},{url: 'cayMq-CEjmQ', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_52.webp',tag: '', category: ''
-},{url: 'mlenZeSYy-Q', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_52.webp',tag: '', category: ''
-},{url: 'hkL4hW4eniI', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_53.webp',tag: '', category: ''
-},{url: '3ukCLUdzbUs', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_54.webp',tag: '', category: ''
-},{url: '20iCZeU35eQ', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_55.webp',tag: '', category: ''
-},{url: 'MiOGtssMuFw', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_56.webp',tag: '', category: ''
-},{url: '0-EMiEpXLJg', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_56.webp',tag: '', category: ''
-},{url: '1GkKEMZ2u8k', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_57.webp',tag: '', category: ''
-},{url: 'lVfPYvB2osI', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_58.webp',tag: '', category: ''
-},{url: '6bJois9q-8Y', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_59.webp',tag: '', category: ''
-},{url: 'xtxjm7ciwmc', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_60.webp',tag: '', category: ''
-},{url: 'Gwym7_pFnww', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_61.webp',tag: '', category: ''
-},{url: 'rKssBD8xeWY', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_62.webp',tag: '', category: ''
-},{url: 'HnbmncZQsTk', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_63.webp',tag: '', category: ''
-},{url: 'VQLjUZ2bm24', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_64.webp',tag: '', category: ''
-},{url: 'RQvs6dAmlYM', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_65.webp',tag: '', category: ''
-},{url: 'mSSu9jTbqGU', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_65.webp',tag: '', category: ''
-},{url: 'UZ45bnHDw2A', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_66.webp',tag: '', category: ''
-},{url: 'DEVQhmXaZyQ', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_67.webp',tag: '', category: ''
-},{url: '4XD_wxK91ao', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_67.webp',tag: '', category: ''
-},{url: 'RCUCxMOtVbs', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_68.webp',tag: '', category: ''
-},{url: 'cJ1yFhjRnNc', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_69.webp',tag: '', category: ''
-},{url: 'PYefVGPHAE8', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_70.webp',tag: '', category: ''
-},{url: 'L9hCpxcY2RU', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_71.webp',tag: '', category: ''
-},{url: '_5U9WuMsipk', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_71.webp',tag: '', category: ''
-},{url: 'My4j3vgFxbE', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_72.webp',tag: '', category: ''
-},{url: 'rx1AHeEwnNg', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_73.webp',tag: '', category: ''
-},{url: 'Zv1FyQn2kQA', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_74.webp',tag: '', category: ''
-},{url: 'aNYjOVo5IEw', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_75.webp',tag: '', category: ''
-},{url: 'IB1URcYIaOE', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_76.webp',tag: '', category: ''
-},{url: 'hprK_bVg2ro', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_76.webp',tag: '', category: ''
-},{url: 'Z7pI5XEPFpc', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_77.webp',tag: '', category: ''
-},{url: 'a0YCZm8XE6w', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_77.webp',tag: '', category: ''
-},{url: 'GKAywP6yd60', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_78.webp',tag: '', category: ''
-},{url: 'NLy4cvRx7Vc', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_79.webp',tag: '', category: ''
-},{url: 'UoK8DaJRDaM', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_79.webp',tag: '', category: ''
-},{url: '_cRPeXQvH4Q', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_80.webp',tag: '', category: ''
-},{url: 'M_I6tASrnwk', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_81.webp',tag: '', category: ''
-},{url: 'yrcE6JOWuwc', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_81.webp',tag: '', category: ''
-},{url: 'LIlZCmETvsY', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_82.webp',tag: '', category: ''
-},{url: 'na1I8fwbmyE', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_83.webp',tag: '', category: ''
-},{url: '4QePrv24TBU', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_84.webp',tag: '', category: ''
-},{url: 'n5xGJHErs_A', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_84.webp',tag: '', category: ''
-},{url: 'ElnxZtiBDvs', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_84.webp',tag: '', category: ''
-},{url: 'iyCRK5WfFOI', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_84.webp',tag: '', category: ''
-},{url: 'Qw-FSw7d2zE', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_84.webp',tag: '', category: ''
-},{url: 'qQ-Pyx4joKM', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_85.webp',tag: '', category: ''
-},{url: 'vCXsRoyFRQE', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_85.webp',tag: '', category: ''
-},{url: '-fo-8DWe6gE', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_86.webp',tag: '', category: ''
-},{url: '49Yj4jasr14', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_86.webp',tag: '', category: ''
-},{url: 'Kw2mXcI2-is', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_87.webp',tag: '', category: ''
-},{url: 'Ssb2AMR-kEo', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_88.webp',tag: '', category: ''
-},{url: 'vn7vfza-6fQ', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_89.webp',tag: '', category: ''
-},{url: 'P44CjuM-tfA', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_90.webp',tag: '', category: ''
-},{url: '9kr-aqnc5Ho', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_90.webp',tag: '', category: ''
-},{url: 'tkOozjVuFP4', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_91.webp',tag: 'Necry Talkie', category: ''
-},{url: 'dQuwq-SAbPc', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_92.webp',tag: '', category: ''
-},{url: 'JL1AYJ9zBJE', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_93.webp',tag: '', category: ''
-},{url: '4eFDXIwIE9w', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_93.webp',tag: '', category: ''
-},{url: 'VgZn5dfg1U0', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_93.webp',tag: '', category: ''
-},{url: 'N0cywoEn0_s', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_93.webp',tag: '', category: ''
-},{url: 'W4fyGoT_ycc', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_94.webp',tag: '', category: ''
-},{url: 'UiAfaCVAh24', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_94.webp',tag: 'Jewelia', category: ''
-},{url: 'jrL_LzX5wv4', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_95.webp',tag: '', category: ''
-},{url: 'Z-59L_G1iZs', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_96.webp',tag: '', category: ''
-},{url: 'ZxVw7bvMd3s', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_97.webp',tag: '', category: ''
-},{url: 'rIq6i4-8Nww', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_98.webp',tag: '', category: ''
-},{url: 'jZN-RKQjrN4', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_99.webp',tag: '', category: ''
-},{url: 'OkR0EgSpTxg', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_100.webp',tag: '', category: ''
-},{url: 'SrZfImne2uo', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_101.webp',tag: '', category: ''
-},{url: 'eotBrWTvUo8', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_102.webp',tag: '', category: ''
-},{url: 'tiIv4pKY9hY', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_103.webp',tag: '', category: ''
-},{url: 'LynufqvrBh0', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_103.webp',tag: '', category: ''
-},{url: 'bN02S54hHI4', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_104.webp',tag: '', category: ''
-},{url: 'YyQqsv0Df-w', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_104.webp',tag: '', category: ''
-},{url: 'UKJVV8kUXec', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_105.webp',tag: '', category: ''
-},{url: 'LfAOQL7iqm4', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_106.webp',tag: '', category: ''
-},{url: '0I4pQ2ve_fw', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_106.webp',tag: '', category: ''
-},{url: '3II5pBTePLQ', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_107.webp',tag: '', category: ''
-},{url: 'TC_U49qq7LU', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_108.webp',tag: '', category: ''
-},{url: 'FUH9S44D1BM', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_109.webp',tag: '', category: ''
-},{url: 'uo0jE0oXITk', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_110.webp',tag: '', category: ''
-},{url: 'P_g3sYGuuEA', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_111.webp',tag: '', category: ''
-},{url: 'sdzseU8XGUE', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_112.webp',tag: '', category: ''
-},{url: 'cAIOOYXSdHw', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_112.webp',tag: '', category: ''
-},{url: 'fo8rG29TcwU', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_113.webp',tag: '', category: ''
-},{url: 'S0hhTrdRi5Y', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_114.webp',tag: '', category: ''
-},{url: 'zJGN0Mwg1e0', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_114.webp',tag: '', category: ''
-},{url: 'P_g3sYGuuEA', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_115.webp',tag: '', category: ''
-},{url: 'P_g3sYGuuEA', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_116.webp',tag: '', category: ''
-},{url: 'aiLRLdW_zYs', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_118.webp',tag: '', category: ''
-},{url: 'ZRtdQ81jPUQ', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_119.webp',tag: '', category: ''
-},{url: '9ctHvbTcfCM', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_120.webp',tag: '', category: ''
-},{url: 'oKzlCN6-BxU', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_120.webp',tag: '', category: ''
-},{url: 'aQGvlemqUpE', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_121.webp',tag: '', category: ''
-},{url: '_sOKkON_UnQ', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_122.webp',tag: '', category: ''
-},{url: 'g0p_jI6T2WQ', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_123.webp',tag: '', category: ''
-},{url: '6q6GtPdVHL4', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_124.webp',tag: '', category: ''
-},{url: '_2quiyHfJQw', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_125.webp',tag: '', category: ''
-},{url: 'AznrIE3F0Gk', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_126.webp',tag: '', category: ''
-},{url: 'Iub97D63R9Q', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_127.webp',tag: '', category: ''
-},{url: 'n4OwY4FKz_w', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_127.webp',tag: '', category: ''
-},{url: 'yyspSKn9R4Y', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_127.webp',tag: '', category: ''
-},{url: 'WxXD1sXLcyA', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_128.webp',tag: '', category: ''
-},{url: 'CGoOnJ2TlJk', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_129.webp',tag: '', category: ''
-},{url: 'woO9FidFa6o', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_129.webp',tag: '', category: ''
-},{url: 'joOYYF8zTe0', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_130.webp',tag: 'Elton John', category: 'Movies'
-},{url: 'bTWxDMNDz-4', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_130.webp',tag: '', category: ''
-},{url: 'wb5keTpC4WU', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_131.webp',tag: '', category: ''
-},{url: 'tiBaBca7-rY', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_131.webp',tag: '', category: ''
-},{url: '0S_fTDauV34', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_131.webp',tag: '', category: ''
-},{url: 'ioOqkI1cw88', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_132.webp',tag: '', category: ''
-},{url: 'Id-1XBV7ckU', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_133.webp',tag: '', category: ''
-},{url: 'x8pQKNSJNaI', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_134.webp',tag: '', category: ''
-},{url: '9Gs0p_Dcbzc', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_134.webp',tag: '', category: ''
-},{url: 'bdIR6-6BMyA', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_134.webp',tag: '', category: ''
-},{url: '45z9azQBLSQ', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_135.webp',tag: '', category: ''
-},{url: '1tU5CsJoU60', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_135.webp',tag: '', category: ''
-},{url: 'elBKil5zE2g', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_135.webp',tag: '', category: ''
-},{url: 'kvznYJEFh1w', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_136.webp',tag: '', category: ''
-},{url: 'CUosSQZSw5c', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_137.webp',tag: '', category: ''
-},{url: 'd5HQdXkkfso', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_138.webp',tag: '', category: ''
-},{url: 'DrQRS40OKNE', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_139.webp',tag: '', category: ''
-},{url: '3z8y7enYB30', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_140.webp',tag: '', category: ''
-},{url: 'u5rpOXS9O8Q', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_141.webp',tag: '', category: ''
-},{url: 'M_lyQ-OCIYs', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_141.webp',tag: '', category: ''
-},{url: 'AoHFCLxTkE4', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_142.webp',tag: '', category: ''
-},{url: 'GydqGpcudL4', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_142.webp',tag: '', category: ''
-},{url: 'jb1SkDjaXk8', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_142.webp',tag: '', category: ''
-},{url: 'iFS_lAg_tSo', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_143.webp',tag: '', category: ''
-},{url: 'mN-CqIytN2U', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_144.webp',tag: '', category: ''
-},{url: 'Q6dot3WZiu4', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_144.webp',tag: '', category: ''
-},{url: '4QEy1efy1Yw', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_145.webp',tag: '', category: ''
-},{url: 'MuS_v3HVB_8', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_145.webp',tag: '', category: ''
-},{url: 'kXcOyYEldZY', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_146.webp',tag: '', category: ''
-},{url: 'eYoINidnLRQ', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_147.webp',tag: '', category: ''
-},{url: 'omzJvwYO440', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_148.webp',tag: '', category: ''
-},{url: 'HhZaHf8RP6g', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_149.webp',tag: '', category: ''
-},{url: '3Ck5b91CeEw', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_150.webp',tag: '', category: ''
-},{url: 'QwyDCjhbMa8', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_150.webp',tag: '', category: ''
-},{url: 'yHuhABPbOaE', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_151.webp',tag: '', category: ''
-},{url: 'LL7f-w6WNw4', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_152.webp',tag: 'Allie X', category: ''
-},{url: 'PV_g2VrpJB4', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_152.webp',tag: 'Allie X', category: ''
-},{url: '19aPQJ2HYc8', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_152.webp',tag: 'Allie X', category: ''
-},{url: 'XKRx6V7bqQI', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_153.webp',tag: 'Pendulum', category: ''
-},{url: 'ScsIl7Y0SVE', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_153.webp',tag: 'Pendulum', category: ''
-},{url: 'sYTouavUBBw', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_153.webp',tag: 'Pendulum', category: ''
-},{url: 'slX_3mocFes', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_153.webp',tag: 'Pendulum', category: ''
-},{url: 'HW-MMu4GLWk', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_154.webp',tag: 'Necry Talkie', category: ''
-},{url: 'KdrP8A7jz5M', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_155.webp',tag: 'Necry Talkie', category: ''
-},{url: 'rRvzFShVOPY', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_156.webp',tag: 'Necry Talkie', category: ''
-},{url: '0l-qw9yRFOA', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_156.webp',tag: 'Necry Talkie', category: ''
-},{url: '2jghKg0Q0EU', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_157.webp',tag: 'ГлюкоZа', category: ''
-},{url: 'Fm_iyGAutqc', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_158.webp',tag: 'ГлюкоZа', category: ''
-},{url: '8BH5sxq1yaI', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_159.webp',tag: 'Clairo', category: ''
-},{url: 'Egb3kRRsOxk', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_159.webp',tag: 'Clairo', category: ''
-},{url: 'hLrGvkul3_k', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_159.webp',tag: 'Clairo', category: ''
-},{url: 'CeA92xqw-QI', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_160.webp',tag: 'Clairo', category: ''
-},{url: 'L9l8zCOwEII', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_160.webp',tag: 'Clairo', category: ''
-},{url: 'nLavzXXZCcs', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_161.webp',tag: 'Clairo', category: ''
-},{url: 'TZl0MHwgn8c', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_161.webp',tag: 'Clairo', category: ''
-},{url: 'grLkaZIC2tI', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_161.webp',tag: 'Clairo', category: ''
-},{url: 'BYk1sS329Mg', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_162.webp',tag: 'Panteon rococo', category: ''
-},{url: '4eoHD3fuHgA', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_163.webp',tag: 'Panteon rococo', category: ''
-},{url: 'mkZ8VfkEgFQ', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_164.webp',tag: 'El gran silencio', category: ''
-},{url: 'BZAkzCw17GM', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_165.webp',tag: 'Chicos del barrio', category: ''
-},{url: 'j1RAUoM2pro', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_168.webp',tag: 'Baka Mitai by Astrophysics', category: ''
-},{url: 's0NME1GfbIc', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_167.webp',tag: 'Boa', category: ''
-},{url: 'B8TClXpFbC4', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_169.webp',tag: 'Sambo Master', category: ''
-},{url: 'QpotQZsxzsc', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_170.webp',tag: 'Allie X', category: ''
-},{url: 'fZcwPx-tSTo', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_171.webp',tag: 'Sexy Sushi', category: ''
-},{url: 'toDa_F9kv1E', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_172.webp',tag: 'Allie X', category: ''
-},{url: 'YmPVq8rspws', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_173.webp',tag: 'Kate Bush', category: ''
-},{url: 'xnwTNwjxQxI', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_173.webp',tag: 'Kate Bush', category: ''
-},{url: 'F9qQMIbFHHE', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_173.webp',tag: 'Kate Bush', category: ''
-},{url: 'wp43OdtAAkM', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_174.webp',tag: 'Kate Bush', category: ''
-},{url: 'VerK4zwMRQw', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_174.webp',tag: 'Kate Bush', category: ''
-},{url: 'pllRW9wETzw', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_174.webp',tag: 'Kate Bush', category: ''
-},{url: '6xckBwPdo1c', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_175.webp',tag: 'Kate Bush', category: ''
-},{url: '73i_UC0nWws', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_175.webp',tag: 'Kate Bush', category: ''
-},{url: 'ORAQITI1Gxw', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_175.webp',tag: 'Kate Bush', category: ''
-},{url: 'VzlofSthVwc', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_175.webp',tag: 'Kate Bush', category: ''
-},{url: 'Atd6WRAeyPA', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_176.webp',tag: 'Pokemon', category: ''
-},{url: 'NeB-lWNkhfA', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_177.webp',tag: 'Laufey', category: ''
-},{url: 'DF6W1XD25Dc', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_178.webp',tag: 'Звери', category: ''
-},{url: 'PULwDISWun8', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_179.webp',tag: 'Sayonara Wild Hearts', category: ''
-},{url: 'dDiGKUcfmVk', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_179.webp',tag: 'Sayonara Wild Hearts', category: ''
-},{url: 'hHOuTM-_neE', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_180.webp',tag: 'Akira - The Blithering Heights', category: ''
-},{url: 'yyu-nC6SttI', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_181.webp',tag: 'Ashterra - The Moon', category: ''
-},{url: 'JBtUeBUyVaY', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_182.webp',tag: 'Astropilot - A Drowning', category: ''
-},{url: 'qA-GBRf_hzc', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_182.webp',tag: 'Astropilot - Only Hope', category: ''
-},{url: 'fxPiRPnPqLs', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_182.webp',tag: 'Astropilot - Patterns of Awareness', category: ''
-},{url: 'IIOJdMdS56k', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_183.webp',tag: 'Swing Out Sister - Breakout', category: ''
-},{url: '5Nl5zBqXc1o', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_183.webp',tag: 'Swing Out Sister - Twilight World', category: ''
-},{url: 'a6rmmFNhxdI', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_183.webp',tag: 'Swing Out Sister - Fooled by a smile', category: ''
-},{url: 'CU9pEi3ByTw', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_184.webp',tag: 'Swing Out Sister - You on my mind', category: ''
-},{url: '8bIFadXgDO0', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_185.webp',tag: 'Swing Out Sister - Lala', category: ''
-},{url: '5pd0V1ZfK_g', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_186.webp',tag: 'Swing Out Sister - Better make it better', category: ''
-},{url: 'CwjshPNrWtY', spotifyurl: '0vMlVGJuREJk3c7vvObE5Z', applemusicurl: 'album/hysterical-us/1570541671?i=1570541941', image: 'mu_187.webp',tag: 'Magdalena Bay - Histerical Us', category: ''
-},{url: 'Xcq3xMCcGlI', spotifyurl: '4rVs9KjC3YVA7v54kVSHUV', applemusicurl: 'album/cry-for-me/1751414757?i=1751414771', image: 'mu_188.webp',tag: 'Magdalena Bay - Cry for me', category: ''
-},{url: 'N-w6qgiNeys', spotifyurl: '3LlQyxWlsx8y4rZtkETUjl', applemusicurl: 'song/tunnel-vision/1751414767', image: 'mu_188.webp',tag: 'Magdalena Bay - Tunnel Vision', category: ''
-},{url: '-OwLVuyj3Jg', spotifyurl: '3vtceW4EYrv3enjfz7MTff?si=d83c7eaa86584889', applemusicurl: 'song/nancy-tries-to-take-the-night/1783713623', image: 'mu_189.webp',tag: 'Black Country, New Road- Nancy Tries to Take the Night', category: ''
-},
-// add more albums here
+/* ============================================================
+   catalog.json — Music Grid data (loaded as a script)
+   ------------------------------------------------------------
+   COUNTRIES : country menu  -> { id: {name, flag} }
+   GENRES    : genre menu     -> { id: {name, icon} }
+   MOODS     : mood menu      -> { id: {name, icon} }
+   albums    : one entry per song:
+     url          YouTube video id (the player source)
+     image        cover file in assets/covers/
+     tag          "Artist — Title" (tooltip + now-playing)
+     country/genre/mood   ids keying into the registries above
+     carino       true = part of Miguel's personal list
+     spotifyurl   Spotify track id, or '' to link a search by tag
+     applemusicurl Apple Music path, or '' to link a search by tag
+   ============================================================ */
+
+const COUNTRIES = {
+  "australia": {
+    "name": "Australia",
+    "flag": "🇦🇺"
+  },
+  "brazil": {
+    "name": "Brazil",
+    "flag": "🇧🇷"
+  },
+  "canada": {
+    "name": "Canada",
+    "flag": "🇨🇦"
+  },
+  "finland": {
+    "name": "Finland",
+    "flag": "🇫🇮"
+  },
+  "france": {
+    "name": "France",
+    "flag": "🇫🇷"
+  },
+  "iceland": {
+    "name": "Iceland",
+    "flag": "🇮🇸"
+  },
+  "japan": {
+    "name": "Japan",
+    "flag": "🇯🇵"
+  },
+  "mexico": {
+    "name": "Mexico",
+    "flag": "🇲🇽"
+  },
+  "newzealand": {
+    "name": "New Zealand",
+    "flag": "🇳🇿"
+  },
+  "poland": {
+    "name": "Poland",
+    "flag": "🇵🇱"
+  },
+  "romania": {
+    "name": "Romania",
+    "flag": "🇷🇴"
+  },
+  "russia": {
+    "name": "Russia",
+    "flag": "🇷🇺"
+  },
+  "korea": {
+    "name": "South Korea",
+    "flag": "🇰🇷"
+  },
+  "sweden": {
+    "name": "Sweden",
+    "flag": "🇸🇪"
+  },
+  "ukraine": {
+    "name": "Ukraine",
+    "flag": "🇺🇦"
+  },
+  "uk": {
+    "name": "United Kingdom",
+    "flag": "🇬🇧"
+  },
+  "usa": {
+    "name": "United States",
+    "flag": "🇺🇸"
+  },
+  "soundtrack": {
+    "name": "Soundtracks",
+    "flag": "🎬"
+  }
+};
+
+const GENRES = {
+  "indie": {
+    "name": "Indie / Alt",
+    "icon": "🌿"
+  },
+  "pop": {
+    "name": "Pop",
+    "icon": "🎤"
+  },
+  "soundtrack": {
+    "name": "Soundtrack",
+    "icon": "🎬"
+  },
+  "electronic": {
+    "name": "Electronic",
+    "icon": "🎛️"
+  },
+  "rock": {
+    "name": "Rock",
+    "icon": "🎸"
+  },
+  "folk": {
+    "name": "Folk",
+    "icon": "🪕"
+  },
+  "ambient": {
+    "name": "Ambient",
+    "icon": "🌌"
+  },
+  "jazz": {
+    "name": "Jazz",
+    "icon": "🎷"
+  },
+  "hiphop": {
+    "name": "Hip-Hop",
+    "icon": "🎙️"
+  },
+  "citypop": {
+    "name": "City Pop",
+    "icon": "🌆"
+  },
+  "metal": {
+    "name": "Metal",
+    "icon": "🤘"
+  },
+  "classical": {
+    "name": "Classical",
+    "icon": "🎻"
+  },
+  "punkska": {
+    "name": "Punk / Ska",
+    "icon": "⚡"
+  },
+  "americana": {
+    "name": "Americana",
+    "icon": "🤠"
+  },
+  "baroquepop": {
+    "name": "Chamber Pop",
+    "icon": "🎶"
+  },
+  "funksoul": {
+    "name": "Funk / Soul",
+    "icon": "🕺"
+  },
+  "latin": {
+    "name": "Latin",
+    "icon": "🪇"
+  }
+};
+
+const MOODS = {
+  "melancholic": {
+    "name": "Melancholic",
+    "icon": "🌧️"
+  },
+  "energetic": {
+    "name": "Energetic",
+    "icon": "⚡"
+  },
+  "upbeat": {
+    "name": "Upbeat",
+    "icon": "☀️"
+  },
+  "dreamy": {
+    "name": "Dreamy",
+    "icon": "💭"
+  },
+  "chill": {
+    "name": "Chill",
+    "icon": "🌙"
+  },
+  "epic": {
+    "name": "Epic",
+    "icon": "🔥"
+  },
+  "dark": {
+    "name": "Dark",
+    "icon": "🖤"
+  },
+  "nostalgic": {
+    "name": "Nostalgic",
+    "icon": "📼"
+  },
+  "romantic": {
+    "name": "Romantic",
+    "icon": "💗"
+  }
+};
+
+const albums = [
+  {"url":"bc0sJvtKrRM","image":"mu_1.webp","tag":"Korpiklaani — A Man With A Plan","country":"finland","genre":"metal","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"YPrs3DqraWM","image":"mu_2.webp","tag":"Black Country, New Road — The Place Where He Inserted the Blade","country":"uk","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"EX67uWOlbgs","image":"mu_2.webp","tag":"Black Country, New Road — Good Will Hunting","country":"uk","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"Hi8HjWTUqwI","image":"mu_2.webp","tag":"Black Country, New Road — Bread Song","country":"uk","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"WbvTdkcSzsk","image":"mu_2.webp","tag":"Black Country, New Road — Basketball Shoes","country":"uk","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"ZAn3JdtSrnY","image":"mu_3.webp","tag":"Alvvays — Archie, Marry Me","country":"canada","genre":"indie","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"ZXu6q-6JKjA","image":"mu_4.webp","tag":"Alvvays — Dreams Tonite","country":"canada","genre":"indie","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"TMAK05tpoI4","image":"mu_5.webp","tag":"Weyes Blood — Children of the Empire","country":"usa","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"Aki1Xn36eJ8","image":"mu_6.webp","tag":"Weyes Blood — Andromeda","country":"usa","genre":"indie","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"uYU1PXV9Cx8","image":"mu_7.webp","tag":"Dead Astronauts — These Bones (Have Left You) (Perturbator Remix)","country":"usa","genre":"electronic","mood":"dark","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"CZFyqzTCt-I","image":"mu_8.webp","tag":"Julia Jacklin — Pressure To Party","country":"australia","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"XXnw6gYX_IA","image":"mu_8.webp","tag":"Julia Jacklin — Don't Know How To Keep Loving You","country":"australia","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"ktvJ2PiBgtQ","image":"mu_8.webp","tag":"Julia Jacklin — Body","country":"australia","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"4D6buHQYhUI","image":"mu_9.webp","tag":"Julia Jacklin — Lydia Wears A Cross","country":"australia","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"Z-qvTPxUlxg","image":"mu_10.webp","tag":"Julia Jacklin — Pool Party","country":"australia","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"PCp2iXA1uLE","image":"mu_11.webp","tag":"Frederic — Oddloop","country":"japan","genre":"rock","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"3EyDyxGZn_Y","image":"mu_12.webp","tag":"Heathers: The Musical — Dead Girl Walking","country":"soundtrack","genre":"soundtrack","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"BQOoTX1Nxx8","image":"mu_12.webp","tag":"Heathers: The Musical — Candy Store","country":"usa","genre":"soundtrack","mood":"dark","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"9h80Sr15n4M","image":"mu_12.webp","tag":"Seventeen — Heathers: The Musical","country":"soundtrack","genre":"soundtrack","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"rG9CtpWe8rM","image":"mu_13.webp","tag":"Korpiklaani — Mettänpeiton Valtiaalle","country":"finland","genre":"metal","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"e7kJRGPgvRQ","image":"mu_13.webp","tag":"Korpiklaani — Vodka","country":"finland","genre":"metal","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"BGVUiMskx_U","image":"mu_14.webp","tag":"NakamuraEmi — YAMABIKO","country":"japan","genre":"hiphop","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"y5X2m-tSjZE","image":"mu_15.webp","tag":"PUFFY — Red Swing","country":"japan","genre":"rock","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"2pGoOso53bc","image":"mu_16.webp","tag":"DJ Blyatman — Beton (feat. Lera Valeryanka)","country":"russia","genre":"electronic","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"Tt6_65LDZ60","image":"mu_17.webp","tag":"ARKONA — Yarilo","country":"russia","genre":"metal","mood":"epic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"ywAe7okdLBQ","image":"mu_18.webp","tag":"Caroline Konstnar — For Free?","country":"usa","genre":"pop","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"XKRx6V7bqQI","image":"mu_19.webp","tag":"Pendulum — Blood Sugar (Live at Brixton Academy)","country":"australia","genre":"electronic","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"vxoKuhPca-A","image":"mu_20.webp","tag":"meiyo — Nani Yatte mo Umaku Ikanai","country":"japan","genre":"pop","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"poKI_MY0Bkw","image":"mu_21.webp","tag":"Itoki Hana — 74 (Composed by Toby Fox)","country":"japan","genre":"soundtrack","mood":"chill","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"BXTcAXEUiaM","image":"mu_22.webp","tag":"Pivallianiq — Sapiqangitunga","country":"canada","genre":"folk","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"D1lBOA_8OZ0","image":"mu_23.webp","tag":"Joanna Newsom — Emily","country":"usa","genre":"folk","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"5QpWwTtX5sI","image":"mu_24.webp","tag":"ARKONA — Vozrozhdenie","country":"russia","genre":"metal","mood":"epic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"0BqPowGQWW8","image":"mu_25.webp","tag":"Caroline Konstnar — The World's Dumbest Puppet Show (feat. House Plant Band)","country":"usa","genre":"indie","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"1bzUZ2j2sRs","image":"mu_26.webp","tag":"Glukoza — Gorilla","country":"russia","genre":"pop","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"9PGzM6AX5Kw","image":"mu_26.webp","tag":"Glukoza — K Chyortu","country":"russia","genre":"pop","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"Uan2Dv0qBhA","image":"mu_27.webp","tag":"Tokusatsu — Ringo Mogire Beam!","country":"japan","genre":"rock","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"T_lC2O1oIew","image":"mu_28.webp","tag":"Mariya Takeuchi — Plastic Love","country":"japan","genre":"citypop","mood":"nostalgic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"wAzcN5Jot8k","image":"mu_29.webp","tag":"Miki Matsubara — Mayonaka no Door / Stay With Me","country":"japan","genre":"citypop","mood":"nostalgic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"oO0vP6K9XVg","image":"mu_30.webp","tag":"J.J. Cale — Mama Don't","country":"usa","genre":"folk","mood":"chill","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"ZWaOfSeh9C8","image":"mu_31.webp","tag":"Garbage — Not Your Kind of People","country":"usa","genre":"rock","mood":"dark","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"1Q3SOrb8AqM","image":"mu_32.webp","tag":"DJ Blyatman — Slav King (feat. Life of Boris)","country":"russia","genre":"electronic","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"RHpWTC_QrwA","image":"mu_33.webp","tag":"DJ Blyatman — Gopnik","country":"russia","genre":"electronic","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"2f2jUcCP8XI","image":"mu_34.webp","tag":"Glukoza — Vot Takaya Lyubov","country":"russia","genre":"pop","mood":"romantic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"xRo-LPKAko8","image":"mu_35.webp","tag":"Arkona — Odna","country":"russia","genre":"metal","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"zZuIMcmNZnU","image":"mu_36.webp","tag":"Pearl Brothers — Youkoso! Hitoribocchi","country":"japan","genre":"soundtrack","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"25ZfPDcATCs","image":"mu_38.webp","tag":"AIGEL — Snow (Sneg)","country":"russia","genre":"electronic","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"iTfqMZYA7OQ","image":"mu_38.webp","tag":"AIGEL — Two Weeks (Две недели)","country":"russia","genre":"electronic","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"E3yqv2PGugs","image":"mu_39.webp","tag":"TeddyLoid — Corset Theme","country":"japan","genre":"electronic","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"ZCut2rFo1bk","image":"mu_39.webp","tag":"TeddyLoid — Theme for Scanty & Knee Socks","country":"japan","genre":"electronic","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"-56x7std2pU","image":"mu_39.webp","tag":"TeddyLoid — Fly Away","country":"japan","genre":"electronic","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"PriNj4gtwBs","image":"mu_40.webp","tag":"chelmico — Easy Breezy","country":"japan","genre":"hiphop","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"hzFLHL-fzV8","image":"mu_41.webp","tag":"Kenji Ohtsuki — Odoru Akachan Ningen","country":"japan","genre":"rock","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"xB2K-riHfSc","image":"mu_42.webp","tag":"the pillows — Last Dinosaur","country":"japan","genre":"rock","mood":"nostalgic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"TiycWq1YOAA","image":"mu_42.webp","tag":"the pillows — Funny Bunny","country":"japan","genre":"rock","mood":"nostalgic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"Q0tO5MPGuGk","image":"mu_42.webp","tag":"the pillows — Beautiful Morning With You","country":"japan","genre":"rock","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"K4_Qzx-E2LQ","image":"mu_43.webp","tag":"the pillows — Ride on Shooting Star","country":"japan","genre":"rock","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"PKRUKalbx3s","image":"mu_44.webp","tag":"Shoko Nakagawa — Sorairo Days","country":"japan","genre":"soundtrack","mood":"epic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"Kq_plVrBPx4","image":"mu_44.webp","tag":"Shoko Nakagawa — Happily Ever After","country":"japan","genre":"pop","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"VLW1ieY4Izw","image":"mu_45.webp","tag":"XS Project — Bochka, Bass, Kolbaser","country":"russia","genre":"electronic","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"PNGbvYSp08A","image":"mu_46.webp","tag":"Kylee — VACANCY","country":"usa","genre":"rock","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"xMK7IHF69Sc","image":"mu_47.webp","tag":"Giles Corey — No One Is Ever Going to Want Me","country":"usa","genre":"folk","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"SRQGOtBVELo","image":"mu_48.webp","tag":"Poets of the Fall — My Dark Disquiet","country":"finland","genre":"rock","mood":"dark","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"y8VfziFZMGY","image":"mu_49.webp","tag":"Donna Burke — Sins of the Father","country":"australia","genre":"soundtrack","mood":"epic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"eDajkN_GBC4","image":"mu_49.webp","tag":"Donna Burke — Heavens Divide (Metal Gear Solid: Peace Walker)","country":"australia","genre":"soundtrack","mood":"epic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"8Kl_ZhPKCgc","image":"mu_49.webp","tag":"Donna Burke — The Best Is Yet To Come","country":"australia","genre":"soundtrack","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"ei7cdynwRMA","image":"mu_50.webp","tag":"KASHIWA Daisuke — Stella","country":"japan","genre":"ambient","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"3P5F47GEsQA","image":"mu_50.webp","tag":"KASHIWA Daisuke — write once, run melos","country":"japan","genre":"classical","mood":"epic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"w3RDwQjUekU","image":"mu_51.webp","tag":"Kaneko Ayano — Romance Sengen","country":"japan","genre":"indie","mood":"romantic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"cayMq-CEjmQ","image":"mu_52.webp","tag":"Clammbon — Re: Ame","country":"japan","genre":"indie","mood":"chill","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"mlenZeSYy-Q","image":"mu_52.webp","tag":"Clammbon — Re Folklore","country":"japan","genre":"indie","mood":"chill","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"hkL4hW4eniI","image":"mu_53.webp","tag":"Asobi Asobase Cast — Inkya Impulse","country":"japan","genre":"soundtrack","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"3ukCLUdzbUs","image":"mu_54.webp","tag":"Marcin Przybylowicz — Wolven Storm (English)","country":"poland","genre":"soundtrack","mood":"romantic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"20iCZeU35eQ","image":"mu_55.webp","tag":"Japanese Breakfast — Diving Woman","country":"usa","genre":"indie","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"MiOGtssMuFw","image":"mu_56.webp","tag":"Japanese Breakfast — Soft Sounds from Another Planet","country":"usa","genre":"indie","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"0-EMiEpXLJg","image":"mu_56.webp","tag":"Japanese Breakfast — Slide Tackle","country":"usa","genre":"indie","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"1GkKEMZ2u8k","image":"mu_57.webp","tag":"Modest Mouse — Lounge (Closing Time)","country":"usa","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"lVfPYvB2osI","image":"mu_58.webp","tag":"Weyes Blood — Do You Need My Love (Live)","country":"usa","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"xtxjm7ciwmc","image":"mu_60.webp","tag":"Kino — Gruppa Krovi","country":"russia","genre":"rock","mood":"epic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"Gwym7_pFnww","image":"mu_61.webp","tag":"Mayumi Kojima — Hard Bop","country":"japan","genre":"jazz","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"rKssBD8xeWY","image":"mu_62.webp","tag":"Mayumi Kojima — Manatsu no Umi","country":"japan","genre":"jazz","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"HnbmncZQsTk","image":"mu_63.webp","tag":"Yasuda Rei — Koiuta","country":"japan","genre":"pop","mood":"romantic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"VQLjUZ2bm24","image":"mu_64.webp","tag":"Ikimonogakari — Hanabi","country":"japan","genre":"pop","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"RQvs6dAmlYM","image":"mu_65.webp","tag":"Lovage — Anger Management","country":"usa","genre":"hiphop","mood":"chill","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"mSSu9jTbqGU","image":"mu_65.webp","tag":"Lovage — Book of the Month","country":"usa","genre":"hiphop","mood":"romantic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"UZ45bnHDw2A","image":"mu_66.webp","tag":"KASHIWA Daisuke — Swan Song","country":"japan","genre":"classical","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"DEVQhmXaZyQ","image":"mu_67.webp","tag":"KASHIWA Daisuke — city in the lake","country":"japan","genre":"ambient","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"4XD_wxK91ao","image":"mu_67.webp","tag":"KASHIWA Daisuke — airport","country":"japan","genre":"ambient","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"RCUCxMOtVbs","image":"mu_68.webp","tag":"KASHIWA Daisuke — sons","country":"japan","genre":"classical","mood":"epic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"cJ1yFhjRnNc","image":"mu_69.webp","tag":"Joanna Newsom — Ys (Full Album)","country":"usa","genre":"folk","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"PYefVGPHAE8","image":"mu_70.webp","tag":"Joanna Newsom — Time, As a Symptom","country":"usa","genre":"folk","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"L9hCpxcY2RU","image":"mu_71.webp","tag":"Van Dyke Parks — Opportunity For Two","country":"usa","genre":"pop","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"_5U9WuMsipk","image":"mu_71.webp","tag":"Van Dyke Parks — Hominy Grove","country":"usa","genre":"baroquepop","mood":"nostalgic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"My4j3vgFxbE","image":"mu_72.webp","tag":"Fazerdaze — Lucky Girl","country":"newzealand","genre":"indie","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"rx1AHeEwnNg","image":"mu_73.webp","tag":"Fazerdaze — Reel","country":"newzealand","genre":"indie","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"Zv1FyQn2kQA","image":"mu_74.webp","tag":"Dance with the Dead — The Man Who Made a Monster","country":"usa","genre":"electronic","mood":"dark","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"aNYjOVo5IEw","image":"mu_75.webp","tag":"Alt-J — Something Good","country":"uk","genre":"indie","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"IB1URcYIaOE","image":"mu_76.webp","tag":"Low Roar — Don't Be So Serious","country":"iceland","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"hprK_bVg2ro","image":"mu_76.webp","tag":"Low Roar — Bones (feat. Jófríður Ákadóttir)","country":"iceland","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"Z7pI5XEPFpc","image":"mu_77.webp","tag":"Pelageya — Polnochny Vsadnik","country":"russia","genre":"folk","mood":"dark","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"a0YCZm8XE6w","image":"mu_77.webp","tag":"Pelageya — Derevnya (Live, 2009)","country":"russia","genre":"folk","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"GKAywP6yd60","image":"mu_78.webp","tag":"Silent Poets — Asylums for the Feeling","country":"japan","genre":"ambient","mood":"chill","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"NLy4cvRx7Vc","image":"mu_79.webp","tag":"Kyary Pamyu Pamyu — Tsukematsukeru","country":"japan","genre":"pop","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"UoK8DaJRDaM","image":"mu_79.webp","tag":"Kyary Pamyu Pamyu — Candy Candy","country":"japan","genre":"pop","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"_cRPeXQvH4Q","image":"mu_80.webp","tag":"Kyary Pamyu Pamyu — Me","country":"japan","genre":"pop","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"M_I6tASrnwk","image":"mu_81.webp","tag":"Reol — Yoiyoi Kokon","country":"japan","genre":"electronic","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"yrcE6JOWuwc","image":"mu_81.webp","tag":"Reol — Vip Kid","country":"japan","genre":"electronic","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"LIlZCmETvsY","image":"mu_82.webp","tag":"Sakanaction — Shinsekai (Music Video)","country":"japan","genre":"rock","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"na1I8fwbmyE","image":"mu_83.webp","tag":"Reol — MONSTER","country":"japan","genre":"electronic","mood":"dark","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"4QePrv24TBU","image":"mu_84.webp","tag":"ZUTOMAYO — Kansaete Kuyashiiwa","country":"japan","genre":"rock","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"n5xGJHErs_A","image":"mu_84.webp","tag":"ZUTOMAYO — Inemuri Enseitai","country":"japan","genre":"rock","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"ElnxZtiBDvs","image":"mu_84.webp","tag":"ZUTOMAYO — Haze Haseru Hateru Made","country":"japan","genre":"rock","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"iyCRK5WfFOI","image":"mu_84.webp","tag":"ZUTOMAYO — Kettobashita Moufu","country":"japan","genre":"rock","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"Qw-FSw7d2zE","image":"mu_84.webp","tag":"ZUTOMAYO — Dear. Mr「F」","country":"japan","genre":"rock","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"qQ-Pyx4joKM","image":"mu_85.webp","tag":"Caravan Palace — Tattoos","country":"france","genre":"electronic","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"vCXsRoyFRQE","image":"mu_85.webp","tag":"Caravan Palace — Wonderland","country":"france","genre":"electronic","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"-fo-8DWe6gE","image":"mu_86.webp","tag":"Caravan Palace — Reverse","country":"france","genre":"electronic","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"49Yj4jasr14","image":"mu_86.webp","tag":"Caravan Palace — Villa Rose","country":"france","genre":"electronic","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"Kw2mXcI2-is","image":"mu_87.webp","tag":"Lucky Old Sun — I'm So Sorry, Mom (EP)","country":"japan","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"Ssb2AMR-kEo","image":"mu_88.webp","tag":"Luna — Free Love","country":"russia","genre":"pop","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"vn7vfza-6fQ","image":"mu_89.webp","tag":"Frederic — Kanashii Ureshii","country":"japan","genre":"rock","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"P44CjuM-tfA","image":"mu_90.webp","tag":"Daughter — Youth","country":"uk","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"9kr-aqnc5Ho","image":"mu_90.webp","tag":"Daughter — Medicine","country":"uk","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"tkOozjVuFP4","image":"mu_91.webp","tag":"Necry Talkie — Ta ga Tame ni CHAKAPOCO wa Naru","country":"japan","genre":"rock","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"dQuwq-SAbPc","image":"mu_92.webp","tag":"KIKI (輝＆輝) — Funny Street","country":"japan","genre":"citypop","mood":"nostalgic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"JL1AYJ9zBJE","image":"mu_93.webp","tag":"Black Country, New Road — Laughing Song (Live at Bush Hall)","country":"uk","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"4eFDXIwIE9w","image":"mu_93.webp","tag":"Black Country, New Road — I Won't Always Love You (Live at Bush Hall)","country":"uk","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"VgZn5dfg1U0","image":"mu_93.webp","tag":"Black Country, New Road — Turbines/Pigs (Live at Bush Hall)","country":"uk","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"N0cywoEn0_s","image":"mu_93.webp","tag":"Black Country, New Road — Dancers (Live at Bush Hall)","country":"uk","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"W4fyGoT_ycc","image":"mu_94.webp","tag":"Jewelia — Invisible Wall","country":"romania","genre":"pop","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"UiAfaCVAh24","image":"mu_94.webp","tag":"Jewelia — Queen of Make Believe","country":"romania","genre":"pop","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"jrL_LzX5wv4","image":"mu_95.webp","tag":"House of Pain — Jump Around","country":"usa","genre":"hiphop","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"Z-59L_G1iZs","image":"mu_96.webp","tag":"Toby Keith — I Love This Bar","country":"usa","genre":"americana","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"ZxVw7bvMd3s","image":"mu_97.webp","tag":"Gorillaz — Feel Good Inc.","country":"uk","genre":"hiphop","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"rIq6i4-8Nww","image":"mu_98.webp","tag":"Gorillaz — DARE","country":"uk","genre":"hiphop","mood":"chill","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"jZN-RKQjrN4","image":"mu_99.webp","tag":"chelmico — Give Me Love","country":"japan","genre":"hiphop","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"OkR0EgSpTxg","image":"mu_100.webp","tag":"DEAD BLONDE — Sneg Rastayal na Plechakh","country":"russia","genre":"electronic","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"SrZfImne2uo","image":"mu_101.webp","tag":"Monetochka — Padat' v gryaz'","country":"russia","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"eotBrWTvUo8","image":"mu_102.webp","tag":"Monetochka (Монеточка) — Poslednyaya Diskoteka","country":"russia","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"tiIv4pKY9hY","image":"mu_103.webp","tag":"Monetochka — Viktor Drobysh","country":"russia","genre":"indie","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"LynufqvrBh0","image":"mu_103.webp","tag":"Monetochka — Kozyrnyy Tuz","country":"russia","genre":"indie","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"bN02S54hHI4","image":"mu_104.webp","tag":"Hideki Naganuma — The Concept of Love","country":"japan","genre":"electronic","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"YyQqsv0Df-w","image":"mu_104.webp","tag":"Hideki Naganuma — Rock It On (D.S. Remix)","country":"japan","genre":"soundtrack","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"UKJVV8kUXec","image":"mu_105.webp","tag":"Akio Otsuka — MachineGun Kiss (Police Spec Edition)","country":"japan","genre":"soundtrack","mood":"epic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"LfAOQL7iqm4","image":"mu_106.webp","tag":"Yuki Kajiura — maybe tomorrow (Xenosaga III)","country":"japan","genre":"soundtrack","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"0I4pQ2ve_fw","image":"mu_106.webp","tag":"Yuki Kajiura — my long forgotten cloistered sleep (Xenosaga)","country":"japan","genre":"soundtrack","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"3II5pBTePLQ","image":"mu_107.webp","tag":"Yuki Kajiura — canta per me","country":"japan","genre":"soundtrack","mood":"epic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"TC_U49qq7LU","image":"mu_108.webp","tag":"Shiro Sagisu — Komm, süsser Tod","country":"japan","genre":"soundtrack","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"FUH9S44D1BM","image":"mu_109.webp","tag":"FLOW — Colors","country":"japan","genre":"rock","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"uo0jE0oXITk","image":"mu_110.webp","tag":"FLOW — Days","country":"japan","genre":"rock","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"P_g3sYGuuEA","image":"mu_111.webp","tag":"Melnitsa — Dorogi","country":"russia","genre":"folk","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"sdzseU8XGUE","image":"mu_112.webp","tag":"Platina Jazz — Mizu no Akashi (Gundam SEED, Live)","country":"sweden","genre":"jazz","mood":"chill","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"cAIOOYXSdHw","image":"mu_112.webp","tag":"Platina Jazz — Hare Hare Yukai (Live)","country":"sweden","genre":"jazz","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"fo8rG29TcwU","image":"mu_113.webp","tag":"Platina Jazz — Bouken Desho Desho? (Anime Jazz Cover)","country":"sweden","genre":"jazz","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"S0hhTrdRi5Y","image":"mu_114.webp","tag":"Platina Jazz — Nausicaä of the Valley of the Wind (Jazz Cover)","country":"sweden","genre":"jazz","mood":"chill","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"zJGN0Mwg1e0","image":"mu_114.webp","tag":"Platina Jazz — Chiisana Tenohira (Clannad After Story) Live","country":"sweden","genre":"jazz","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"aiLRLdW_zYs","image":"mu_118.webp","tag":"Yoeko Kurahashi — Tate","country":"japan","genre":"jazz","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"ZRtdQ81jPUQ","image":"mu_119.webp","tag":"YOASOBI — Idol","country":"japan","genre":"pop","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"9ctHvbTcfCM","image":"mu_120.webp","tag":"KOKIA — Kuma ~Kumao no Hatsukoi Kumattana~","country":"japan","genre":"folk","mood":"chill","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"oKzlCN6-BxU","image":"mu_120.webp","tag":"KOKIA — Shimauma (Shimauma no Pajama)","country":"japan","genre":"pop","mood":"chill","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"aQGvlemqUpE","image":"mu_121.webp","tag":"Junko Yagami — Tasogare no Bay City","country":"japan","genre":"citypop","mood":"nostalgic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"_sOKkON_UnQ","image":"mu_122.webp","tag":"Taeko Ohnuki — 4:00 A.M.","country":"japan","genre":"citypop","mood":"nostalgic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"g0p_jI6T2WQ","image":"mu_123.webp","tag":"Yasuha — Fly-Day Chinatown","country":"japan","genre":"citypop","mood":"nostalgic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"6q6GtPdVHL4","image":"mu_124.webp","tag":"Anri — I Can't Stop the Loneliness (Kanashimi ga Tomaranai)","country":"japan","genre":"citypop","mood":"nostalgic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"_2quiyHfJQw","image":"mu_125.webp","tag":"Mondo Grosso — Labyrinth","country":"japan","genre":"electronic","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"AznrIE3F0Gk","image":"mu_126.webp","tag":"Juliette Armanet — Un souvenir ou deux","country":"france","genre":"pop","mood":"romantic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"Iub97D63R9Q","image":"mu_127.webp","tag":"KOKIA — Chowa oto (with reflection)","country":"japan","genre":"pop","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"n4OwY4FKz_w","image":"mu_127.webp","tag":"KOKIA — Arigatou (The Pearl Edition)","country":"japan","genre":"pop","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"yyspSKn9R4Y","image":"mu_127.webp","tag":"KOKIA — The Power of Smile (a gentle breeze)","country":"japan","genre":"pop","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"WxXD1sXLcyA","image":"mu_128.webp","tag":"KOKIA — Tatta Hitotsu no Omoi","country":"japan","genre":"pop","mood":"epic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"CGoOnJ2TlJk","image":"mu_129.webp","tag":"Susan Egan — I Won't Say (I'm In Love)","country":"usa","genre":"soundtrack","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"woO9FidFa6o","image":"mu_129.webp","tag":"Hercules — Zero to Hero","country":"soundtrack","genre":"soundtrack","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"joOYYF8zTe0","image":"mu_130.webp","tag":"Elton John — Without Question (The Road to El Dorado)","country":"uk","genre":"soundtrack","mood":"romantic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"bTWxDMNDz-4","image":"mu_130.webp","tag":"Elton John — The Trail We Blaze","country":"uk","genre":"soundtrack","mood":"epic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"wb5keTpC4WU","image":"mu_131.webp","tag":"Phil Collins — Two Worlds","country":"uk","genre":"soundtrack","mood":"epic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"tiBaBca7-rY","image":"mu_131.webp","tag":"Phil Collins — Son of Man","country":"uk","genre":"soundtrack","mood":"epic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"0S_fTDauV34","image":"mu_131.webp","tag":"Phil Collins — You'll Be In My Heart","country":"uk","genre":"soundtrack","mood":"romantic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"ioOqkI1cw88","image":"mu_132.webp","tag":"Julie Andrews — Feed the Birds (Mary Poppins)","country":"uk","genre":"soundtrack","mood":"nostalgic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"Id-1XBV7ckU","image":"mu_133.webp","tag":"Scatman Crothers — Ev'rybody Wants to Be a Cat (The Aristocats)","country":"usa","genre":"soundtrack","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"x8pQKNSJNaI","image":"mu_134.webp","tag":"The Hunchback of Notre Dame — The Bells of Notre Dame","country":"usa","genre":"soundtrack","mood":"epic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"9Gs0p_Dcbzc","image":"mu_134.webp","tag":"Hellfire — The Hunchback of Notre Dame","country":"soundtrack","genre":"soundtrack","mood":"dark","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"bdIR6-6BMyA","image":"mu_134.webp","tag":"Heidi Mollenhauer — God Help the Outcasts","country":"usa","genre":"soundtrack","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"45z9azQBLSQ","image":"mu_135.webp","tag":"Mulan OST — Reflection","country":"soundtrack","genre":"soundtrack","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"1tU5CsJoU60","image":"mu_135.webp","tag":"Jerry Goldsmith — Haircut (Mulan Score)","country":"soundtrack","genre":"soundtrack","mood":"epic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"elBKil5zE2g","image":"mu_135.webp","tag":"Donny Osmond — I'll Make a Man Out of You","country":"usa","genre":"soundtrack","mood":"epic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"kvznYJEFh1w","image":"mu_136.webp","tag":"Mark Keali'i Ho'omalu — He Mele No Lilo","country":"usa","genre":"soundtrack","mood":"epic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"CUosSQZSw5c","image":"mu_137.webp","tag":"Marlena Shaw — California Soul","country":"usa","genre":"funksoul","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"d5HQdXkkfso","image":"mu_138.webp","tag":"Zodiac (Зодиак) — Zodiac","country":"russia","genre":"electronic","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"DrQRS40OKNE","image":"mu_139.webp","tag":"Fleet Foxes — White Winter Hymnal","country":"usa","genre":"folk","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"3z8y7enYB30","image":"mu_140.webp","tag":"Aiobahn — Sora de Oyasumi (feat. Yuka Nagase)","country":"korea","genre":"electronic","mood":"chill","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"u5rpOXS9O8Q","image":"mu_141.webp","tag":"Low Roar — I'm Leaving","country":"iceland","genre":"indie","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"M_lyQ-OCIYs","image":"mu_141.webp","tag":"Low Roar — Easy Way Out","country":"iceland","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"AoHFCLxTkE4","image":"mu_142.webp","tag":"Syd Matters — To All of You","country":"france","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"GydqGpcudL4","image":"mu_142.webp","tag":"Syd Matters — Icare","country":"france","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"jb1SkDjaXk8","image":"mu_142.webp","tag":"Syd Matters — Obstacles","country":"france","genre":"indie","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"iFS_lAg_tSo","image":"mu_143.webp","tag":"David Hasselhoff — Looking For Freedom","country":"usa","genre":"pop","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"mN-CqIytN2U","image":"mu_144.webp","tag":"Local Natives — Mt. Washington","country":"usa","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"4QEy1efy1Yw","image":"mu_145.webp","tag":"Bright Eyes — Lua","country":"usa","genre":"folk","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"MuS_v3HVB_8","image":"mu_145.webp","tag":"Bright Eyes — We Are Nowhere and It's Now","country":"usa","genre":"folk","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"kXcOyYEldZY","image":"mu_146.webp","tag":"Message To Bears — Mountains","country":"uk","genre":"ambient","mood":"chill","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"eYoINidnLRQ","image":"mu_147.webp","tag":"Foals — Spanish Sahara","country":"uk","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"omzJvwYO440","image":"mu_148.webp","tag":"New Order — Elegia","country":"uk","genre":"electronic","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"HhZaHf8RP6g","image":"mu_149.webp","tag":"Daft Punk — Veridis Quo","country":"france","genre":"electronic","mood":"chill","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"3Ck5b91CeEw","image":"mu_150.webp","tag":"Julia Jacklin — to Perth, before the border closes","country":"australia","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"QwyDCjhbMa8","image":"mu_150.webp","tag":"Julia Jacklin — CRY","country":"australia","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"yHuhABPbOaE","image":"mu_151.webp","tag":"Waxahatchee — Can't Do Much","country":"usa","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"LL7f-w6WNw4","image":"mu_152.webp","tag":"Allie X — Weird World","country":"canada","genre":"pop","mood":"dark","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"PV_g2VrpJB4","image":"mu_152.webp","tag":"Allie X — Galina (ft. Empress Of)","country":"canada","genre":"pop","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"19aPQJ2HYc8","image":"mu_152.webp","tag":"Allie X — Black Eye","country":"canada","genre":"pop","mood":"dark","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"ScsIl7Y0SVE","image":"mu_153.webp","tag":"Pendulum — Fasten Your Seatbelts (Live at Brixton Academy)","country":"australia","genre":"electronic","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"sYTouavUBBw","image":"mu_153.webp","tag":"Pendulum — The Other Side (Live at Brixton Academy)","country":"australia","genre":"electronic","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"slX_3mocFes","image":"mu_153.webp","tag":"Pendulum — Slam (Live at Brixton Academy)","country":"australia","genre":"electronic","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"HW-MMu4GLWk","image":"mu_154.webp","tag":"Necry Talkie — Bloom","country":"japan","genre":"rock","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"KdrP8A7jz5M","image":"mu_155.webp","tag":"NECRY TALKIE — Fuzaketenaize","country":"japan","genre":"rock","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"rRvzFShVOPY","image":"mu_156.webp","tag":"Necry Talkie — Houkago no Kioku","country":"japan","genre":"rock","mood":"nostalgic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"0l-qw9yRFOA","image":"mu_156.webp","tag":"Necry Talkie — Kitakami no Susume","country":"japan","genre":"rock","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"2jghKg0Q0EU","image":"mu_157.webp","tag":"Glukoza — Ebobo","country":"russia","genre":"electronic","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"Fm_iyGAutqc","image":"mu_158.webp","tag":"Glukoza — Motylki (feat. KYIVSTONER)","country":"russia","genre":"pop","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"8BH5sxq1yaI","image":"mu_159.webp","tag":"Clairo — Slow Dance","country":"usa","genre":"indie","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"Egb3kRRsOxk","image":"mu_159.webp","tag":"Clairo — Thank You","country":"usa","genre":"indie","mood":"chill","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"hLrGvkul3_k","image":"mu_159.webp","tag":"Clairo — Add Up My Love","country":"usa","genre":"indie","mood":"chill","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"CeA92xqw-QI","image":"mu_160.webp","tag":"Clairo — Bags (Live at Electric Lady)","country":"usa","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"L9l8zCOwEII","image":"mu_160.webp","tag":"Clairo — Sofia","country":"usa","genre":"indie","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"nLavzXXZCcs","image":"mu_161.webp","tag":"Clairo — Bambi","country":"usa","genre":"indie","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"TZl0MHwgn8c","image":"mu_161.webp","tag":"Clairo — Amoeba","country":"usa","genre":"indie","mood":"chill","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"grLkaZIC2tI","image":"mu_161.webp","tag":"Clairo — Zinnias (Live at Electric Lady)","country":"usa","genre":"indie","mood":"chill","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"BYk1sS329Mg","image":"mu_162.webp","tag":"Panteón Rococó — La Carencia","country":"mexico","genre":"punkska","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"4eoHD3fuHgA","image":"mu_163.webp","tag":"Panteón Rococó — La Dosis Perfecta","country":"mexico","genre":"punkska","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"mkZ8VfkEgFQ","image":"mu_164.webp","tag":"El Gran Silencio — Chúntaros Style","country":"mexico","genre":"punkska","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"BZAkzCw17GM","image":"mu_165.webp","tag":"Chicos de Barrio — Mucha Lucha","country":"mexico","genre":"latin","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"j1RAUoM2pro","image":"mu_168.webp","tag":"Astrophysics — Baka Mitai (Synthwave Remix) feat. Marina Rios","country":"brazil","genre":"electronic","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"s0NME1GfbIc","image":"mu_167.webp","tag":"Bôa — Duvet (2023)","country":"uk","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"B8TClXpFbC4","image":"mu_169.webp","tag":"Sambomaster — Seishun Kyousoukyoku","country":"japan","genre":"rock","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"QpotQZsxzsc","image":"mu_170.webp","tag":"Allie X — Bon Voyage","country":"canada","genre":"pop","mood":"dark","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"fZcwPx-tSTo","image":"mu_171.webp","tag":"Sexy Sushi — Stabat Mater (Fräulein Warrior Version)","country":"france","genre":"electronic","mood":"dark","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"toDa_F9kv1E","image":"mu_172.webp","tag":"Allie X — Our Lady of Sorrows","country":"canada","genre":"pop","mood":"dark","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"YmPVq8rspws","image":"mu_173.webp","tag":"Kate Bush — Symphony in Blue","country":"uk","genre":"pop","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"xnwTNwjxQxI","image":"mu_173.webp","tag":"Kate Bush — In Search of Peter Pan","country":"uk","genre":"pop","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"F9qQMIbFHHE","image":"mu_173.webp","tag":"Kate Bush — Wow","country":"uk","genre":"pop","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"wp43OdtAAkM","image":"mu_174.webp","tag":"Kate Bush — Running Up That Hill","country":"uk","genre":"pop","mood":"dark","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"VerK4zwMRQw","image":"mu_174.webp","tag":"Kate Bush — Hounds of Love","country":"uk","genre":"pop","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"pllRW9wETzw","image":"mu_174.webp","tag":"Kate Bush — Cloudbusting","country":"uk","genre":"pop","mood":"epic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"6xckBwPdo1c","image":"mu_175.webp","tag":"Kate Bush — Babooshka","country":"uk","genre":"indie","mood":"nostalgic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"73i_UC0nWws","image":"mu_175.webp","tag":"Kate Bush — Violin","country":"uk","genre":"rock","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"ORAQITI1Gxw","image":"mu_175.webp","tag":"Kate Bush — The Infant Kiss","country":"uk","genre":"pop","mood":"dark","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"VzlofSthVwc","image":"mu_175.webp","tag":"Kate Bush — Breathing","country":"uk","genre":"pop","mood":"dark","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"Atd6WRAeyPA","image":"mu_176.webp","tag":"Pokémon — Go Pokémon Go","country":"soundtrack","genre":"soundtrack","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"NeB-lWNkhfA","image":"mu_177.webp","tag":"Laufey — California and Me (feat. Philharmonia Orchestra)","country":"iceland","genre":"jazz","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"DF6W1XD25Dc","image":"mu_178.webp","tag":"Zveri (Звери) — Do skoroy vstrechi","country":"russia","genre":"rock","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"PULwDISWun8","image":"mu_179.webp","tag":"Daniel Olsén — Sayonara Wild Heart","country":"sweden","genre":"soundtrack","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"dDiGKUcfmVk","image":"mu_179.webp","tag":"Daniel Olsén — Dead of Night","country":"sweden","genre":"soundtrack","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"hHOuTM-_neE","image":"mu_180.webp","tag":"Akira — The Blithering Heights (SpaceEngine OST)","country":"soundtrack","genre":"soundtrack","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"yyu-nC6SttI","image":"mu_181.webp","tag":"SpaceEngine OST — Ashterra (The Moon)","country":"soundtrack","genre":"ambient","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"JBtUeBUyVaY","image":"mu_182.webp","tag":"Astropilot — A Drowning","country":"ukraine","genre":"ambient","mood":"chill","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"qA-GBRf_hzc","image":"mu_182.webp","tag":"Astropilot — Only Hope","country":"ukraine","genre":"ambient","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"fxPiRPnPqLs","image":"mu_182.webp","tag":"Astropilot — Patterns of Awareness","country":"ukraine","genre":"ambient","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"IIOJdMdS56k","image":"mu_183.webp","tag":"Swing Out Sister — Breakout","country":"uk","genre":"pop","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"5Nl5zBqXc1o","image":"mu_183.webp","tag":"Swing Out Sister — Twilight World","country":"uk","genre":"pop","mood":"chill","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"a6rmmFNhxdI","image":"mu_183.webp","tag":"Swing Out Sister — Fooled By A Smile","country":"uk","genre":"pop","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"CU9pEi3ByTw","image":"mu_184.webp","tag":"Swing Out Sister — You On My Mind","country":"uk","genre":"pop","mood":"nostalgic","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"8bIFadXgDO0","image":"mu_185.webp","tag":"Swing Out Sister — La La (Means I Love You)","country":"uk","genre":"pop","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"5pd0V1ZfK_g","image":"mu_186.webp","tag":"Swing Out Sister — Better Make It Better","country":"uk","genre":"pop","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"CwjshPNrWtY","image":"mu_187.webp","tag":"Magdalena Bay — Hysterical Us","country":"usa","genre":"electronic","mood":"upbeat","carino":true,"spotifyurl":"0vMlVGJuREJk3c7vvObE5Z","applemusicurl":"album/hysterical-us/1570541671?i=1570541941"},
+  {"url":"Xcq3xMCcGlI","image":"mu_188.webp","tag":"Magdalena Bay — Cry for Me","country":"usa","genre":"electronic","mood":"energetic","carino":true,"spotifyurl":"4rVs9KjC3YVA7v54kVSHUV","applemusicurl":""},
+  {"url":"N-w6qgiNeys","image":"mu_188.webp","tag":"Magdalena Bay — Tunnel Vision","country":"usa","genre":"electronic","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"-OwLVuyj3Jg","image":"mu_189.webp","tag":"Black Country, New Road — Nancy Tries to Take the Night","country":"uk","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"3vtceW4EYrv3enjfz7MTff?si=d83c7eaa86584889","applemusicurl":"song/nancy-tries-to-take-the-night/1783713623"}
 ];

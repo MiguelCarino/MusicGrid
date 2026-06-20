@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music Grid™</title>
+    <title>Carino Music Grid — music by country</title>
+    <meta name="description" content="A personal music wall and per-country collection. Click any cover to play, browse by country, queue songs and follow along with synced lyrics.">
     <link rel="stylesheet" href="https://carino.systems/assets/css/styles.css">
     <link rel="stylesheet" href="assets/css/grid.css">
     <link rel="icon" href="assets/images/logo.webp">
     <script src="assets/json/catalog.json" defer></script>
+    <script src="assets/js/navbar.js" defer></script>
     <script src="assets/js/grid.js" defer></script>
     <meta property="og:title" content="Music Grid"/>
     <meta property="twitter:title" content="Music Grid"/>
@@ -19,12 +21,53 @@
     <meta property="og:locale" content="en_US"/>
 </head>
 <body>
-    <nav id="navbar"></nav>
+    <!-- ============================ Carino navbar ============================ -->
+    <header class="top-header" id="navbar">
+        <div class="header-left">
+            <a class="brand-name" href="https://carino.systems/" title="Carino Systems — back to hub">
+                Carino<span class="app-tag">Music</span>
+            </a>
+            <div class="header-clock" aria-hidden="true">
+                <span class="clock-time" id="clockLocal">00:00:00</span>
+                <span class="clock-tz" id="tzName">UTC</span>
+                <span class="brand-greeting" id="greeting">System Ready.</span>
+            </div>
+        </div>
 
-    <!-- Controls: search + category filters + random + scroll toggle -->
+        <div class="header-right">
+            <div class="social-row">
+                <a href="https://github.com/MiguelCarino/MusicGrid" target="_blank" rel="noopener" class="icon-btn" title="MusicGrid on GitHub">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                </a>
+                <a href="https://www.linkedin.com/in/miguelcarino94/" target="_blank" rel="noopener" class="icon-btn" title="LinkedIn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                </a>
+            </div>
+            <button class="status-toggle" id="diagToggle" title="Library status" aria-label="Library status" aria-haspopup="true" aria-expanded="false" aria-controls="diagBox">
+                <span>Status</span><div class="pulse-dot"></div>
+            </button>
+        </div>
+
+        <!-- Diagnostics dropdown -->
+        <div class="diag-dropdown" id="diagBox">
+            <div class="diag-section">Library</div>
+            <div class="diag-row"><span class="diag-lbl">Songs</span><span class="diag-val" id="diagSongs">0</span></div>
+            <div class="diag-row"><span class="diag-lbl">Countries</span><span class="diag-val" id="diagCountries">0</span></div>
+            <div class="diag-row"><span class="diag-lbl">Carino picks</span><span class="diag-val" id="diagCarino">0</span></div>
+            <div class="diag-section">Now playing</div>
+            <div class="diag-row"><span class="diag-lbl">Track</span><span class="diag-val diag-val-trunc" id="diagNow">—</span></div>
+            <div class="diag-row"><span class="diag-lbl">From</span><span class="diag-val" id="diagNowCountry">—</span></div>
+            <div class="diag-section">Session</div>
+            <div class="diag-row"><span class="diag-lbl">Filter</span><span class="diag-val" id="diagFilter">All</span></div>
+            <div class="diag-row"><span class="diag-lbl">In queue</span><span class="diag-val" id="diagQueue">0</span></div>
+            <div class="diag-row"><span class="diag-lbl">Local time</span><span class="diag-val" id="diagClock">--:--:--</span></div>
+        </div>
+    </header>
+
+    <!-- Controls: category menus + autoplay + random + scroll toggle -->
     <div id="controls">
-        <input type="text" id="searchBar" placeholder="Search tags…" autocomplete="off" spellcheck="false">
         <div id="sectionFilters"></div>
+        <button id="autoplayToggle" title="Keep playing songs automatically">↻ Autoplay</button>
         <button id="lyricsToggle" title="Toggle lyrics" style="display:none">♪ Lyrics</button>
         <button id="randomBtn" title="Play a random song">⇌</button>
         <button id="scrollToggle" title="Pause auto-scroll">⏸ Pause</button>
@@ -45,12 +88,24 @@
     <!-- Info panel (fixed, right side) -->
     <div id="videoInfoBar">
         <button id="closeInfoBar" aria-label="Close panel">✕</button>
-        <div id="albumImage"></div>
-        <div id="videoTitle"></div>
-        <div id="videoLinks"></div>
+
+        <!-- Player on top -->
         <div id="videoPlayer">
             <div id="ytPlayerSlot"></div>
         </div>
+
+        <!-- Track header: cover thumb + title + meta chips -->
+        <div class="vib-head">
+            <div id="albumImage"></div>
+            <div class="vib-headtext">
+                <div id="videoTitle"></div>
+                <div id="videoMeta"></div>
+            </div>
+        </div>
+
+        <!-- Streaming links + queue action -->
+        <div id="videoLinks"></div>
+        <div id="videoActions"></div>
     </div>
 
     <div id="musicgrid"></div>
