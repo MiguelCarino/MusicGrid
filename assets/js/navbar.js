@@ -12,22 +12,33 @@
     function $(sel) { return document.querySelector(sel); }
     function set(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
 
-    /* ── Live clock + greeting ──────────────────────────────── */
+    /* ── Live clock + greeting (click clock to cycle Local/UTC/Epoch) ── */
+    let clockMode = 0; // 0 = local, 1 = UTC, 2 = epoch
+    let localTz = 'LOCAL';
+    try { localTz = Intl.DateTimeFormat().resolvedOptions().timeZone.split('/').pop() || 'LOCAL'; } catch (e) { localTz = 'LOCAL'; }
+    const pad = n => String(n).padStart(2, '0');
     function tick() {
         const d = new Date();
-        const t = [d.getHours(), d.getMinutes(), d.getSeconds()]
-            .map(n => String(n).padStart(2, '0')).join(':');
+        const local = [d.getHours(), d.getMinutes(), d.getSeconds()].map(pad).join(':');
+        let t, tz;
+        if (clockMode === 1)      { t = [d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds()].map(pad).join(':'); tz = 'UTC'; }
+        else if (clockMode === 2) { t = String(Math.floor(d.getTime() / 1000)); tz = 'EPOCH'; }
+        else                      { t = local; tz = localTz; }
         set('clockLocal', t);
-        set('diagClock', t);
-        try {
-            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone.split('/').pop();
-            set('tzName', tz || 'LOCAL');
-        } catch (e) { set('tzName', 'LOCAL'); }
+        set('diagClock', local);
+        set('tzName', tz);
         const h = d.getHours();
         set('greeting',
             h < 5  ? 'Burning the midnight oil.' :
             h < 12 ? 'Good morning.' :
             h < 18 ? 'Good afternoon.' : 'Good evening.');
+    }
+    function wireClock() {
+        const box = $('.header-clock');
+        if (!box) return;
+        box.style.cursor = 'pointer';
+        box.title = 'Click to toggle Local / UTC / Epoch';
+        box.addEventListener('click', function () { clockMode = (clockMode + 1) % 3; tick(); });
     }
 
     /* ── Library stats (derived from the catalog) ───────────── */
@@ -84,6 +95,7 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         wireDiag();
+        wireClock();
         tick();
         setInterval(tick, 1000);
         libraryStats();
