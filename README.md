@@ -60,3 +60,7 @@ collection **by country**, queue songs, and follow along with synced lyrics.
 Add a file named `assets/lyrics/<youtube-id>.lrc`. Each line is
 `[MM:SS.xx]Original | Optional translation`. The ♪ Lyrics toggle appears whenever a
 matching file exists for the playing video.
+
+## License
+
+Licensed under the **GNU Affero General Public License v3.0 or later** (AGPL-3.0-or-later) — see [LICENSE](LICENSE). Copyright © 2026 Miguel Carino.
