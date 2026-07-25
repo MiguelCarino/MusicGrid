@@ -14,7 +14,8 @@ body {
     margin: 0 !important;
     padding: 0 !important;
     overflow: hidden;
-    background: #000;
+    background: #050505;
+    font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
 }
 
 /* ── Custom properties ────────────────────────────────────── */
@@ -26,15 +27,14 @@ body {
     /* Carino navbar palette (self-contained — mirrors carino.systems) */
     --nav-h:        58px;
     --cs-bg-header: #050505;
-    --cs-bg-card:   #111111;
+    --cs-bg-card:   #0b0b0b;
     --cs-accent:    #eab308;     /* sharp gold */
-    --cs-accent-2:  #b45309;
-    --cs-accent-faint: rgba(234, 179, 8, 0.06);
-    --cs-accent-glow:  rgba(234, 179, 8, 0.18);
+    --cs-accent-faint: rgba(234, 179, 8, 0.05);
+    --cs-accent-glow:  rgba(234, 179, 8, 0.15);
     --cs-border:    #262626;
     --cs-text:      #ffffff;
     --cs-text-sec:  #a3a3a3;
-    --cs-text-muted:#8a8a8a;
+    --cs-text-muted:#666;
     --cs-ok:        #22c55e;
     --cs-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
     --cs-display: 'Red Hat Display', system-ui, -apple-system, sans-serif;
@@ -57,6 +57,7 @@ body {
 .header-left  { display: flex; align-items: center; gap: 22px; min-width: 0; }
 .header-right { display: flex; align-items: center; gap: 12px; }
 
+.cn-brand { display: flex; align-items: center; flex-shrink: 0; }
 .brand-name {
     font-family: var(--cs-display);
     font-size: 1.5rem; font-weight: 900; line-height: 1;
@@ -65,13 +66,15 @@ body {
     -webkit-text-fill-color: transparent;
     cursor: pointer; white-space: nowrap; text-decoration: none;
 }
-.brand-name .app-tag {
-    -webkit-text-fill-color: var(--cs-accent);
+.cn-brand .app-tag {
+    color: var(--cs-accent);
     font-family: var(--cs-mono); font-size: .58rem; font-weight: 700;
     letter-spacing: .14em; text-transform: uppercase;
     border: 1px solid var(--cs-border); border-radius: 4px;
-    padding: 3px 7px; margin-left: 10px; vertical-align: middle;
+    padding: 3px 7px; margin-left: 10px;
+    text-decoration: none; transition: .2s;
 }
+.cn-brand .app-tag:hover { border-color: var(--cs-accent); background: var(--cs-accent-faint); }
 .header-clock {
     display: flex; align-items: baseline; gap: 10px;
     border-left: 1px solid var(--cs-border); padding-left: 22px;
@@ -132,7 +135,6 @@ body {
 .diag-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: .8rem; padding: 3px 0; }
 .diag-lbl { color: var(--cs-text-sec); flex-shrink: 0; }
 .diag-val { font-family: var(--cs-mono); color: var(--cs-text); }
-.diag-val.good { color: var(--cs-ok); }
 .diag-val-trunc { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; text-align: right; }
 
 /* ── Controls bar ─────────────────────────────────────────── */
@@ -717,7 +719,7 @@ body {
     .top-header   { padding: 0 12px; gap: 10px; }
     .header-clock { display: none; }
     .brand-name   { font-size: 1.3rem; }
-    .brand-name .app-tag { display: none; }
+    .cn-brand .app-tag { display: none; }
     .diag-dropdown { right: 10px; width: min(88vw, 280px); }
 
     #musicgrid {

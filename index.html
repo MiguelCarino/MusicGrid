@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Carino Music Grid — music by country</title>
     <meta name="description" content="A personal music wall and per-country collection. Click any cover to play, browse by country, queue songs and follow along with synced lyrics.">
-    <link rel="stylesheet" href="https://carino.systems/assets/css/styles.css">
+    <link rel="stylesheet" href="fonts/carino-fonts.css">
     <link rel="stylesheet" href="assets/css/grid.css">
     <link rel="icon" href="assets/images/logo.webp">
     <script src="assets/json/catalog.json" defer></script>
@@ -16,8 +16,8 @@
     <meta property="twitter:title" content="Music Grid"/>
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://github.com/MiguelCarino/MusicGrid"/>
-    <meta property="og:image" content="assets/images/ogp.webp"/>
-    <meta property="og:description" content="Friendly IT solutions, openly available"/>
+    <meta property="og:image" content="assets/images/logo.webp"/>
+    <meta property="og:description" content="A personal music wall and per-country collection. Click any cover to play, browse by country, queue songs and follow along with synced lyrics."/>
     <meta property="og:site_name" content="Music Grid"/>
     <meta property="og:locale" content="en_US"/>
 </head>
@@ -25,9 +25,10 @@
     <!-- ============================ Carino navbar ============================ -->
     <header class="top-header" id="navbar">
         <div class="header-left">
-            <a class="brand-name" href="https://carino.systems/" title="Carino Systems — back to hub">
-                Carino<span class="app-tag">Music</span>
-            </a>
+            <span class="cn-brand">
+                <a class="brand-name" href="https://carino.systems/" title="Carino Systems — back to hub">Carino</a>
+                <a class="app-tag" href="./" title="Music — reload">Music</a>
+            </span>
             <div class="header-clock" aria-hidden="true">
                 <span class="clock-time" id="clockLocal">00:00:00</span>
                 <span class="clock-tz" id="tzName">UTC</span>
