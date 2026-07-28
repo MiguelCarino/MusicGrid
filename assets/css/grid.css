@@ -22,7 +22,7 @@ body {
 :root {
     --controls-h: 44px;
     --panel-w:    320px;
-    --radius:     14px;
+    --radius:     10px;
 
     /* Carino navbar palette (self-contained — mirrors carino.systems) */
     --nav-h:        58px;
@@ -68,7 +68,7 @@ body {
 }
 .cn-brand .app-tag {
     color: var(--cs-accent);
-    font-family: var(--cs-mono); font-size: .58rem; font-weight: 700;
+    font-family: var(--cs-mono); font-size: .6rem; font-weight: 700;
     letter-spacing: .14em; text-transform: uppercase;
     border: 1px solid var(--cs-border); border-radius: 4px;
     padding: 3px 7px; margin-left: 10px;
@@ -81,7 +81,7 @@ body {
 }
 .clock-time { font-family: var(--cs-mono); font-size: 1.05rem; font-weight: 700; color: var(--cs-text); }
 .clock-tz {
-    font-family: var(--cs-mono); font-size: .58rem; font-weight: 700;
+    font-family: var(--cs-mono); font-size: .6rem; font-weight: 700;
     color: var(--cs-bg-header); background: var(--cs-accent);
     padding: 2px 6px; border-radius: 3px;
 }
@@ -127,7 +127,7 @@ body {
 }
 .diag-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
 .diag-section {
-    font-family: var(--cs-mono); font-size: .58rem; letter-spacing: .12em;
+    font-family: var(--cs-mono); font-size: .6rem; letter-spacing: .12em;
     text-transform: uppercase; color: var(--cs-text-muted);
     margin: 12px 0 6px; border-bottom: 1px solid var(--cs-border); padding-bottom: 4px;
 }
