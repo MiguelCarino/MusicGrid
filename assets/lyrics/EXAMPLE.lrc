@@ -2,8 +2,8 @@
 # MusicGrid lyrics format — LRC with optional translation
 # ──────────────────────────────────────────────────────────────
 #
-# NAMING:  lyrics file must match the album's image filename.
-#          e.g.  image: "mu_1.webp"  →  lyrics: "mu_1.lrc"
+# NAMING:  lyrics file is named after the song's YouTube video id.
+#          e.g.  url: "bc0sJvtKrRM"  →  lyrics: "bc0sJvtKrRM.lrc"
 #
 # FORMAT:  [MM:SS.xx]Original text | Translation text
 #

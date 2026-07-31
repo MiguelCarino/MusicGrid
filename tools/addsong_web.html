@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MusicGrid — Add Song</title>
+<style>
+  :root { --bg:#050505; --card:#0d0d0d; --border:#262626; --dim:#52525b; --gold:#eab308; --bright:#fbbf24; --red:#ef4444; --green:#22c55e; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:#d4d4d8; font-family:system-ui,sans-serif; padding:20px; max-width:980px; margin:0 auto; }
+  h1 { font-size:1.15rem; color:var(--gold); letter-spacing:.05em; margin-bottom:2px; }
+  .sub { font-family:monospace; font-size:.7rem; color:var(--dim); margin-bottom:18px; }
+  section { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:14px; }
+  section h2 { font-size:.72rem; text-transform:uppercase; letter-spacing:.15em; color:var(--dim); margin-bottom:10px; }
+  section h2 .done { color:var(--green); }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  input[type=text], select, textarea { background:#111; border:1px solid var(--border); border-radius:6px; color:#fff; padding:8px 10px; font-size:.85rem; outline:none; }
+  input[type=text]:focus, select:focus, textarea:focus { border-color:var(--gold); }
+  textarea { font-family:monospace; font-size:.72rem; resize:vertical; width:100%; }
+  input.wide { flex:1; min-width:200px; }
+  button { background:transparent; border:1px solid var(--border); color:#d4d4d8; padding:8px 14px; border-radius:6px; cursor:pointer; font-size:.8rem; letter-spacing:.04em; transition:.15s; }
+  button:hover { border-color:var(--gold); color:var(--gold); }
+  button.primary { border-color:var(--gold); color:var(--gold); }
+  button.primary:hover { background:rgba(234,179,8,.1); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:8px; margin-top:10px; }
+  .vid, .hit { background:#111; border:1px solid var(--border); border-radius:8px; padding:8px; cursor:pointer; transition:.12s; font-size:.78rem; }
+  .vid:hover, .hit:hover { border-color:var(--gold); }
+  .vid.sel, .hit.sel { border-color:var(--bright); background:rgba(234,179,8,.07); }
+  .vid img { width:100%; border-radius:5px; display:block; margin-bottom:6px; }
+  .hit { display:flex; gap:8px; align-items:center; }
+  .hit img { width:56px; height:56px; border-radius:5px; }
+  .meta { color:var(--dim); font-size:.7rem; margin-top:2px; }
+  .warn { color:var(--red); font-size:.78rem; margin-top:8px; display:none; }
+  label { font-size:.78rem; color:#a1a1aa; display:flex; align-items:center; gap:6px; }
+  .field { display:flex; flex-direction:column; gap:4px; }
+  .field span { font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--dim); }
+  #coverPrev { width:160px; height:160px; border-radius:8px; border:1px solid var(--border); object-fit:cover; background:#111; }
+  #out { font-family:monospace; font-size:.72rem; white-space:pre-wrap; word-break:break-all; background:#111; border:1px solid var(--border); border-radius:8px; padding:10px; margin-top:10px; display:none; }
+  #out.ok { border-color:var(--green); }
+  #out.err { border-color:var(--red); }
+  .hidden { display:none; }
+  a { color:var(--gold); }
+</style>
+</head>
+<body>
+<h1>MusicGrid — Add Song</h1>
+<div class="sub" id="stateLine">loading…</div>
+
+<section id="s1">
+  <h2>1 · YouTube <span id="s1done" class="done"></span></h2>
+  <div class="row">
+    <input class="wide" type="text" id="q" placeholder="search terms, YouTube URL, or video id" autofocus>
+    <button class="primary" id="btnSearch">Search</button>
+  </div>
+  <div class="grid" id="ytResults"></div>
+  <div class="warn" id="dupWarn">⚠ this video id is already in the catalog</div>
+</section>
+
+<section id="s2" class="hidden">
+  <h2>2 · iTunes match <span id="s2done" class="done"></span></h2>
+  <div class="row">
+    <input class="wide" type="text" id="itTerm" placeholder="iTunes search terms">
+    <button id="btnItunes">Search iTunes</button>
+    <button id="btnSkipItunes">Skip (use YouTube thumbnail)</button>
+  </div>
+  <div class="grid" id="itResults" style="grid-template-columns:repeat(auto-fill,minmax(280px,1fr))"></div>
+</section>
+
+<section id="s3" class="hidden">
+  <h2>3 · Details</h2>
+  <div class="row" style="align-items:flex-start; gap:18px">
+    <div style="flex:0 0 auto; display:flex; flex-direction:column; gap:8px">
+      <img id="coverPrev" alt="cover preview">
+      <div class="field"><span>cover</span>
+        <select id="coverSel"></select>
+      </div>
+      <div class="field"><span>new cover size</span>
+        <select id="size"><option>300</option><option selected>400</option><option>600</option></select>
+      </div>
+    </div>
+    <div style="flex:1; min-width:260px; display:flex; flex-direction:column; gap:10px">
+      <div class="field"><span>tag (Artist — Title)</span><input type="text" id="tag"></div>
+      <div class="field"><span>spotify track url or id (optional)</span>
+        <div class="row"><input class="wide" type="text" id="spotify"><button id="btnSpotify">Open search</button></div>
+      </div>
+      <div class="field"><span>apple music path</span><input type="text" id="apple"></div>
+      <div class="row">
+        <div class="field"><span>country</span><select id="country"></select></div>
+        <div class="field"><span>genre</span><select id="genre"></select></div>
+        <div class="field"><span>mood</span><select id="mood"></select></div>
+        <label style="margin-top:14px"><input type="checkbox" id="carino" checked> carino list</label>
+      </div>
+      <div class="field"><span>lyrics (.lrc, synced) <span id="lyrStatus" style="text-transform:none"></span></span>
+        <textarea id="lyrics" rows="6" placeholder="no synced lyrics — paste LRC here, or leave empty (optional '| translation' per line)"></textarea>
+      </div>
+      <div class="row">
+        <button class="primary" id="btnAdd">Add song</button>
+        <button id="btnReset">Reset for next song</button>
+      </div>
+    </div>
+  </div>
+  <div id="out"></div>
+</section>
+
+<script>
+const $ = id => document.getElementById(id);
+let state = null, video = null, art = "";
+
+const esc = s => (s || "").replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const api = async (path) => (await fetch(path)).json();
+const cleanTitle = t => t
+  .replace(/\s*[\(\[](official|hd|4k|lyric|lyrics|audio|video|music video|visualizer|remaster(ed)?( \d{4})?|clip|mv|m\/v|sub|live)[^\)\]]*[\)\]]/gi, "")
+  .replace(/\s{2,}/g, " ").trim().replace(/^[-–—| ]+|[-–—| ]+$/g, "");
+
+async function loadState() {
+  state = await api("/api/state");
+  $("stateLine").textContent = `${state.catalog} · ${state.count} songs · next cover: ${state.nextImage}`;
+  const fill = (sel, reg, iconKey) => {
+    $(sel).innerHTML = Object.keys(reg).sort().map(k =>
+      `<option value="${k}">${reg[k][iconKey] || ""} ${k}</option>`).join("");
+  };
+  fill("country", state.countries, "flag");
+  fill("genre", state.genres, "icon");
+  fill("mood", state.moods, "icon");
+  $("coverSel").innerHTML = `<option value="">new → ${state.nextImage}</option>`
+    + state.covers.map(c => `<option value="${c}">reuse ${c}</option>`).join("");
+}
+
+function vidIdFrom(s) {
+  const m = s.match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/)([\w-]{11})/);
+  if (m) return m[1];
+  return /^[\w-]{11}$/.test(s) && !/^[a-zA-Z]+$/.test(s) ? s : null;
+}
+
+async function selectVideo(v) {
+  video = v;
+  document.querySelectorAll(".vid").forEach(el => el.classList.toggle("sel", el.dataset.id === v.id));
+  $("s1done").textContent = `✓ ${v.id}`;
+  const { dup } = await api(`/api/check?vid=${v.id}`);
+  $("dupWarn").style.display = dup ? "block" : "none";
+  let term = cleanTitle(v.title || "");
+  const ch = (v.channel || "").replace(/\s*-\s*Topic$/, "");
+  if (ch && !/[—–]|\s-\s/.test(term) && !term.toLowerCase().includes(ch.toLowerCase()))
+    term = ch + " " + term;
+  $("itTerm").value = term;
+  $("s2").classList.remove("hidden");
+  searchItunes();
+}
+
+$("btnSearch").onclick = async () => {
+  const q = $("q").value.trim();
+  if (!q) return;
+  const vid = vidIdFrom(q);
+  if (vid) {
+    const { title } = await api(`/api/oembed?vid=${vid}`);
+    $("ytResults").innerHTML = "";
+    return selectVideo({ id: vid, title, channel: "" });
+  }
+  $("ytResults").innerHTML = '<div class="meta">searching…</div>';
+  const { results } = await api(`/api/ytsearch?q=${encodeURIComponent(q)}`);
+  $("ytResults").innerHTML = results.map(v => `
+    <div class="vid" data-id="${v.id}">
+      <img loading="lazy" src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg">
+      <div>${esc(v.title)}</div>
+      <div class="meta">${esc(v.channel)} · ${v.dur}</div>
+    </div>`).join("") || '<div class="meta">no results</div>';
+  results.forEach(v => {
+    document.querySelector(`.vid[data-id="${v.id}"]`).onclick = () => selectVideo(v);
+  });
+};
+$("q").addEventListener("keydown", e => { if (e.key === "Enter") $("btnSearch").onclick(); });
+$("itTerm").addEventListener("keydown", e => { if (e.key === "Enter") searchItunes(); });
+
+async function searchItunes() {
+  const term = $("itTerm").value.trim();
+  if (!term) return;
+  $("itResults").innerHTML = '<div class="meta">searching…</div>';
+  const { results } = await api(`/api/itunes?term=${encodeURIComponent(term)}`);
+  $("itResults").innerHTML = results.map((h, i) => `
+    <div class="hit" data-i="${i}">
+      <img src="${h.art.replace("100x100", "200x200")}">
+      <div><div>${esc(h.artist)} — ${esc(h.track)}</div>
+      <div class="meta">${esc(h.album)} (${h.year})</div></div>
+    </div>`).join("") || '<div class="meta">no matches — retry with other terms or skip</div>';
+  results.forEach((h, i) => {
+    document.querySelector(`.hit[data-i="${i}"]`).onclick = () => {
+      document.querySelectorAll(".hit").forEach(el => el.classList.toggle("sel", el.dataset.i == i));
+      $("s2done").textContent = `✓ ${h.artist} — ${h.track}`;
+      $("tag").value = `${h.artist} — ${h.track}`;
+      $("apple").value = h.path;
+      art = h.art;
+      $("coverPrev").src = h.art.replace("100x100", "400x400");
+      fetchLyrics(h);
+      openDetails();
+    };
+  });
+}
+
+async function fetchLyrics(h) {
+  const st = $("lyrStatus");
+  $("lyrics").value = "";
+  st.textContent = "· searching LRCLIB…";
+  const p = new URLSearchParams({ vid: video.id, artist: h.artist, track: h.track,
+    album: h.album, duration: h.ms ? String(h.ms / 1000) : "0" });
+  try {
+    const d = await api("/api/lyrics?" + p);
+    if (d.exists) { st.textContent = "· a .lrc for this video already exists — leave empty to keep it"; return; }
+    if (d.synced) {
+      $("lyrics").value = d.synced;
+      st.textContent = `· ${d.synced.split("\n").length} synced lines from LRCLIB (editable)`;
+    } else {
+      st.textContent = "· none found on LRCLIB";
+    }
+  } catch { st.textContent = "· LRCLIB unreachable"; }
+}
+$("btnItunes").onclick = searchItunes;
+
+$("btnSkipItunes").onclick = () => {
+  if (!video) return;
+  art = "";
+  $("apple").value = "";
+  if (!$("tag").value) $("tag").value = cleanTitle(video.title || "");
+  $("coverPrev").src = `https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`;
+  $("s2done").textContent = "✓ skipped (YouTube thumbnail)";
+  openDetails();
+};
+
+function openDetails() {
+  $("s3").classList.remove("hidden");
+  $("s3").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+$("coverSel").onchange = () => {
+  const v = $("coverSel").value;
+  if (v) $("coverPrev").src = `/covers/${v}`;
+  else $("coverPrev").src = art ? art.replace("100x100", "400x400")
+    : (video ? `https://i.ytimg.com/vi/${video.id}/hqdefault.jpg` : "");
+};
+
+$("btnSpotify").onclick = () => {
+  const q = ($("tag").value || $("itTerm").value).replace(" — ", " ");
+  window.open("https://open.spotify.com/search/" + encodeURIComponent(q), "_blank");
+};
+
+$("btnAdd").onclick = async () => {
+  if (!video) return;
+  const out = $("out");
+  out.style.display = "block"; out.className = ""; out.textContent = "writing…";
+  const r = await fetch("/api/add", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      url: video.id, tag: $("tag").value, art,
+      image: $("coverSel").value, size: $("size").value,
+      country: $("country").value, genre: $("genre").value, mood: $("mood").value,
+      carino: $("carino").checked, spotifyurl: $("spotify").value,
+      applemusicurl: $("apple").value, lyrics: $("lyrics").value,
+    }),
+  });
+  const d = await r.json();
+  if (d.ok) {
+    out.className = "ok";
+    out.textContent = `✓ added\n${d.line}\n` +
+      (d.cover ? `cover: ${d.cover}\n` : `cover: reused ${d.image}\n`) +
+      (d.lyrics ? `lyrics: ${d.lyrics}\n` : "") +
+      `catalog: ${d.catalog}\n\nreview with git diff, then commit when happy.`;
+    loadState();
+  } else {
+    out.className = "err";
+    out.textContent = "✗ " + (d.error || "unknown error");
+  }
+};
+
+$("btnReset").onclick = () => {
+  video = null; art = "";
+  ["q","itTerm","tag","spotify","apple","lyrics"].forEach(id => $(id).value = "");
+  $("lyrStatus").textContent = "";
+  $("ytResults").innerHTML = ""; $("itResults").innerHTML = "";
+  $("s1done").textContent = ""; $("s2done").textContent = "";
+  $("coverPrev").removeAttribute("src");
+  $("coverSel").value = ""; $("carino").checked = true;
+  $("out").style.display = "none"; $("dupWarn").style.display = "none";
+  $("s2").classList.add("hidden"); $("s3").classList.add("hidden");
+  loadState(); $("q").focus();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+loadState();
+</script>
+</body>
+</html>

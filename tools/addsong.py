@@ -18,6 +18,7 @@ import json
 import re
 import subprocess
 import sys
+import urllib.error
 import urllib.parse
 import urllib.request
 from io import BytesIO
@@ -95,6 +96,37 @@ def apple_path(track_view_url):
     return re.sub(r"&uo=\d+$", "", p)
 
 
+def lrclib_lyrics(artist, track, album="", duration=0):
+    """Fetch synced LRC lyrics from lrclib.net (keyless, community DB).
+    Returns '' on no match or any network trouble — the service is best-effort."""
+    base = "https://lrclib.net/api/"
+    params = {"artist_name": artist, "track_name": track}
+    if album:
+        params["album_name"] = album
+    if duration:
+        params["duration"] = str(int(round(duration)))
+    try:
+        d = json.loads(fetch(base + "get?" + urllib.parse.urlencode(params), timeout=10))
+        if d.get("syncedLyrics"):
+            return d["syncedLyrics"]
+    except urllib.error.HTTPError:
+        pass          # 404 = no exact match; the search fallback may still hit
+    except Exception:
+        return ""     # timeout / network trouble: don't stall on a second request
+    try:
+        arr = json.loads(fetch(base + "search?" + urllib.parse.urlencode(
+            {"artist_name": artist, "track_name": track}), timeout=10))
+        for r in arr:
+            if not r.get("syncedLyrics"):
+                continue
+            if duration and r.get("duration") and abs(r["duration"] - duration) > 7:
+                continue
+            return r["syncedLyrics"]
+    except Exception:
+        pass
+    return ""
+
+
 def spotify_id_from(text):
     m = re.search(r"track[/:]([A-Za-z0-9]{22})", text)
     if m:
@@ -156,6 +188,32 @@ def pick_registry(label, reg, preset=None):
         print("  ? (number or id)")
 
 
+def next_image_name(covers, used_nums):
+    nums = used_nums + [int(m.group(1)) for f in covers.glob("mu_*.webp")
+                        if (m := re.match(r"mu_(\d+)\.webp$", f.name))]
+    return f"mu_{max(nums, default=0) + 1}.webp"
+
+
+def entry_line(entry):
+    return json.dumps(entry, ensure_ascii=False, separators=(",", ":"))
+
+
+def append_entry(catalog_path, entry):
+    """Insert entry before the closing ]; of the albums array. Returns the line."""
+    src = catalog_path.read_text(encoding="utf-8")
+    line = entry_line(entry)
+    m = re.search(r"(const\s+albums\s*=\s*\[.*?)(\n\s*)?(\]\s*;)", src, re.S)
+    if not m:
+        raise RuntimeError("could not find the albums array in the catalog")
+    body = m.group(1).rstrip()
+    if not body.endswith(",") and not body.endswith("["):
+        body += ","
+    catalog_path.write_text(
+        src[:m.start()] + body + "\n  " + line + ",\n" + m.group(3) + src[m.end():],
+        encoding="utf-8")
+    return line
+
+
 def make_cover(img_bytes, out_path, size):
     from PIL import Image
     im = Image.open(BytesIO(img_bytes)).convert("RGB")
@@ -192,6 +250,11 @@ def main():
     ap.add_argument("--tag", help="override 'Artist — Title'")
     ap.add_argument("--spotify", default=None, help="Spotify track URL/id ('' to skip)")
     ap.add_argument("--image", help="reuse an existing cover file name (mu_X.webp)")
+    ap.add_argument("--lyrics", action="store_true", default=None,
+                    help="save LRCLIB lyrics without asking")
+    ap.add_argument("--no-lyrics", dest="lyrics", action="store_false",
+                    help="skip the lyrics lookup")
+    ap.add_argument("--lyrics-dir", type=Path, default=None)
     ap.add_argument("--carino", dest="carino", action="store_true", default=None)
     ap.add_argument("--no-carino", dest="carino", action="store_false")
     ap.add_argument("--force", action="store_true", help="allow duplicate video id")
@@ -250,10 +313,13 @@ def main():
                 hits = itunes_search(retry, args.results)
                 continue
         break
+    it_album, it_dur = "", 0
     if i:
         h = hits[i - 1]
         tag = tag or f"{h['artistName']} — {h['trackName']}"
         applemusicurl = apple_path(h["trackViewUrl"])
+        it_album = h.get("collectionName", "")
+        it_dur = (h.get("trackTimeMillis") or 0) / 1000
         try:
             art_bytes = fetch(h["artworkUrl100"].replace("100x100", "1000x1000"))
         except Exception:
@@ -282,6 +348,28 @@ def main():
     carino = args.carino if args.carino is not None else (
         input("carino list? [Y/n]: ").strip().lower() != "n")
 
+    # ── 4b. synced lyrics (LRCLIB, best-effort) ──
+    lyrics_dir = args.lyrics_dir or args.catalog.parent.parent / "lyrics"
+    lyrics_path = lyrics_dir / f"{vid}.lrc"
+    lyrics_text = ""
+    if args.lyrics is not False:
+        if lyrics_path.exists():
+            print(f"lyrics: {lyrics_path.name} already exists, keeping it")
+        else:
+            artist, sep, track = tag.partition(" — ")
+            if sep:
+                print("searching LRCLIB for synced lyrics…")
+                lyrics_text = lrclib_lyrics(artist, track, it_album, it_dur)
+            if lyrics_text:
+                n = lyrics_text.count("\n") + 1
+                keep = True if (args.lyrics or args.yes) else (
+                    input(f"synced lyrics found ({n} lines) — save {lyrics_path.name}? "
+                          "[Y/n]: ").strip().lower() != "n")
+                if not keep:
+                    lyrics_text = ""
+            else:
+                print("no synced lyrics found (or LRCLIB unreachable)")
+
     # ── 5. cover file ──
     if args.image:
         image = args.image
@@ -289,17 +377,17 @@ def main():
         if not (covers / image).is_file():
             sys.exit(f"error: {covers / image} does not exist")
     else:
-        nums = used_nums + [int(m.group(1)) for f in covers.glob("mu_*.webp")
-                            if (m := re.match(r"mu_(\d+)\.webp$", f.name))]
-        image = f"mu_{max(nums, default=0) + 1}.webp"
+        image = next_image_name(covers, used_nums)
         write_cover = True
 
     entry = {"url": vid, "image": image, "tag": tag, "country": country,
              "genre": genre, "mood": mood, "carino": carino,
              "spotifyurl": spotifyurl, "applemusicurl": applemusicurl}
-    line = json.dumps(entry, ensure_ascii=False, separators=(",", ":"))
+    line = entry_line(entry)
 
     print("\n" + line)
+    if lyrics_text:
+        print(f"(+ lyrics: {lyrics_text.count(chr(10)) + 1} lines → {lyrics_path.name})")
     if args.dry_run:
         print("(dry run: nothing written)")
         return
@@ -310,16 +398,15 @@ def main():
     if write_cover:
         make_cover(art_bytes, covers / image, args.size)
         print(f"wrote {covers / image}")
+    if lyrics_text:
+        lyrics_dir.mkdir(parents=True, exist_ok=True)
+        lyrics_path.write_text(lyrics_text.rstrip() + "\n", encoding="utf-8")
+        print(f"wrote {lyrics_path}")
 
-    # append before the closing ]; of the albums array, keeping a trailing comma
-    m = re.search(r"(const\s+albums\s*=\s*\[.*?)(\n\s*)?(\]\s*;)", src, re.S)
-    if not m:
-        sys.exit("error: could not find the albums array in the catalog")
-    body = m.group(1).rstrip()
-    if not body.endswith(",") and not body.endswith("["):
-        body += ","
-    new_src = src[:m.start()] + body + "\n  " + line + ",\n" + m.group(3) + src[m.end():]
-    args.catalog.write_text(new_src, encoding="utf-8")
+    try:
+        append_entry(args.catalog, entry)
+    except RuntimeError as e:
+        sys.exit(f"error: {e}")
     print(f"appended to {args.catalog}")
 
 
