@@ -466,8 +466,8 @@ const albums = [
   {"url":"N-w6qgiNeys","image":"mu_188.webp","tag":"Magdalena Bay — Tunnel Vision","country":"usa","genre":"electronic","mood":"dreamy","carino":true,"spotifyurl":"","applemusicurl":""},
   {"url":"-OwLVuyj3Jg","image":"mu_189.webp","tag":"Black Country, New Road — Nancy Tries to Take the Night","country":"uk","genre":"indie","mood":"melancholic","carino":true,"spotifyurl":"3vtceW4EYrv3enjfz7MTff?si=d83c7eaa86584889","applemusicurl":"song/nancy-tries-to-take-the-night/1783713623"},
   {"url":"SP-k9OeA2Ts","image":"mu_190.webp","tag":"Itoki Hana — Cycle","country":"japan","genre":"soundtrack","mood":"chill","carino":true,"spotifyurl":"5xW5oJXwQTdfhvngvKpGN3","applemusicurl":"1297865208"},
-  {"url":"92cwKCU8Z5c","image":"mu_191.webp","tag":"ABBA — The Winner Takes It All","country":"usa","genre":"melancholic","mood":"pop","carino":true,"spotifyurl":"3oEkrIfXfSh9zGnE7eBzSV","applemusicurl":"1440823959"},
-  {"url":"ulZQTrV8QlQ","image":"mu_192.webp","tag":"ABBA — Lay All Your Love On Me","country":"usa","genre":"energetic","mood":"pop","carino":true,"spotifyurl":"3oEkrIfXfSh9zGnE7eBzSV","applemusicurl":"1440824250"},
-  {"url":"DMwLOHbVgTE","image":"mu_193.webp","tag":"One Desire — Hurt","country":"usa","genre":"rock","mood":"energetic","carino":true,"spotifyurl":"3oEkrIfXfSh9zGnE7eBzSV","applemusicurl":"l.ubLQoX4"}
+  {"url":"92cwKCU8Z5c","image":"mu_191.webp","tag":"ABBA — The Winner Takes It All","country":"sweden","genre":"pop","mood":"melancholic","carino":true,"spotifyurl":"3oEkrIfXfSh9zGnE7eBzSV","applemusicurl":"us/album/the-winner-takes-it-all/1440823811?i=1440823959"},
+  {"url":"ulZQTrV8QlQ","image":"mu_192.webp","tag":"ABBA — Lay All Your Love On Me","country":"sweden","genre":"pop","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":"us/album/lay-all-your-love-on-me/1440823811?i=1440824250"},
+  {"url":"DMwLOHbVgTE","image":"mu_193.webp","tag":"One Desire — Hurt","country":"finland","genre":"rock","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":"us/album/hurt/1192329815?i=1192330007"}
   
 ];
