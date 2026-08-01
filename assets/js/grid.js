@@ -146,7 +146,7 @@
         if (f.type === 'country') return countryLabel(f.value);
         if (f.type === 'genre')   return genreLabel(f.value);
         if (f.type === 'mood')    return moodLabel(f.value);
-        return 'All';
+        return t('All');
     }
 
     /* ── Grid ───────────────────────────────────────────────── */
@@ -166,7 +166,7 @@
         const qBtn = document.createElement('button');
         qBtn.className = 'cell-queue-btn';
         qBtn.textContent = '+';
-        qBtn.setAttribute('aria-label', 'Add to queue');
+        qBtn.setAttribute('aria-label', t('Add to queue'));
         qBtn.addEventListener('click', function (e) {
             e.stopPropagation();
             addToQueue(album);
@@ -363,15 +363,15 @@
 
         /* Quick pills */
         if (albums.some(a => a.carino)) {
-            container.appendChild(quickPill('★ Carino', 'carino', '', 'filter-carino', "Miguel's personal list"));
+            container.appendChild(quickPill('★ Carino', 'carino', '', 'filter-carino', t("Miguel's personal list")));
         }
-        container.appendChild(quickPill('All', 'all', ''));
+        container.appendChild(quickPill(t('All'), 'all', ''));
 
         /* Dropdown menus — only built when that dimension exists in the data */
         const dims = [
-            { type: 'country', label: '🌍 Country', metaFn: countryMeta, labelFn: countryLabel },
-            { type: 'genre',   label: '🎵 Genre',   metaFn: genreMeta,   labelFn: genreLabel },
-            { type: 'mood',    label: '🎭 Mood',    metaFn: moodMeta,    labelFn: moodLabel },
+            { type: 'country', label: t('🌍 Country'), metaFn: countryMeta, labelFn: countryLabel },
+            { type: 'genre',   label: t('🎵 Genre'),   metaFn: genreMeta,   labelFn: genreLabel },
+            { type: 'mood',    label: t('🎭 Mood'),    metaFn: moodMeta,    labelFn: moodLabel },
         ];
         dims.forEach(function (d) {
             const data = countBy(d.type, d.metaFn);
@@ -387,7 +387,7 @@
         const btn = document.getElementById('queueAddBtn');
         if (!btn || !currentAlbum) return;
         const inQ = queue.some(a => a.url === currentAlbum.url);
-        btn.textContent = inQ ? '✓ In Queue' : '+ Add to queue';
+        btn.textContent = inQ ? t('✓ In Queue') : t('+ Add to queue');
         btn.disabled    = inQ;
     }
 
@@ -414,7 +414,7 @@
 
         const lbl = document.createElement('span');
         lbl.className   = 'queue-label';
-        lbl.textContent = 'Queue';
+        lbl.textContent = t('Queue');
         bar.appendChild(lbl);
 
         queue.forEach(function (album, idx) {
@@ -432,7 +432,7 @@
 
             const rm = document.createElement('button');
             rm.className = 'queue-remove';
-            rm.setAttribute('aria-label', 'Remove from queue');
+            rm.setAttribute('aria-label', t('Remove from queue'));
             rm.textContent = '×';
             rm.addEventListener('click', function (e) {
                 e.stopPropagation();
@@ -483,7 +483,7 @@
         const hasLyrics = lyricsData.length > 0;
         btn.style.display = hasLyrics ? '' : 'none';
         if (hasLyrics) {
-            btn.textContent = lyricsHidden ? '♪ Lyrics' : '♪ Hide';
+            btn.textContent = lyricsHidden ? t('♪ Lyrics') : t('♪ Hide');
             btn.classList.toggle('active', !lyricsHidden);
         }
     }
@@ -657,7 +657,7 @@
         imgEl.innerHTML = '';
         const img = document.createElement('img');
         img.src = `assets/covers/${album.image}`;
-        img.alt = title || 'Album cover';
+        img.alt = title || t('Album cover');
         img.loading = 'lazy';
         imgEl.appendChild(img);
 
@@ -678,7 +678,7 @@
             c.className = 'meta-chip';
             c.dataset.ctype = chip.type;
             c.textContent = chip.label;
-            c.title = 'Filter by ' + chip.label;
+            c.title = t('Filter by') + ' ' + chip.label;
             c.addEventListener('click', function () {
                 applyFilter(filtersEl, musicgrid, chip.type, chip.value);
             });
@@ -726,7 +726,7 @@
             actions.appendChild(qBtn);
         }
         const inQ = queue.some(a => a.url === album.url);
-        qBtn.textContent = inQ ? '✓ In Queue' : '+ Add to queue';
+        qBtn.textContent = inQ ? t('✓ In Queue') : t('+ Add to queue');
         qBtn.disabled    = inQ;
         qBtn.onclick     = function () { addToQueue(album); };
 
@@ -771,13 +771,13 @@
         /* ONLY the button pauses/resumes scroll */
         toggleBtn.addEventListener('click', function () {
             scrollPaused = !scrollPaused;
-            toggleBtn.textContent = scrollPaused ? '▶ Resume' : '⏸ Pause';
+            toggleBtn.textContent = scrollPaused ? t('▶ Resume') : t('⏸ Pause');
         });
 
         /* Autoplay toggle — keeps music playing after a song ends, even with no queue */
         function syncAutoplayBtn() {
             autoplayBtn.classList.toggle('active', autoplayOn);
-            autoplayBtn.textContent = autoplayOn ? '↻ Autoplay: On' : '↻ Autoplay';
+            autoplayBtn.textContent = autoplayOn ? t('↻ Autoplay: On') : t('↻ Autoplay');
         }
         syncAutoplayBtn();
         autoplayBtn.addEventListener('click', function () {

@@ -21,9 +21,9 @@
         set('diagClock', [d.getHours(), d.getMinutes(), d.getSeconds()].map(pad).join(':'));
         const h = d.getHours();
         set('greeting',
-            h < 5  ? 'Burning the midnight oil.' :
-            h < 12 ? 'Good morning.' :
-            h < 18 ? 'Good afternoon.' : 'Good evening.');
+            h < 5  ? t('Burning the midnight oil.') :
+            h < 12 ? t('Good morning.') :
+            h < 18 ? t('Good afternoon.') : t('Good evening.'));
     }
 
     /* ── Library stats (derived from the catalog) ───────────── */
@@ -46,7 +46,7 @@
             set('diagNow', title || '—');
             set('diagNowCountry', countryLabel || '—');
         },
-        filter(label) { set('diagFilter', label || 'All'); },
+        filter(label) { set('diagFilter', label || t('All')); },
         queue(n) { set('diagQueue', n || 0); },
         refresh: libraryStats
     };

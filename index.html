@@ -11,6 +11,7 @@
     <script src="assets/json/catalog.json" defer></script>
     <script src="carino-clock.js" defer></script>
     <script src="carino-lang.js" defer></script>
+    <script src="i18n.js" defer></script>
     <script src="assets/js/navbar.js" defer></script>
     <script src="assets/js/grid.js" defer></script>
     <meta property="og:title" content="Music Grid"/>
@@ -47,23 +48,23 @@
                 </a>
             </div>
             <button class="status-toggle" id="diagToggle" title="Library status" aria-label="Library status" aria-haspopup="true" aria-expanded="false" aria-controls="diagBox">
-                <span>Status</span><div class="pulse-dot"></div>
+                <span data-i18n>Status</span><div class="pulse-dot"></div>
             </button>
         </div>
 
         <!-- Diagnostics dropdown -->
         <div class="diag-dropdown" id="diagBox">
-            <div class="diag-section">Library</div>
-            <div class="diag-row"><span class="diag-lbl">Songs</span><span class="diag-val" id="diagSongs">0</span></div>
-            <div class="diag-row"><span class="diag-lbl">Countries</span><span class="diag-val" id="diagCountries">0</span></div>
-            <div class="diag-row"><span class="diag-lbl">Carino picks</span><span class="diag-val" id="diagCarino">0</span></div>
-            <div class="diag-section">Now playing</div>
-            <div class="diag-row"><span class="diag-lbl">Track</span><span class="diag-val diag-val-trunc" id="diagNow">—</span></div>
-            <div class="diag-row"><span class="diag-lbl">From</span><span class="diag-val" id="diagNowCountry">—</span></div>
-            <div class="diag-section">Session</div>
-            <div class="diag-row"><span class="diag-lbl">Filter</span><span class="diag-val" id="diagFilter">All</span></div>
-            <div class="diag-row"><span class="diag-lbl">In queue</span><span class="diag-val" id="diagQueue">0</span></div>
-            <div class="diag-row"><span class="diag-lbl">Local time</span><span class="diag-val" id="diagClock">--:--:--</span></div>
+            <div class="diag-section" data-i18n>Library</div>
+            <div class="diag-row"><span class="diag-lbl" data-i18n>Songs</span><span class="diag-val" id="diagSongs">0</span></div>
+            <div class="diag-row"><span class="diag-lbl" data-i18n>Countries</span><span class="diag-val" id="diagCountries">0</span></div>
+            <div class="diag-row"><span class="diag-lbl" data-i18n>Carino picks</span><span class="diag-val" id="diagCarino">0</span></div>
+            <div class="diag-section" data-i18n>Now playing</div>
+            <div class="diag-row"><span class="diag-lbl" data-i18n>Track</span><span class="diag-val diag-val-trunc" id="diagNow">—</span></div>
+            <div class="diag-row"><span class="diag-lbl" data-i18n>From</span><span class="diag-val" id="diagNowCountry">—</span></div>
+            <div class="diag-section" data-i18n>Session</div>
+            <div class="diag-row"><span class="diag-lbl" data-i18n>Filter</span><span class="diag-val" id="diagFilter">All</span></div>
+            <div class="diag-row"><span class="diag-lbl" data-i18n>In queue</span><span class="diag-val" id="diagQueue">0</span></div>
+            <div class="diag-row"><span class="diag-lbl" data-i18n>Local time</span><span class="diag-val" id="diagClock">--:--:--</span></div>
         </div>
     </header>
 
