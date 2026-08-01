@@ -703,8 +703,8 @@
             ? `https://open.spotify.com/track/${album.spotifyurl}`
             : `https://open.spotify.com/search/${q}`;
         const appleHref = album.applemusicurl
-            ? `https://music.apple.com/${album.applemusicurl}`
-            : `https://music.apple.com/us/search?term=${q}`;
+            ? `https://geo.music.apple.com/${album.applemusicurl}`
+            : `https://geo.music.apple.com/us/search?term=${q}`;
         [
             { label: 'YouTube',     href: `https://www.youtube.com/watch?v=${album.url}`, platform: 'youtube' },
             { label: 'Spotify',     href: spotifyHref,                                    platform: 'spotify' },

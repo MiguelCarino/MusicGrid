@@ -83,7 +83,9 @@
       <div class="field"><span>spotify track url or id (optional)</span>
         <div class="row"><input class="wide" type="text" id="spotify"><button id="btnSpotify">Open search</button></div>
       </div>
-      <div class="field"><span>apple music path</span><input type="text" id="apple"></div>
+      <div class="field"><span>apple music path</span>
+        <div class="row"><input class="wide" type="text" id="apple"><button id="btnApple">Open</button></div>
+      </div>
       <div class="row">
         <div class="field"><span>country</span><select id="country"></select></div>
         <div class="field"><span>genre</span><select id="genre"></select></div>
@@ -235,6 +237,11 @@ $("coverSel").onchange = () => {
   if (v) $("coverPrev").src = `/covers/${v}`;
   else $("coverPrev").src = art ? art.replace("100x100", "400x400")
     : (video ? `https://i.ytimg.com/vi/${video.id}/hqdefault.jpg` : "");
+};
+
+$("btnApple").onclick = () => {
+  const p = $("apple").value.trim();
+  if (p) window.open("https://music.apple.com/" + p.replace(/^\/+/, ""), "_blank");
 };
 
 $("btnSpotify").onclick = () => {
