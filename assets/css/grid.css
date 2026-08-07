@@ -137,10 +137,16 @@ body {
 .diag-section {
     font-family: var(--cs-mono); font-size: .6rem; letter-spacing: .12em;
     text-transform: uppercase; color: var(--cs-text-muted);
-    margin: 12px 0 6px; border-bottom: 1px solid var(--cs-border); padding-bottom: 4px;
+    margin: 10px 0 5px; border-bottom: 1px solid var(--cs-border); padding-bottom: 4px;
 }
 .diag-section:first-child { margin-top: 0; }
-.diag-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: .8rem; padding: 3px 0; }
+.diag-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: .8rem; padding: 2px 0; }
+
+/* Two short readings share one line. Each half keeps its natural width, so a
+   translation that outgrows the half wraps the pair back into full-width rows
+   instead of truncating — the panel is only 280px, and es/ru labels are long. */
+.diag-pair { display: flex; flex-wrap: wrap; justify-content: space-between; column-gap: 20px; }
+.diag-pair > .diag-row { flex: 0 1 auto; min-width: max-content; gap: 8px; }
 .diag-lbl { color: var(--cs-text-sec); flex-shrink: 0; }
 .diag-val { font-family: var(--cs-mono); color: var(--cs-text); }
 .diag-val-trunc { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; text-align: right; }
