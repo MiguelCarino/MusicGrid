@@ -2,6 +2,8 @@
 """addsong_web.py — local web GUI for adding songs to the MusicGrid catalog.
 
 Run:  python3 tools/addsong_web.py            (opens http://localhost:8765)
+Pages: /       one song, picking each match yourself
+       /batch  many songs at once (links, ids, a playlist) — see batchadd.py
 Flags: --port N  --json PATH  --covers PATH  --no-browser
 """
 
@@ -16,8 +18,40 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import addsong  # noqa: E402
+import batchadd  # noqa: E402
 
 PAGE = Path(__file__).parent / "addsong_web.html"
+BATCH_PAGE = Path(__file__).parent / "batch_web.html"
+
+# one background fetch at a time; the page polls /api/batch for progress
+JOB = {"running": False, "stop": False, "log": [], "total": 0, "done": 0}
+
+
+def job_log(line):
+    JOB["log"] = (JOB["log"] + [line])[-300:]
+    if line.startswith(("• ", "  skip ")):
+        JOB["done"] += 1
+        # a playlist expands to more songs than the lines pasted
+        JOB["total"] = max(JOB["total"], JOB["done"] + (1 if JOB["running"] else 0))
+
+
+def run_fetch(items, opts):
+    try:
+        batchadd.fetch_items(items, log=job_log, stop=lambda: JOB["stop"], **opts)
+    except Exception as e:
+        job_log(f"error: {e}")
+    finally:
+        JOB["running"] = False
+
+
+def batch_state():
+    src, regs, _ = addsong.load_catalog(batchadd.CATALOG)
+    in_catalog = {e["url"] for e in batchadd.catalog_entries(src)}
+    entries = []
+    for e in batchadd.load_inbox():
+        entries.append({**e, "_problems": batchadd.problems(e, regs, in_catalog)})
+    return {"job": JOB, "entries": entries, "count": len(in_catalog),
+            "countries": regs["COUNTRIES"], "genres": regs["GENRES"], "moods": regs["MOODS"]}
 
 
 def make_handler(catalog, covers, lyrics_dir):
@@ -46,6 +80,16 @@ def make_handler(catalog, covers, lyrics_dir):
             try:
                 if u.path == "/":
                     self.send_bytes(PAGE.read_bytes(), "text/html; charset=utf-8")
+                elif u.path == "/batch":
+                    self.send_bytes(BATCH_PAGE.read_bytes(), "text/html; charset=utf-8")
+                elif u.path == "/api/batch":
+                    self.send_json(batch_state())
+                elif u.path.startswith("/inbox/"):
+                    f = batchadd.INBOX / "covers" / Path(u.path).name
+                    if f.is_file():
+                        self.send_bytes(f.read_bytes(), "image/webp")
+                    else:
+                        self.send_json({"error": "not found"}, 404)
                 elif u.path == "/api/state":
                     src, regs, used = addsong.load_catalog(catalog)
                     self.send_json({
@@ -95,6 +139,8 @@ def make_handler(catalog, covers, lyrics_dir):
                 self.send_json({"error": str(e)}, 500)
 
         def do_POST(self):
+            if self.path.startswith("/api/batch/"):
+                return self.batch_post()
             if self.path != "/api/add":
                 return self.send_json({"error": "not found"}, 404)
             try:
@@ -150,6 +196,56 @@ def make_handler(catalog, covers, lyrics_dir):
             except Exception as e:
                 self.send_json({"error": str(e)}, 500)
 
+        def batch_post(self):
+            try:
+                n = int(self.headers.get("Content-Length", "0"))
+                d = json.loads(self.rfile.read(n) or b"{}")
+                action = self.path.rsplit("/", 1)[-1]
+                if action == "fetch":
+                    if JOB["running"]:
+                        return self.send_json({"error": "a fetch is already running"}, 409)
+                    items = [x for x in (d.get("items") or []) if x.strip()]
+                    if not items:
+                        return self.send_json({"error": "nothing to fetch"}, 400)
+                    opts = {k: d.get(k) or None for k in ("country", "genre", "mood")}
+                    opts.update(carino=bool(d.get("carino", True)),
+                                lyrics=bool(d.get("lyrics", True)))
+                    JOB.update(running=True, stop=False, log=[], total=len(items), done=0)
+                    threading.Thread(target=run_fetch, args=(items, opts), daemon=True).start()
+                    return self.send_json({"ok": True})
+                if action == "stop":
+                    JOB["stop"] = True
+                    return self.send_json({"ok": True})
+                if action == "update":
+                    # {urls: [...], set: {field: value}} or {urls: [...], delete: true}
+                    urls = set(d.get("urls") or [])
+                    allowed = {"tag", "country", "genre", "mood", "carino", "spotifyurl"}
+                    changes = {k: v for k, v in (d.get("set") or {}).items() if k in allowed}
+                    if "spotifyurl" in changes:
+                        changes["spotifyurl"] = addsong.spotify_id_from(changes["spotifyurl"] or "")
+                    if "tag" in changes and " — " not in changes["tag"]:
+                        changes["tag"] = changes["tag"].replace(" - ", " — ")
+                    with batchadd.LOCK:
+                        inbox = batchadd.load_inbox()
+                        if d.get("delete"):
+                            inbox = [e for e in inbox if e["url"] not in urls]
+                        else:
+                            for e in inbox:
+                                if e["url"] in urls:
+                                    e.update(changes)
+                        batchadd.save_inbox(inbox)
+                    return self.send_json({"ok": True})
+                if action == "commit":
+                    if JOB["running"]:
+                        return self.send_json({"error": "wait for the fetch to finish"}, 409)
+                    lines = []
+                    done, left = batchadd.commit_ready(log=lines.append)
+                    return self.send_json({"ok": True, "done": done, "left": left,
+                                           "lines": lines})
+                self.send_json({"error": "not found"}, 404)
+            except Exception as e:
+                self.send_json({"error": str(e)}, 500)
+
     return Handler
 
 
@@ -173,7 +269,7 @@ def main():
     srv = ThreadingHTTPServer(("127.0.0.1", args.port),
                               make_handler(args.catalog, covers, lyrics_dir))
     url = f"http://localhost:{args.port}"
-    print(f"MusicGrid add-song GUI: {url}")
+    print(f"MusicGrid add-song GUI: {url}   (batch: {url}/batch)")
     print(f"catalog: {args.catalog}\ncovers:  {covers}\nCtrl+C to stop")
     if not args.no_browser:
         threading.Timer(0.4, webbrowser.open, [url]).start()

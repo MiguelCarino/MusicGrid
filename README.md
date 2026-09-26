@@ -23,6 +23,41 @@ collection **by country**, queue songs, and follow along with synced lyrics.
   `?cat=japan` still works as a country).
 
 ## Adding music
+
+### Many songs at once — `tools/addsong_web.py` → **Batch**
+Run `python3 tools/addsong_web.py` and open **http://localhost:8765/batch**. Paste
+YouTube links, video ids, a whole playlist link, or plain search terms. Everything is
+resolved automatically into a review inbox (`tools/inbox/`, not committed): the
+"Artist — Title" tag, Apple Music link and cover come from iTunes, the artist's country
+from songs already in the catalog or else from MusicBrainz, the genre from iTunes, and
+synced lyrics from LRCLIB. Songs already in the catalog are skipped, and songs from an
+album that's already there reuse its cover.
+
+Press **Fetch** and watch the list fill in. Every song gets a card with its cover and
+dropdowns: green means ready, red marks what still needs picking (usually just the mood,
+which the "Set mood on songs without one" button fills in one go). **Write ready songs**
+saves the covers, lyrics and catalog entries; review with `git diff` and commit.
+
+The same thing works from the terminal with `tools/batchadd.py`:
+
+```sh
+python3 tools/batchadd.py fetch "https://www.youtube.com/playlist?list=…" --mood chill
+python3 tools/batchadd.py fetch --from songs.txt      # one link / id / "artist title" per line
+python3 tools/batchadd.py review    # asks only for what's missing (usually the mood)
+python3 tools/batchadd.py commit    # covers → assets/covers/mu_N.webp, entries → catalog
+```
+
+`--country`, `--genre`, `--mood` and `--no-carino` apply to the whole batch. `check` shows
+the inbox without changing it, and `review --all` also walks entries flagged for a second
+look (a guessed iTunes match, a possible duplicate) so you can fix the tag or delete them.
+You can also edit `tools/inbox/inbox.jsonl` by hand; fields starting with `_` are hints
+that are dropped when you commit.
+
+### One song, step by step — `tools/addsong.py` / `tools/addsong_web.py`
+`python3 tools/addsong.py "search terms or link"` does the same lookups but lets you pick
+each match yourself; the front page of `tools/addsong_web.py` is the same flow in the browser.
+
+### By hand
 1. Drop the cover image in **`assets/covers/`** (e.g. `mu_190.webp`).
 2. Add an entry to the `albums` array in **`assets/json/catalog.json`**:
 
