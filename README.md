@@ -104,10 +104,9 @@ Add a file named `assets/lyrics/<youtube-id>.lrc`. Each line is
 `[MM:SS.xx]Original | Optional translation`. The ♪ Lyrics toggle appears whenever a
 matching file exists for the playing video.
 On a desktop screen the lyrics turn the player card into a stage on the left half of
-the screen: lyrics on top, the video and song details merged below. The − / + buttons
-in its corner change the width live in 5% steps (30–80%, remembered); click the number
-to go back to half.
-Next to it, **⏱ − ±0.00s +** fixes lyrics that run early or late: each press moves them
+the screen: lyrics on top, the video and song details merged below. It always starts under
+the queue strip, so the two never overlap.
+In its corner, **⏱ − ±0.00s +** fixes lyrics that run early or late: each press moves them
 0.25s (+ shows lines sooner, up to ±10s). It's remembered per song, since different uploads
 of a song drift differently; click the number to reset. A `.lrc` file can also carry the
 standard `[offset:+500]` tag (milliseconds, + = sooner) to fix a song for everyone.

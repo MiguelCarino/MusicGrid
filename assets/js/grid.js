@@ -419,6 +419,13 @@
         updateURL();
     }
 
+    /* The player card is fixed to the screen while the queue strip is in the
+       page flow — tell the CSS how tall the strip is so the card starts below it */
+    function syncQueueHeight() {
+        const bar = document.getElementById('queueBar');
+        document.documentElement.style.setProperty('--queue-h', (bar ? bar.offsetHeight : 0) + 'px');
+    }
+
     function renderQueue() {
         const bar = document.getElementById('queueBar');
         bar.innerHTML = '';
@@ -426,6 +433,7 @@
 
         if (!queue.length) {
             bar.classList.remove('has-items');
+            syncQueueHeight();
             return;
         }
 
@@ -464,6 +472,7 @@
             item.appendChild(rm);
             bar.appendChild(item);
         });
+        syncQueueHeight();
     }
 
     /* ── LRC parser ─────────────────────────────────────────── */
@@ -588,19 +597,6 @@
             .animate(fade, { duration: 360, delay: 160, easing: 'ease', fill: 'backwards' });
         bar.querySelector('.vib-info')
             .animate(fade, { duration: 320, delay: 120, easing: 'ease', fill: 'backwards' });
-    }
-
-    /* Live width of the lyrics stage, in % of the screen (30–80, default 50) */
-    const LYRICS_W_MIN = 30, LYRICS_W_MAX = 80, LYRICS_W_STEP = 5;
-    let lyricsW = 50;
-    function setLyricsWidth(pct, save) {
-        pct = Math.min(LYRICS_W_MAX, Math.max(LYRICS_W_MIN, Math.round(+pct) || 50));
-        lyricsW = pct;
-        document.documentElement.style.setProperty('--lyrics-w', pct);
-        document.getElementById('lyricsWidthVal').textContent = pct + '%';
-        document.getElementById('lyricsNarrower').disabled = pct <= LYRICS_W_MIN;
-        document.getElementById('lyricsWider').disabled    = pct >= LYRICS_W_MAX;
-        if (save) { try { localStorage.setItem('mg_lyrics_w', pct); } catch (e) {} }
     }
 
     function highlightLine(idx) {
@@ -912,20 +908,6 @@
             lyricsHidden = !lyricsHidden;
             setLyricsMode(!lyricsHidden && lyricsData.length > 0);
             updateLyricsToggle();
-        });
-
-        /* Lyrics width — − / + in 5% steps, live and remembered; the number resets to half */
-        let savedW = 50;
-        try { savedW = +localStorage.getItem('mg_lyrics_w') || 50; } catch (e) {}
-        setLyricsWidth(savedW, false);
-        document.getElementById('lyricsNarrower').addEventListener('click', function () {
-            setLyricsWidth(lyricsW - LYRICS_W_STEP, true);
-        });
-        document.getElementById('lyricsWider').addEventListener('click', function () {
-            setLyricsWidth(lyricsW + LYRICS_W_STEP, true);
-        });
-        document.getElementById('lyricsWidthVal').addEventListener('click', function () {
-            setLyricsWidth(50, true);
         });
 
         /* Lyrics timing — per song; the number resets it */

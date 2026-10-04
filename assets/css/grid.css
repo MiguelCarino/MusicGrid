@@ -22,7 +22,7 @@ body {
 :root {
     --controls-h: 44px;
     --panel-w:    320px;
-    --lyrics-w:   50;      /* % of the screen the player card covers with lyrics on */
+    --queue-h:    0px;     /* height of the queue strip when it shows (set by grid.js) */
     --radius:     10px;
 
     /* Carino navbar palette (self-contained — mirrors carino.systems) */
@@ -474,7 +474,7 @@ body {
     right: 18px;
     width: var(--panel-w);
     max-width: calc(100vw - 36px);
-    max-height: calc(100dvh - var(--nav-h) - var(--controls-h) - 28px);
+    max-height: calc(100dvh - var(--nav-h) - var(--controls-h) - var(--queue-h) - 28px);
     overflow-y: auto;
     scrollbar-width: none;
     background: linear-gradient(180deg, rgba(20, 20, 22, 0.96) 0%, rgba(10, 10, 11, 0.96) 100%);
@@ -666,8 +666,9 @@ body {
 /* ── Lyrics (inside the player card) ─────────────────────── */
 /*
    Desktop only: .lyrics-on moves the compact card to the left and turns it
-   into a stage covering --lyrics-w of the screen — lyrics on top, the video
-   (as wide as it can be) + details merged below.
+   into a stage covering half the screen — lyrics on top, the video (as big as
+   the row allows) + details merged below. It always starts under the queue
+   strip, so the two never overlap.
    grid.js animates the size change (FLIP), so no width/height transition here.
 */
 #lyricsSection { display: none; }
@@ -677,10 +678,17 @@ body {
         left: 18px;
         right: auto;
         transform-origin: bottom left;
-        width: calc(var(--lyrics-w) * 1vw - 18px);
+        width: calc(50vw - 18px);
         max-width: none;
-        height: calc(100dvh - var(--nav-h) - var(--controls-h) - 28px);
+        height: calc(100dvh - var(--nav-h) - var(--controls-h) - var(--queue-h) - 28px);
+        max-height: none;
         overflow: hidden;
+        /* details column grows a little on big screens; the video takes the
+           rest of the row, but never more than ~45% of the stage height */
+        --side: clamp(240px, 26cqw, 360px);
+        --video-h: min(calc((100cqw - var(--side) - 14px) * 9 / 16),
+                       calc((100dvh - var(--nav-h) - var(--controls-h) - var(--queue-h) - 56px) * 0.45));
+        --cover: calc(var(--video-h) / 2);
     }
     #videoInfoBar.lyrics-on #lyricsSection {
         display: flex;
@@ -696,33 +704,40 @@ body {
     #videoInfoBar.lyrics-on .vib-info {
         flex-shrink: 0;
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+        grid-template-columns: minmax(0, 1fr) var(--side);
         align-items: start;
     }
-    #videoInfoBar.lyrics-on .vib-side { gap: 12px; }
-    /* cover = half the info row, whose height is the video's: the video column
-       is the card's content width minus the 280px details column and the gap */
-    #videoInfoBar.lyrics-on {
-        --cover: calc((100cqw - 294px) * 9 / 32);
+    /* height-capped video keeps 16:9 and sits at the start of its column */
+    #videoInfoBar.lyrics-on #videoPlayer {
+        height: var(--video-h);
+        width: auto;
+        max-width: 100%;
+        aspect-ratio: 16 / 9;
     }
+    #videoInfoBar.lyrics-on .vib-side { gap: 12px; min-width: 0; }
+    /* cover = half the video's height, never wider than the details column */
     #videoInfoBar.lyrics-on #albumImage {
-        width: var(--cover);
-        height: var(--cover);
+        width: min(var(--cover), 100%);
+        height: auto;
+        aspect-ratio: 1;
         border-radius: 12px;
-        transition: width 0.3s ease, height 0.3s ease;
     }
     /* a big cover leaves no room beside it: the title wraps underneath */
     #videoInfoBar.lyrics-on .vib-head { flex-wrap: wrap; }
     #videoInfoBar.lyrics-on .vib-headtext { padding-right: 0; min-width: 110px; }
 }
 /* a narrow stage stacks the details under the video so it stays big */
-@container card (max-width: 640px) {
+@container card (max-width: 520px) {
     #videoInfoBar.lyrics-on .vib-info { grid-template-columns: minmax(0, 1fr); }
-    #videoInfoBar.lyrics-on #albumImage { width: 58px; height: 58px; }
+    /* stacked, the video would eat the lyrics: cap it at 30% of the stage */
+    #videoInfoBar.lyrics-on #videoPlayer {
+        height: min(calc(100cqw * 9 / 16),
+                    calc((100dvh - var(--nav-h) - var(--controls-h) - var(--queue-h) - 56px) * 0.3));
+    }
+    #videoInfoBar.lyrics-on #albumImage { width: 58px; }
 }
 
-/* Live controls — width (− 50% +) and timing (⏱ − ±0.00s +), top-left of the
-   lyrics, faint until hovered */
+/* Live lyrics timing (⏱ − ±0.00s +) — top-left of the lyrics, faint until hovered */
 #lyricsCtls {
     position: absolute;
     top: 10px;
@@ -762,7 +777,6 @@ body {
 }
 .lyrics-ctl button:hover:not(:disabled) { background: rgba(234, 179, 8, 0.16); color: #fde68a; }
 .lyrics-ctl button:disabled { opacity: 0.3; cursor: default; }
-#lyricsWidthVal { min-width: 5ch; }
 #lyricsOffsetVal { min-width: 7ch; }
 #lyricsOffset.shifted { opacity: 0.8; color: #fde68a; }   /* a non-zero offset stays visible */
 
@@ -790,7 +804,7 @@ body {
 .lyric-line.current { padding: 12px 0; }
 
 .lyric-original {
-    font-size: clamp(0.9rem, 1.4vw, 1.15rem);
+    font-size: clamp(1.05rem, 1.6vw, 1.4rem);
     color: rgba(255, 255, 255, 0.18);
     line-height: 1.4;
     transition: font-size 0.3s ease, color 0.3s ease,
@@ -798,7 +812,7 @@ body {
 }
 
 .lyric-line.current .lyric-original {
-    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    font-size: clamp(1.8rem, 3.2vw, 2.7rem);
     font-weight: 700;
     color: #fff;
     text-shadow: 0 0 48px rgba(255, 255, 255, 0.45);
@@ -821,7 +835,7 @@ body {
 
 .lyric-line.current .lyric-translation {
     max-height: 120px;
-    font-size: clamp(1rem, 2vw, 1.4rem);
+    font-size: clamp(1.15rem, 2.2vw, 1.65rem);
     color: rgba(255, 255, 255, 0.52);
     margin-top: 10px;
 }

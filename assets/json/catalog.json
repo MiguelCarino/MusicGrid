@@ -17,9 +17,17 @@
    ============================================================ */
 
 const COUNTRIES = {
+  "argentina": {
+    "name": "Argentina",
+    "flag": "🇦🇷"
+  },
   "australia": {
     "name": "Australia",
     "flag": "🇦🇺"
+  },
+  "bolivia": {
+    "name": "Bolivia",
+    "flag": "🇧🇴"
   },
   "brazil": {
     "name": "Brazil",
@@ -37,6 +45,10 @@ const COUNTRIES = {
     "name": "Colombia",
     "flag": "🇨🇴"
   },
+  "dominicanrepublic": {
+    "name": "Dominican Republic",
+    "flag": "🇩🇴"
+  },
   "finland": {
     "name": "Finland",
     "flag": "🇫🇮"
@@ -44,6 +56,10 @@ const COUNTRIES = {
   "france": {
     "name": "France",
     "flag": "🇫🇷"
+  },
+  "honduras": {
+    "name": "Honduras",
+    "flag": "🇭🇳"
   },
   "iceland": {
     "name": "Iceland",
@@ -104,6 +120,10 @@ const COUNTRIES = {
   "venezuela": {
     "name": "Venezuela",
     "flag": "🇻🇪"
+  },
+  "uruguay": {
+    "name": "Uruguay",
+    "flag": "🇺🇾"
   },
   "usa": {
     "name": "United States",
@@ -566,7 +586,7 @@ const albums = [
   {"url":"x47NYUbtYb0","image":"mu_262.webp","tag":"Hechizeros Band — El Sonidito","country":"mexico","genre":"latin","mood":"energetic","carino":false,"party":["mexico"],"meme":true,"spotifyurl":"","applemusicurl":"us/album/el-sonidito/1538682180?i=1538682182"},
   {"url":"k0jjy2sUjQ0","image":"mu_263.webp","tag":"Celso Piña — Cumbia Sobre El Río","country":"mexico","genre":"latin","mood":"energetic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/cumbia-sobre-el-r%C3%ADo-remasterizado/1690876841?i=1690876845"},
   {"url":"RCuooWYLDQI","image":"mu_264.webp","tag":"Fito Olivares — Juana la Cubana","country":"mexico","genre":"latin","mood":"upbeat","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/juana-la-cubana/1869681897?i=1869681898"},
-  {"url":"4Qy0vs80T5M","image":"mu_265.webp","tag":"Proyecto Uno — El Tiburón","country":"usa","genre":"latin","mood":"energetic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/tiburon/525133058?i=525133063"},
+  {"url":"4Qy0vs80T5M","image":"mu_265.webp","tag":"Proyecto Uno — El Tiburón","country":"usa","genre":"latin","mood":"energetic","carino":false,"party":["mexico","colombia"],"spotifyurl":"","applemusicurl":"us/album/tiburon/525133058?i=525133063"},
   {"url":"RKGbjJarMeA","image":"mu_266.webp","tag":"Selena — Bidi Bidi Bom Bom","country":"usa","genre":"latin","mood":"upbeat","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/bidi-bidi-bom-bom-1994-version/1703307720?i=1703308137"},
   {"url":"NPg_jbGYzgA","image":"mu_267.webp","tag":"Vicente Fernández — Volver Volver","country":"mexico","genre":"latin","mood":"nostalgic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/volver-volver/322130214?i=322130478"},
   {"url":"lZiaYpD9ZrI","image":"mu_268.webp","tag":"Eslabon Armado & Peso Pluma — Ella Baila Sola","country":"usa","genre":"latin","mood":"energetic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/ella-baila-sola/1677446404?i=1677446410"},
@@ -629,4 +649,43 @@ const albums = [
   {"url":"b7P97b64Q5E","image":"mu_325.webp","tag":"Garth Brooks — Friends in Low Places","country":"usa","genre":"americana","mood":"upbeat","carino":false,"party":["usa"],"spotifyurl":"","applemusicurl":""},
   {"url":"iH6ppOAB5d0","image":"mu_326.webp","tag":"Banda MS — El Mechón","country":"mexico","genre":"latin","mood":"energetic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/el-mech%C3%B3n/1443739195?i=1443739622"},
   {"url":"ilda6PSd-xg","image":"mu_327.webp","tag":"Caballo Dorado — No Rompas Más","country":"mexico","genre":"latin","mood":"energetic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/no-rompas-mi-coraz%C3%B3n-achy-breaky-heart/256665478?i=256665487"},
+  {"url":"lYC5wlY8d6A","image":"mu_328.webp","tag":"Enanitos Verdes — Lamento Boliviano","country":"argentina","genre":"rock","mood":"nostalgic","carino":false,"party":["mexico","colombia"],"spotifyurl":"","applemusicurl":"us/album/lamento-boliviano/724898902?i=724899007"},
+  {"url":"LbXTofEe404","image":"mu_329.webp","tag":"Hombres G — Devuélveme a Mi Chica","country":"spain","genre":"rock","mood":"upbeat","carino":false,"party":["mexico","colombia"],"spotifyurl":"","applemusicurl":"us/album/devu%C3%A9lveme-a-mi-chica/979321009?i=979321016"},
+  {"url":"_CgEJthuscE","image":"mu_330.webp","tag":"Chayanne — Provócame","country":"puertorico","genre":"latin","mood":"energetic","carino":false,"party":["mexico","colombia"],"spotifyurl":"","applemusicurl":""},
+  {"url":"_u2m43WXQks","image":"mu_331.webp","tag":"Los Cantantes — El Venao","country":"dominicanrepublic","genre":"latin","mood":"energetic","carino":false,"party":["mexico","colombia"],"meme":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"pry-ZU6StYk","image":"mu_332.webp","tag":"Chichi Peralta — Procura","country":"dominicanrepublic","genre":"latin","mood":"upbeat","carino":false,"party":["mexico","colombia"],"spotifyurl":"","applemusicurl":"us/album/procura/1389773990?i=1389774337"},
+  {"url":"ef-IJJ7tJ0c","image":"mu_333.webp","tag":"Big Boy — Mis Ojos Lloran Por Ti","country":"puertorico","genre":"latin","mood":"melancholic","carino":false,"party":["mexico","colombia"],"spotifyurl":"","applemusicurl":""},
+  {"url":"kcKOd_wy0XI","image":"mu_334.webp","tag":"Los Ángeles Azules — 17 Años (feat. Jay De La Cueva)","country":"mexico","genre":"latin","mood":"romantic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/17-a%C3%B1os-feat-jay-de-la-cueva/687905266?i=687905732"},
+  {"url":"yG7MPEQm1-w","image":"mu_335.webp","tag":"Luis Miguel — Ahora Te Puedes Marchar","country":"mexico","genre":"pop","mood":"upbeat","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/ahora-te-puedes-marchar/671129332?i=671129674"},
+  {"url":"6AJ1H63KLWc","image":"mu_336.webp","tag":"Carín León — La Boda del Huitlacoche","country":"mexico","genre":"latin","mood":"melancholic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/la-boda-del-huitlacoche-feat-honorables-en-vivo/1888574518?i=1888574529"},
+  {"url":"2K8T2Ip6W2w","image":"mu_337.webp","tag":"Luis Miguel — La Chica Del Bikini Azul","country":"mexico","genre":"pop","mood":"upbeat","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/la-chica-del-bikini-azul/696818663?i=696818946"},
+  {"url":"xF8VuLSqfQ8","image":"mu_338.webp","tag":"Banda El Recodo — El Sinaloense","country":"mexico","genre":"latin","mood":"energetic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/el-sinaloense/304741317?i=304741322"},
+  {"url":"FHDhP6PQyb0","image":"mu_339.webp","tag":"Ramón Ayala — Tragos de Amargo Licor","country":"mexico","genre":"latin","mood":"melancholic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":""},
+  {"url":"oq70h9XBj_0","image":"mu_305.webp","tag":"Vicente Fernández — Hermoso Cariño","country":"mexico","genre":"latin","mood":"romantic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/hermoso-cari%C3%B1o-en-vivo/308576911?i=308576924"},
+  {"url":"1XhyuRVf9B4","image":"mu_340.webp","tag":"Los Ángeles Azules — El Listón de Tu Pelo","country":"mexico","genre":"latin","mood":"romantic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/el-list%C3%B3n-de-tu-pelo/1443654283?i=1443654289"},
+  {"url":"Bqi7DSA1Vd4","image":"mu_341.webp","tag":"Selena — Baila Esta Cumbia","country":"usa","genre":"latin","mood":"energetic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/baila-esta-cumbia/1633343720?i=1633344247"},
+  {"url":"Aw8mxAJ2Brg","image":"mu_342.webp","tag":"Caos — La Planta","country":"mexico","genre":"rock","mood":"energetic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":""},
+  {"url":"2Gow_mzRTO4","image":"mu_343.webp","tag":"Mala Fe — La Vaca","country":"dominicanrepublic","genre":"latin","mood":"energetic","carino":false,"party":["mexico","colombia"],"spotifyurl":"","applemusicurl":"us/album/la-vaca/21483718?i=21483663"},
+  {"url":"3LCEzvkwWwI","image":"mu_344.webp","tag":"Toño Rosario — Kulikitaka","country":"dominicanrepublic","genre":"latin","mood":"energetic","carino":false,"party":["mexico","colombia"],"spotifyurl":"","applemusicurl":""},
+  {"url":"8lbsQyMhMT8","image":"mu_345.webp","tag":"Maná — Rayando el Sol","country":"mexico","genre":"rock","mood":"upbeat","carino":false,"party":["mexico","colombia"],"spotifyurl":"","applemusicurl":"us/album/rayando-el-sol/42017772?i=42017785"},
+  {"url":"T_FkEw27XJ0","image":"mu_346.webp","tag":"Soda Stereo — De Música Ligera","country":"argentina","genre":"rock","mood":"energetic","carino":false,"party":["mexico","colombia"],"spotifyurl":"","applemusicurl":"us/album/de-m%C3%BAsica-ligera/321882757?i=321882958"},
+  {"url":"C3lXxoQPqoA","image":"mu_347.webp","tag":"Wisin & Yandel — Rakata","country":"puertorico","genre":"latin","mood":"energetic","carino":false,"party":["mexico","colombia"],"spotifyurl":"","applemusicurl":"us/album/rakata/1488849982?i=1488850430"},
+  {"url":"jCQ_6XbATPc","image":"mu_348.webp","tag":"Bad Bunny — Safaera (feat. Jowell & Randy & Ñengo Flow)","country":"puertorico","genre":"latin","mood":"energetic","carino":false,"party":["mexico","colombia"],"meme":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"hRFLv29K__o","image":"mu_349.webp","tag":"La Sonora Dinamita — Escándalo (feat. Mariana Seoane)","country":"colombia","genre":"latin","mood":"energetic","carino":false,"party":["mexico","colombia"],"spotifyurl":"","applemusicurl":"us/album/esc%C3%A1ndalo-feat-mariana-seoane/1440889399?i=1440889711"},
+  {"url":"tEVyDmcF7u0","image":"mu_350.webp","tag":"Azul Azul — La Bomba","country":"bolivia","genre":"latin","mood":"energetic","carino":false,"party":["mexico","colombia"],"spotifyurl":"","applemusicurl":"us/album/la-bomba/574008596?i=574008989"},
+  {"url":"T6NhuWYnxW0","image":"mu_351.webp","tag":"Chocolate — Mayonesa","country":"uruguay","genre":"latin","mood":"energetic","carino":false,"party":["mexico","colombia"],"spotifyurl":"","applemusicurl":"us/album/mayonesa/1093269371?i=1093269387"},
+  {"url":"arZZw8NyPq8","image":"mu_352.webp","tag":"Las Ketchup — Aserejé","country":"spain","genre":"pop","mood":"energetic","carino":false,"party":["mexico","colombia"],"meme":true,"spotifyurl":"","applemusicurl":"us/album/the-ketchup-song-aserej%C3%A9-spanish-version/1362213722?i=1362213727"},
+  {"url":"p47fEXGabaY","image":"mu_353.webp","tag":"Ricky Martin — Livin' la Vida Loca","country":"puertorico","genre":"pop","mood":"energetic","carino":false,"party":["mexico","colombia"],"spotifyurl":"","applemusicurl":""},
+  {"url":"6HFctj6bluM","image":"mu_354.webp","tag":"Thalía — Mujer Latina","country":"mexico","genre":"pop","mood":"energetic","carino":false,"party":["mexico","colombia"],"spotifyurl":"","applemusicurl":"us/album/mujer-latina/724640989?i=724641007"},
+  {"url":"h0p8yTqj8i4","image":"mu_355.webp","tag":"Maná — Oye Mi Amor","country":"mexico","genre":"rock","mood":"energetic","carino":false,"party":["mexico","colombia"],"spotifyurl":"","applemusicurl":"us/album/oye-mi-amor-2019-remasterizado/1772257789?i=1772257793"},
+  {"url":"3IID1mty8BM","image":"mu_356.webp","tag":"Héctor & Tito — Baila Morena (feat. Don Omar)","country":"puertorico","genre":"latin","mood":"energetic","carino":false,"party":["mexico","colombia"],"spotifyurl":"","applemusicurl":"us/album/baila-morena/1323181734?i=1323183395"},
+  {"url":"0HPs_AZohNE","image":"mu_357.webp","tag":"Mi Banda El Mexicano — Ramito de Violetas","country":"mexico","genre":"latin","mood":"energetic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/ramito-de-violetas/1701025718?i=1701025960"},
+  {"url":"a_kyL5JaA00","image":"mu_358.webp","tag":"Bronco — Sergio el Bailador","country":"mexico","genre":"latin","mood":"energetic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/sergio-el-bailador/190278329?i=190278395"},
+  {"url":"3M9RahnD7ZE","image":"mu_359.webp","tag":"Grupo Control — El Tao Tao","country":"usa","genre":"latin","mood":"energetic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/tao-tao/714858837?i=714858903"},
+  {"url":"CzEbm7yup7g","image":"mu_360.webp","tag":"Molotov — Puto","country":"mexico","genre":"rock","mood":"energetic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":""},
+  {"url":"sOaMiCDqGH0","image":"mu_361.webp","tag":"Caifanes — La Negra Tomasa","country":"mexico","genre":"rock","mood":"upbeat","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":""},
+  {"url":"iBszecKNxak","image":"mu_362.webp","tag":"Los Tucanes de Tijuana — El Tucanazo","country":"mexico","genre":"latin","mood":"energetic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/el-tucanazo/1301513525?i=1301514731"},
+  {"url":"nxXvOEPsE0s","image":"mu_363.webp","tag":"Los Ángeles Azules — Cómo Te Voy A Olvidar","country":"mexico","genre":"latin","mood":"romantic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/c%C3%B3mo-te-voy-a-olvidar/1444377711?i=1444377723"},
+  {"url":"JkQmrPXwSNU","image":"mu_364.webp","tag":"Banda Blanca — Sopa de Caracol","country":"honduras","genre":"latin","mood":"energetic","carino":false,"party":["mexico","colombia"],"spotifyurl":"","applemusicurl":"us/album/sopa-de-caracol/1744216185?i=1744216411"},
+  {"url":"sH5ROBxWZyw","image":"mu_365.webp","tag":"Alaska y Dinarama — Ni Tú Ni Nadie","country":"spain","genre":"pop","mood":"energetic","carino":false,"party":["mexico","colombia"],"spotifyurl":"","applemusicurl":"us/album/ni-t%C3%BA-ni-nadie/699668725?i=699669400"},
 ];

@@ -85,20 +85,15 @@
     <div id="queueBar"></div>
 
     <!--
-        Player card (fixed, bottom right). With lyrics on (desktop) it grows to
-        --lyrics-w of the screen: synced lyrics on top, the track info merged
-        in below. Without lyrics it is the compact info panel.
+        Player card (fixed, bottom right). With lyrics on (desktop) it becomes
+        a stage on the left half of the screen: synced lyrics on top, the track
+        info merged in below. Without lyrics it is the compact info panel.
     -->
     <div id="videoInfoBar">
         <button id="closeInfoBar" aria-label="Close panel">✕</button>
 
         <div id="lyricsSection">
             <div id="lyricsCtls">
-                <div class="lyrics-ctl" id="lyricsWidth">
-                    <button id="lyricsNarrower" aria-label="Narrower lyrics">−</button>
-                    <button id="lyricsWidthVal" title="Lyrics width — click to reset">50%</button>
-                    <button id="lyricsWider" aria-label="Wider lyrics">+</button>
-                </div>
                 <div class="lyrics-ctl" id="lyricsOffset">
                     <span class="lyrics-ctl-icon" aria-hidden="true">⏱</span>
                     <button id="lyricsLater" aria-label="Show lyrics later">−</button>
