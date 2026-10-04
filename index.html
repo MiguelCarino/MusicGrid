@@ -38,6 +38,9 @@
             </div>
         </div>
 
+        <!-- Lists + filters (★ Carino · All · Party · Meme · Country · Genre · Mood) -->
+        <nav id="sectionFilters" class="header-filters" aria-label="Lists and filters"></nav>
+
         <div class="header-right">
             <div class="social-row">
                 <a href="https://github.com/MiguelCarino/MusicGrid" target="_blank" rel="noopener" class="icon-btn" title="MusicGrid on GitHub">
@@ -72,20 +75,33 @@
         </div>
     </header>
 
-    <!-- Controls: category menus + autoplay + random + scroll toggle -->
-    <div id="controls">
-        <div id="sectionFilters"></div>
-        <button id="listToggle" class="ctl-btn" title="Show the songs in this section" aria-expanded="false" aria-controls="songList" data-i18n>List</button>
-        <button id="autoplayToggle" class="ctl-btn" title="Keep playing songs automatically" aria-pressed="false">Autoplay</button>
-        <button id="lyricsToggle" class="ctl-btn" title="Toggle lyrics" aria-pressed="true" style="display:none">Lyrics</button>
-        <button id="randomBtn" class="ctl-btn ctl-icon" title="Play a random song" aria-label="Play a random song">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/></svg>
-        </button>
-        <button id="scrollToggle" class="ctl-btn" title="Pause auto-scroll">Pause</button>
-    </div>
+    <!-- Floating dock (bottom center): transport + queue · toggles -->
+    <div id="dock">
+        <div id="transport">
+            <button id="prevBtn" class="ctl-btn ctl-icon" title="Previous" aria-label="Previous">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="fill" points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg>
+            </button>
+            <button id="playBtn" class="ctl-btn ctl-icon ctl-play" title="Play" aria-label="Play">
+                <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><polygon class="fill" points="7 4 20 12 7 20 7 4"/></svg>
+                <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><rect class="fill" x="6" y="4" width="4" height="16" rx="1"/><rect class="fill" x="14" y="4" width="4" height="16" rx="1"/></svg>
+            </button>
+            <button id="nextBtn" class="ctl-btn ctl-icon" title="Next" aria-label="Next">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="fill" points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/></svg>
+            </button>
+            <!-- queued songs, as small covers — hidden until something is queued -->
+            <div id="queueBar" title="Queue"></div>
+        </div>
 
-    <!-- Queue strip — hidden until songs are queued -->
-    <div id="queueBar"></div>
+        <div id="ctlRight">
+            <button id="listToggle" class="ctl-btn" title="Show the songs in this section" aria-expanded="false" aria-controls="songList" data-i18n>List</button>
+            <button id="autoplayToggle" class="ctl-btn" title="Keep playing songs automatically" aria-pressed="false">Autoplay</button>
+            <button id="lyricsToggle" class="ctl-btn" title="Toggle lyrics" aria-pressed="true" style="display:none">Lyrics</button>
+            <button id="randomBtn" class="ctl-btn ctl-icon" title="Play a random song" aria-label="Play a random song">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/></svg>
+            </button>
+            <button id="scrollToggle" class="ctl-btn" title="Pause auto-scroll">Pause</button>
+        </div>
+    </div>
 
     <!--
         Player card (fixed, bottom right). With lyrics on (desktop) it becomes

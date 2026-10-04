@@ -178,7 +178,7 @@
         qBtn.setAttribute('aria-label', t('Add to queue'));
         qBtn.addEventListener('click', function (e) {
             e.stopPropagation();
-            addToQueue(album);
+            addToQueue(album, cell);
             qBtn.textContent = '✓';
             setTimeout(function () { qBtn.textContent = '+'; }, 1000);
         });
@@ -328,7 +328,7 @@
             q.setAttribute('aria-label', t('Add to queue'));
             q.addEventListener('click', function (e) {
                 e.stopPropagation();
-                addToQueue(album);
+                addToQueue(album, img);
                 q.textContent = '✓';
                 q.classList.add('done');
             });
@@ -376,10 +376,12 @@
     function syncListBottom() {
         const bar  = document.getElementById('videoInfoBar');
         const list = document.getElementById('songList');
-        let bottom = 18, right = 18;
+        /* the floating dock keeps --dock-space clear at the bottom */
+        const dock = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--dock-space')) || 0;
+        let bottom = 18 + dock, right = 18;
         if (!isPhone() && bar.classList.contains('show') && !bar.classList.contains('lyrics-on')) {
-            const above = window.innerHeight - (18 + bar.offsetHeight + 12) - list.offsetTop;
-            if (above >= LIST_MIN_H) bottom = 18 + bar.offsetHeight + 12;
+            const aboveCard = 18 + dock + bar.offsetHeight + 12;
+            if (window.innerHeight - aboveCard - list.offsetTop >= LIST_MIN_H) bottom = aboveCard;
             else right = 18 + bar.offsetWidth + 12;
         }
         const root = document.documentElement.style;
@@ -550,20 +552,59 @@
         btn.disabled    = inQ;
     }
 
-    function addToQueue(album) {
-        if (queue.length >= QUEUE_MAX) return;
-        if (queue.some(a => a.url === album.url)) return;
+    /* from: the element the song was queued from — its cover flies to the queue */
+    function addToQueue(album, from) {
+        if (queue.length >= QUEUE_MAX) return false;
+        if (queue.some(a => a.url === album.url)) return false;
         queue.push(album);
         renderQueue();
         syncQueueBtn();
         updateURL();
+        flyToQueue(album, from);
+        return true;
     }
 
-    /* The player card is fixed to the screen while the queue strip is in the
-       page flow — tell the CSS how tall the strip is so the card starts below it */
-    function syncQueueHeight() {
-        const bar = document.getElementById('queueBar');
-        document.documentElement.style.setProperty('--queue-h', (bar ? bar.offsetHeight : 0) + 'px');
+    /* A copy of the cover arcs from where it was queued into its new queue slot,
+       which pops in as it lands. Two layers make the arc: the outer one eases
+       out sideways while the inner one eases in vertically. */
+    function flyToQueue(album, from) {
+        const bar    = document.getElementById('queueBar');
+        const target = bar.querySelector(`.queue-item[data-url="${CSS.escape(album.url)}"]`);
+        if (!from || !target || !target.animate ||
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        bar.scrollLeft = bar.scrollWidth;                 /* newest slot in view */
+
+        const a = from.getBoundingClientRect(), b = target.getBoundingClientRect();
+        if (!a.width || !b.width) return;
+        const size = Math.min(a.width, a.height);         /* square, centered on the source */
+        const x0 = a.left + (a.width - size) / 2, y0 = a.top + (a.height - size) / 2;
+        const dx = b.left + b.width / 2 - (x0 + size / 2);
+        const dy = b.top + b.height / 2 - (y0 + size / 2);
+        const scale = b.width / size;
+
+        const ghost = document.createElement('div');
+        ghost.className = 'queue-fly';
+        Object.assign(ghost.style, { left: x0 + 'px', top: y0 + 'px', width: size + 'px', height: size + 'px' });
+        const cover = document.createElement('div');
+        cover.style.backgroundImage = `url(assets/covers/${album.image})`;
+        ghost.appendChild(cover);
+        document.body.appendChild(ghost);
+
+        target.style.opacity = '0';
+        const ms = 680;
+        ghost.animate([{ transform: 'translateX(0)' }, { transform: `translateX(${dx}px)` }],
+                      { duration: ms, easing: 'cubic-bezier(0.25, 0.8, 0.4, 1)', fill: 'forwards' });
+        const fly = cover.animate([
+            { transform: 'translateY(0) scale(1) rotate(0deg)', opacity: 1 },
+            { transform: `translateY(${dy * 0.35}px) scale(${(1 + scale) / 2}) rotate(-8deg)`, opacity: 1, offset: 0.5 },
+            { transform: `translateY(${dy}px) scale(${scale}) rotate(0deg)`, opacity: 0.9 },
+        ], { duration: ms, easing: 'cubic-bezier(0.55, 0, 0.85, 0.5)', fill: 'forwards' });
+        fly.onfinish = fly.oncancel = function () {
+            ghost.remove();
+            target.style.opacity = '';
+            target.animate([{ transform: 'scale(0.6)' }, { transform: 'scale(1.18)' }, { transform: 'scale(1)' }],
+                           { duration: 320, easing: 'ease-out' });
+        };
     }
 
     function renderQueue() {
@@ -571,22 +612,18 @@
         bar.innerHTML = '';
         if (window.CarinoNav) window.CarinoNav.queue(queue.length);
 
+        bar.title = t('Queue');
         if (!queue.length) {
             bar.classList.remove('has-items');
-            syncQueueHeight();
             return;
         }
 
         bar.classList.add('has-items');
 
-        const lbl = document.createElement('span');
-        lbl.className   = 'queue-label';
-        lbl.textContent = t('Queue');
-        bar.appendChild(lbl);
-
         queue.forEach(function (album, idx) {
             const item = document.createElement('div');
             item.className = 'queue-item';
+            item.dataset.url = album.url;
             item.style.backgroundImage = `url(assets/covers/${album.image})`;
             if (album.tag) item.title = album.tag;
             if (currentAlbum && currentAlbum.url === album.url) item.classList.add('playing');
@@ -612,7 +649,6 @@
             item.appendChild(rm);
             bar.appendChild(item);
         });
-        syncQueueHeight();
     }
 
     /* ── LRC parser ─────────────────────────────────────────── */
@@ -823,14 +859,63 @@
         openPanel(next);
     }
 
-    /* Called when a song ends: queue first, else autoplay a fresh random song */
-    function advanceAfterEnd() {
-        if (queue.length) { playNextInQueue(); return; }
-        if (!autoplayOn)  return;
+    /* A random song from the current section, other than the one playing */
+    function playRandom() {
         const pool = visibleAlbums().filter(a => !currentAlbum || a.url !== currentAlbum.url);
         const next = pool.length ? pool[Math.floor(Math.random() * pool.length)]
                    : (currentAlbum || null);
         if (next) { clearActiveCell(); openPanel(next); }
+    }
+
+    /* Called when a song ends: queue first, else autoplay a fresh random song */
+    function advanceAfterEnd() {
+        if (queue.length) { playNextInQueue(); return; }
+        if (autoplayOn) playRandom();
+    }
+
+    /* ── Transport: previous · play/pause · next ────────────── */
+    /* Songs played before the current one (most recent last). Previous
+       restarts a song that's more than 3 s in, else steps back here — and
+       puts the current song at the front of the queue so Next returns to it. */
+    const HISTORY_MAX = 50;
+    let playHistory = [];
+
+    function playPrevious() {
+        const t0 = ytPlayer && typeof ytPlayer.getCurrentTime === 'function' ? ytPlayer.getCurrentTime() : 0;
+        if (t0 > 3 || !playHistory.length) {
+            if (ytPlayer && typeof ytPlayer.seekTo === 'function') ytPlayer.seekTo(0, true);
+            return;
+        }
+        const prev = playHistory.pop();
+        if (currentAlbum && !queue.some(a => a.url === currentAlbum.url)) {
+            queue.unshift(currentAlbum);
+            if (queue.length > QUEUE_MAX) queue.pop();
+            renderQueue();
+        }
+        clearActiveCell();
+        openPanel(prev, { fromHistory: true });
+    }
+
+    function playNext() {
+        if (queue.length) playNextInQueue();
+        else playRandom();
+    }
+
+    function togglePlay() {
+        if (!currentAlbum) { playRandom(); return; }
+        if (!ytPlayer || typeof ytPlayer.getPlayerState !== 'function') return;
+        if (ytPlayer.getPlayerState() === YT.PlayerState.PLAYING) ytPlayer.pauseVideo();
+        else ytPlayer.playVideo();
+    }
+
+    /* Play/pause shows the player's real state; previous needs a song */
+    function syncTransport(playing) {
+        const btn = document.getElementById('playBtn');
+        btn.classList.toggle('is-playing', !!playing);
+        const label = playing ? t('Pause') : t('Play');
+        btn.title = label;
+        btn.setAttribute('aria-label', label);
+        document.getElementById('prevBtn').disabled = !currentAlbum;
     }
 
     /* ── YouTube player ─────────────────────────────────────── */
@@ -847,6 +932,7 @@
             events: {
                 onReady: syncLyricsNow,   /* a saved offset can land on a line before play */
                 onStateChange: function (e) {
+                    syncTransport(e.data === YT.PlayerState.PLAYING || e.data === YT.PlayerState.BUFFERING);
                     if (e.data === YT.PlayerState.PLAYING) {
                         startLyricsSync();
                     } else if (e.data === YT.PlayerState.ENDED) {
@@ -872,7 +958,11 @@
     }
 
     /* ── Info panel ─────────────────────────────────────────── */
-    function openPanel(album) {
+    function openPanel(album, opts) {
+        if (currentAlbum && currentAlbum.url !== album.url && !(opts && opts.fromHistory)) {
+            playHistory.push(currentAlbum);
+            if (playHistory.length > HISTORY_MAX) playHistory.shift();
+        }
         currentAlbum = album;
         updateURL();
 
@@ -980,10 +1070,15 @@
         const inQ = queue.some(a => a.url === album.url);
         qBtn.textContent = inQ ? t('✓ In Queue') : t('+ Add to queue');
         qBtn.disabled    = inQ;
-        qBtn.onclick     = function () { addToQueue(album); };
+        /* the cover thumb flies to the queue (phones hide it — then the button does) */
+        qBtn.onclick     = function () {
+            const thumb = document.getElementById('albumImage');
+            addToQueue(album, thumb.offsetWidth ? thumb : qBtn);
+        };
 
         loadVideo(album.url);
         document.getElementById('videoInfoBar').classList.add('show');
+        document.getElementById('prevBtn').disabled = false;
         markListPlaying();
         syncListBottom();
     }
@@ -1004,6 +1099,7 @@
         if (window.CarinoNav) window.CarinoNav.nowPlaying('—', '—');
         markListPlaying();
         syncListBottom();
+        syncTransport(false);
     }
 
     /* ── Init ───────────────────────────────────────────────── */
@@ -1063,6 +1159,12 @@
         });
 
         closeBtn.addEventListener('click', closePanel);
+
+        /* Transport */
+        document.getElementById('prevBtn').addEventListener('click', playPrevious);
+        document.getElementById('playBtn').addEventListener('click', togglePlay);
+        document.getElementById('nextBtn').addEventListener('click', playNext);
+        syncTransport(false);
 
         /* Song list — ☰ List toggles it; the player card's size keeps it clear */
         document.getElementById('listToggle').addEventListener('click', function () { setListOpen(!listOpen); });

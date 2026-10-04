@@ -22,7 +22,13 @@ collection **by country**, queue songs, and follow along with synced lyrics.
   (accent-insensitive; matches title, artist, country, genre and mood). Click a song to play
   it, **+** to queue it; ↑/↓ and Enter work from the search box, Escape closes it. It stays
   clear of the player card, above it or beside it.
-- **Autoplay** — toggle in the controls; when on, a fresh song keeps playing after each
+- **Layout** — the lists and filters (★ Carino, All, Party, Meme, Country, Genre, Mood) live in
+  the navbar; playback lives in a floating dock at the bottom center.
+- **Transport** — ⏮ ▶/❚❚ ⏭ at the start of the dock. Previous restarts a song
+  that's more than 3 s in, else steps back through what you played (the current song goes to
+  the front of the queue); Next plays the queue, else a random song from the section. The
+  queue sits right after them as small covers (hover one for × to remove it).
+- **Autoplay** — toggle in the dock; when on, a fresh song keeps playing after each
   one ends even with an empty queue (preference saved in `localStorage`).
 - Randomizer, auto-scrolling wall, a 10-song queue, per-video `.lrc` karaoke lyrics, and a
   redesigned now-playing panel with clickable country/genre/mood chips.
