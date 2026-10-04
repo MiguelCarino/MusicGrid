@@ -33,6 +33,12 @@ const I18N = {
         '♪ Hide': '♪ Ocultar',
         'Keep playing songs automatically': 'Seguir reproduciendo canciones automáticamente',
         'Toggle lyrics': 'Mostrar u ocultar la letra',
+        'Lyrics width — click to reset': 'Ancho de la letra — clic para restablecer',
+        'Narrower lyrics': 'Letra más angosta',
+        'Wider lyrics': 'Letra más ancha',
+        'Lyrics timing for this song — + shows lines sooner, click to reset': 'Sincronía de la letra en esta canción — + adelanta las líneas, clic para restablecer',
+        'Show lyrics sooner': 'Mostrar la letra antes',
+        'Show lyrics later': 'Mostrar la letra después',
         'Play a random song': 'Reproducir una canción al azar',
         'Pause auto-scroll': 'Pausar el desplazamiento automático',
         // Filters
@@ -40,6 +46,9 @@ const I18N = {
         '🌍 Country': '🌍 País',
         '🎵 Genre': '🎵 Género',
         '🎭 Mood': '🎭 Ánimo',
+        '🎉 Party': '🎉 Fiesta',
+        '😂 Meme': '😂 Meme',
+        'Songs that became memes': 'Canciones que se volvieron memes',
         "Miguel's personal list": 'La lista personal de Miguel',
         'Filter by': 'Filtrar por',
         // Queue + panel
@@ -80,12 +89,21 @@ const I18N = {
         '♪ Hide': '♪ Ocultar',
         'Keep playing songs automatically': 'Continuar tocando músicas automaticamente',
         'Toggle lyrics': 'Mostrar ou ocultar a letra',
+        'Lyrics width — click to reset': 'Largura da letra — clique para redefinir',
+        'Narrower lyrics': 'Letra mais estreita',
+        'Wider lyrics': 'Letra mais larga',
+        'Lyrics timing for this song — + shows lines sooner, click to reset': 'Sincronia da letra nesta música — + adianta as linhas, clique para redefinir',
+        'Show lyrics sooner': 'Mostrar a letra antes',
+        'Show lyrics later': 'Mostrar a letra depois',
         'Play a random song': 'Tocar uma música aleatória',
         'Pause auto-scroll': 'Pausar a rolagem automática',
         'All': 'Tudo',
         '🌍 Country': '🌍 País',
         '🎵 Genre': '🎵 Gênero',
         '🎭 Mood': '🎭 Clima',
+        '🎉 Party': '🎉 Festa',
+        '😂 Meme': '😂 Meme',
+        'Songs that became memes': 'Músicas que viraram memes',
         "Miguel's personal list": 'A lista pessoal do Miguel',
         'Filter by': 'Filtrar por',
         'Queue': 'Fila',
@@ -124,12 +142,21 @@ const I18N = {
         '♪ Hide': '♪ 隠す',
         'Keep playing songs automatically': '曲を自動で再生し続けます',
         'Toggle lyrics': '歌詞の表示を切り替え',
+        'Lyrics width — click to reset': '歌詞の幅 — クリックでリセット',
+        'Narrower lyrics': '歌詞を狭く',
+        'Wider lyrics': '歌詞を広く',
+        'Lyrics timing for this song — + shows lines sooner, click to reset': 'この曲の歌詞のタイミング — + で早く表示、クリックでリセット',
+        'Show lyrics sooner': '歌詞を早く表示',
+        'Show lyrics later': '歌詞を遅く表示',
         'Play a random song': 'ランダムに1曲再生',
         'Pause auto-scroll': '自動スクロールを一時停止',
         'All': 'すべて',
         '🌍 Country': '🌍 国',
         '🎵 Genre': '🎵 ジャンル',
         '🎭 Mood': '🎭 ムード',
+        '🎉 Party': '🎉 パーティー',
+        '😂 Meme': '😂 ミーム',
+        'Songs that became memes': 'ミームになった曲',
         "Miguel's personal list": 'Miguelの個人リスト',
         'Filter by': '絞り込み:',
         'Queue': 'キュー',
@@ -168,12 +195,21 @@ const I18N = {
         '♪ Hide': '♪ Скрыть',
         'Keep playing songs automatically': 'Продолжать воспроизведение автоматически',
         'Toggle lyrics': 'Показать или скрыть текст песни',
+        'Lyrics width — click to reset': 'Ширина текста — нажмите, чтобы сбросить',
+        'Narrower lyrics': 'Уже',
+        'Wider lyrics': 'Шире',
+        'Lyrics timing for this song — + shows lines sooner, click to reset': 'Синхронизация текста для этой песни — + показывает строки раньше, нажмите для сброса',
+        'Show lyrics sooner': 'Показывать текст раньше',
+        'Show lyrics later': 'Показывать текст позже',
         'Play a random song': 'Включить случайную песню',
         'Pause auto-scroll': 'Приостановить автопрокрутку',
         'All': 'Все',
         '🌍 Country': '🌍 Страна',
         '🎵 Genre': '🎵 Жанр',
         '🎭 Mood': '🎭 Настроение',
+        '🎉 Party': '🎉 Вечеринка',
+        '😂 Meme': '😂 Мемы',
+        'Songs that became memes': 'Песни, ставшие мемами',
         "Miguel's personal list": 'Личный список Мигеля',
         'Filter by': 'Фильтр:',
         'Queue': 'Очередь',
@@ -219,6 +255,12 @@ function applyStaticI18n() {
 const I18N_ATTRS = [
     ['#autoplayToggle', 'title', 'Keep playing songs automatically'],
     ['#lyricsToggle',   'title', 'Toggle lyrics'],
+    ['#lyricsWidthVal', 'title', 'Lyrics width — click to reset'],
+    ['#lyricsNarrower', 'aria-label', 'Narrower lyrics'],
+    ['#lyricsWider',    'aria-label', 'Wider lyrics'],
+    ['#lyricsOffsetVal', 'title', 'Lyrics timing for this song — + shows lines sooner, click to reset'],
+    ['#lyricsSooner',   'aria-label', 'Show lyrics sooner'],
+    ['#lyricsLater',    'aria-label', 'Show lyrics later'],
     ['#randomBtn',      'title', 'Play a random song'],
     ['#scrollToggle',   'title', 'Pause auto-scroll'],
     ['#closeInfoBar',   'aria-label', 'Close panel'],
@@ -264,9 +306,13 @@ function applyDynamicI18n() {
     document.querySelectorAll('.filter-btn[data-ftype="all"]').forEach(function (el) {
         el.textContent = t('All');
     });
+    document.querySelectorAll('.filter-btn[data-ftype="meme"]').forEach(function (el) {
+        el.textContent = t('😂 Meme');
+        el.title = t('Songs that became memes');
+    });
     // Dropdown buttons showing their default label (an active pick keeps its
     // own country/genre label, which is data and stays untouched).
-    const MENU_LABELS = { country: '🌍 Country', genre: '🎵 Genre', mood: '🎭 Mood' };
+    const MENU_LABELS = { party: '🎉 Party', country: '🌍 Country', genre: '🎵 Genre', mood: '🎭 Mood' };
     document.querySelectorAll('.filter-menu-btn').forEach(function (el) {
         const def = MENU_LABELS[el.dataset.menu];
         if (def && !el.classList.contains('active')) el.textContent = t(def) + ' ▾';

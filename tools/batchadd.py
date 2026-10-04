@@ -9,7 +9,8 @@ Two steps, with a reviewable inbox in between:
       match (tag, Apple Music path, cover), artist country (existing catalog
       first, then MusicBrainz), genre (from iTunes), synced lyrics (LRCLIB).
       Results land in tools/inbox/inbox.jsonl; covers/lyrics next to it.
-      Batch defaults: --country --genre --mood --carino/--no-carino.
+      Batch defaults: --country --genre --mood --carino/--no-carino, and
+      --party mexico,usa (the party lists the songs belong to).
 
   batchadd.py check        show the inbox and what still needs a hand
   batchadd.py review       asks only for the missing fields ("?"), entry by entry
@@ -51,9 +52,9 @@ LOCK = threading.RLock()   # the GUI edits the inbox while a fetch appends to it
 # MusicBrainz ISO 3166 code -> COUNTRIES id. Codes not listed fall back to a
 # name match against the registry, then to "?" (with the area name as a hint).
 ISO_TO_COUNTRY = {
-    "AU": "australia", "BR": "brazil", "CA": "canada", "CL": "chile",
+    "AU": "australia", "BR": "brazil", "CA": "canada", "CL": "chile", "CO": "colombia",
     "FI": "finland", "FR": "france", "IS": "iceland", "JP": "japan",
-    "MX": "mexico", "NZ": "newzealand", "KP": "northkorea", "PL": "poland",
+    "MX": "mexico", "NZ": "newzealand", "KP": "northkorea", "PL": "poland", "PR": "puertorico",
     "RO": "romania", "RU": "russia", "KR": "korea", "SE": "sweden",
     "UA": "ukraine", "GB": "uk", "US": "usa",
 }
@@ -234,7 +235,7 @@ def mb_country(artist, regs):
 
 
 def fetch_items(items, country=None, genre=None, mood=None, carino=True, lyrics=True,
-                size=400, log=print, stop=lambda: False):
+                size=400, log=print, stop=lambda: False, party=None):
     """Resolve items into the inbox. Returns how many were added."""
     src, regs, _ = addsong.load_catalog(CATALOG)
     existing = catalog_entries(src)
@@ -250,6 +251,9 @@ def fetch_items(items, country=None, genre=None, mood=None, carino=True, lyrics=
                          ("mood", mood, "MOODS")):
         if v and v not in regs[reg]:
             raise ValueError(f"unknown {flag} '{v}' (have: {', '.join(sorted(regs[reg]))})")
+    for v in party or []:
+        if v not in regs["COUNTRIES"]:
+            raise ValueError(f"unknown party country '{v}'")
 
     genre_default, country_default = genre, country
     (INBOX / "covers").mkdir(parents=True, exist_ok=True)
@@ -307,7 +311,7 @@ def fetch_items(items, country=None, genre=None, mood=None, carino=True, lyrics=
 
         artist = tag.partition(" — ")[0] if " — " in tag else ""
         # "A, B & C" / "A feat. B": the lead artist decides the country
-        lead = re.split(r",\s|\s&\s|\s(?:feat\.?|ft\.?|featuring|x|with)\s", artist, 1, re.I)[0]
+        lead = re.split(r",\s|\s&\s|\s(?:feat\.?|ft\.?|featuring|x|with)\s", artist, maxsplit=1, flags=re.I)[0]
         area = ""
         country = country_default
         if not country and artist:
@@ -332,7 +336,8 @@ def fetch_items(items, country=None, genre=None, mood=None, carino=True, lyrics=
             "tag": tag, "country": country,
             "genre": genre_default or genre or UNSET,
             "mood": mood or UNSET,
-            "carino": carino, "spotifyurl": "", "applemusicurl": apple,
+            "carino": carino, **({"party": list(party)} if party else {}),
+            "spotifyurl": "", "applemusicurl": apple,
             "_video": f"{v['title']} · {v['channel']}",
             "_itunes": (f"{hit['artistName']} — {hit['trackName']} · {it_album}"
                         f" · {hit.get('primaryGenreName', '')}") if hit else "",
@@ -354,7 +359,8 @@ def cmd_fetch(args):
         sys.exit("nothing to fetch (give urls/ids/search terms, or --from FILE)")
     try:
         fetch_items(items, args.country, args.genre, args.mood, args.carino,
-                    args.lyrics, args.size)
+                    args.lyrics, args.size,
+                    party=[p for p in (args.party or "").split(",") if p.strip()] or None)
     except ValueError as e:
         sys.exit(f"error: {e}")
     print()
@@ -378,6 +384,8 @@ def problems(e, regs, in_catalog):
         p.append("image")
     if not isinstance(e.get("carino"), bool):
         p.append("carino")
+    if any(c not in regs["COUNTRIES"] for c in e.get("party") or []):
+        p.append("party")
     if e.get("url") in in_catalog:
         p.append("duplicate")
     return p
@@ -509,6 +517,7 @@ def main():
                    help="add to the ★ Carino list (default)")
     f.add_argument("--no-carino", dest="carino", action="store_false")
     f.add_argument("--no-lyrics", dest="lyrics", action="store_false")
+    f.add_argument("--party", help="party lists for the whole batch, e.g. mexico,colombia")
     f.add_argument("--size", type=int, default=400, help="cover px (default 400)")
     sub.add_parser("check", help="show the inbox and what needs fixing")
     r = sub.add_parser("review", help="answer only the missing fields, one entry at a time")

@@ -5,7 +5,8 @@
 
     /* ── State ──────────────────────────────────────────────── */
     /* filter: { type, value }
-       type: 'all' | 'carino' | 'country' | 'genre'   value: id (country/genre) */
+       type: 'all' | 'carino' | 'meme' | 'party' | 'country' | 'genre' | 'mood'
+       value: id (party lists are keyed by country) */
     let filter      = { type: 'all', value: '' };
     let filterMenus = [];   // registry of dropdown menus (panels live in <body>)
     let scrollPaused   = false;
@@ -25,6 +26,8 @@
     let lyricsCueIdx = -1;
     let lyricsTimer  = null;
     let lyricsHidden = false; /* user-toggled preference */
+    let lyricsAnim   = null;  /* running card resize animation */
+    let lyricsOffset = 0;     /* seconds, per song; + shows lines sooner */
 
     /* ── YouTube IFrame API ─────────────────────────────────── */
     let ytPlayer    = null;
@@ -45,20 +48,21 @@
      *   s   = search query
      * Use replaceState so every song-change doesn't spam browser history.
      */
-    /* Filter <-> URL encoding. '' = all · 'carino' · 'country:japan' · 'genre:rock'.
+    /* Filter <-> URL encoding. '' = all · 'carino' · 'meme' · 'party:mexico' ·
+       'country:japan' · 'genre:rock' · 'mood:chill'.
        A bare value (legacy ?cat=japan links) is read as a country. */
     function encodeFilter(f) {
         if (f.type === 'all')    return '';
-        if (f.type === 'carino') return 'carino';
+        if (f.type === 'carino' || f.type === 'meme') return f.type;
         return f.type + ':' + f.value;
     }
     function decodeFilter(s) {
         if (!s)            return { type: 'all', value: '' };
-        if (s === 'carino') return { type: 'carino', value: '' };
+        if (s === 'carino' || s === 'meme') return { type: s, value: '' };
         const i = s.indexOf(':');
         if (i < 0)         return { type: 'country', value: s };   // legacy
         const t = s.slice(0, i), v = s.slice(i + 1);
-        if (t === 'country' || t === 'genre') return { type: t, value: v };
+        if (['country', 'genre', 'mood', 'party'].includes(t)) return { type: t, value: v };
         return { type: 'all', value: '' };
     }
 
@@ -117,6 +121,8 @@
 
     function visibleAlbums() {
         if (filter.type === 'carino')  return albums.filter(a => a.carino);
+        if (filter.type === 'meme')    return albums.filter(a => a.meme);
+        if (filter.type === 'party')   return albums.filter(a => (a.party || []).includes(filter.value));
         if (filter.type === 'country') return albums.filter(a => (a.country || '') === filter.value);
         if (filter.type === 'genre')   return albums.filter(a => (a.genre || '') === filter.value);
         if (filter.type === 'mood')    return albums.filter(a => (a.mood || '') === filter.value);
@@ -139,10 +145,13 @@
     function countryLabel(id) { const m = countryMeta(id); return m.flag + ' ' + m.name; }
     function genreLabel(id)   { const m = genreMeta(id);   return m.icon + ' ' + m.name; }
     function moodLabel(id)    { const m = moodMeta(id);    return m.icon + ' ' + m.name; }
+    function partyLabel(id)   { const m = countryMeta(id); return '🎉 ' + m.flag + ' ' + m.name; }
 
     /* Human label for the active filter (navbar diagnostics) */
     function filterLabel(f) {
         if (f.type === 'carino')  return '★ Carino';
+        if (f.type === 'meme')    return t('😂 Meme');
+        if (f.type === 'party')   return partyLabel(f.value);
         if (f.type === 'country') return countryLabel(f.value);
         if (f.type === 'genre')   return genreLabel(f.value);
         if (f.type === 'mood')    return moodLabel(f.value);
@@ -239,7 +248,10 @@
     /* Count songs per field value, return ids ordered by count then name */
     function countBy(key, metaFn) {
         const counts = {};
-        albums.forEach(a => { const v = a[key]; if (v) counts[v] = (counts[v] || 0) + 1; });
+        albums.forEach(a => {
+            /* party is a list (a song can be a staple in several countries) */
+            [].concat(a[key] || []).forEach(v => { counts[v] = (counts[v] || 0) + 1; });
+        });
         const ids = Object.keys(counts).sort((a, b) =>
             counts[b] - counts[a] || metaFn(a).name.localeCompare(metaFn(b).name));
         return { counts, ids };
@@ -301,7 +313,7 @@
         /* Dropdown menu — button stays in the bar, panel lives in <body> so it
            is never clipped by the controls bar (which is a fixed-pos containing
            block thanks to its backdrop-filter). */
-        function buildMenu(type, defLabel, data, labelFor) {
+        function buildMenu(type, defLabel, data, labelFor, itemLabelFor) {
             const btn = document.createElement('button');
             btn.className = 'filter-btn filter-menu-btn';
             btn.textContent = defLabel + ' ▾';
@@ -316,7 +328,7 @@
                 item.className = 'menu-item';
                 item.dataset.ftype = type;
                 item.dataset.fvalue = id;
-                item.innerHTML = '<span class="menu-item-label">' + labelFor(id) +
+                item.innerHTML = '<span class="menu-item-label">' + (itemLabelFor || labelFor)(id) +
                                  '</span><span class="menu-count">' + data.counts[id] + '</span>';
                 item.addEventListener('click', function () {
                     applyFilter(container, grid, type, id);
@@ -367,7 +379,14 @@
         }
         container.appendChild(quickPill(t('All'), 'all', ''));
 
-        /* Dropdown menus — only built when that dimension exists in the data */
+        /* Dropdown menus — only built when that dimension exists in the data.
+           🎉 Party (the songs every party plays, per country) and 😂 Meme come
+           first: they are lists, the rest describe the songs. */
+        const party = countBy('party', countryMeta);
+        if (party.ids.length) container.appendChild(buildMenu('party', t('🎉 Party'), party, partyLabel, countryLabel));
+        if (albums.some(a => a.meme)) {
+            container.appendChild(quickPill(t('😂 Meme'), 'meme', '', 'filter-meme', t('Songs that became memes')));
+        }
         const dims = [
             { type: 'country', label: t('🌍 Country'), metaFn: countryMeta, labelFn: countryLabel },
             { type: 'genre',   label: t('🎵 Genre'),   metaFn: genreMeta,   labelFn: genreLabel },
@@ -460,6 +479,9 @@
     function parseLRC(text) {
         const re   = /^\[(\d{1,2}):(\d{2})\.(\d{2,3})\](.*)$/;
         const cues = [];
+        /* standard [offset:±ms] tag: + shows every line that much sooner */
+        const om   = text.match(/^\[offset:\s*([+-]?\d+)\s*\]/mi);
+        const shift = om ? parseInt(om[1], 10) / 1000 : 0;
         text.split('\n').forEach(function (line) {
             const m = line.match(re);
             if (!m) return;
@@ -468,7 +490,7 @@
             const content = m[4].trim();
             const sep     = content.indexOf(' | ');
             cues.push({
-                time,
+                time:        time - shift,
                 original:    sep >= 0 ? content.slice(0, sep).trim() : content,
                 translation: sep >= 0 ? content.slice(sep + 3).trim() : '',
             });
@@ -516,24 +538,69 @@
         });
 
         updateLyricsToggle();
-
-        /* Only show if the user hasn't hidden lyrics */
-        if (lyricsHidden) return;
-
-        const section = document.getElementById('lyricsSection');
-        section.style.display = 'flex';
-        void section.offsetWidth; /* force reflow */
-        section.classList.add('visible');
+        setLyricsMode(!lyricsHidden);
     }
 
-    function hideLyricsPanel() {
-        const section = document.getElementById('lyricsSection');
-        section.classList.remove('visible');
-        section.style.display = 'none';
+    /* Drop the current song's lyrics. The card keeps its shape so a song
+       change between two songs with lyrics doesn't collapse and regrow it. */
+    function clearLyrics() {
         lyricsData   = [];
         lyricsCueIdx = -1;
         stopLyricsSync();
+        document.getElementById('lyricsContainer').innerHTML = '';
         updateLyricsToggle();
+    }
+
+    /* Switch the player card between compact and the lyrics stage (lyrics on
+       top, info merged below). The size change is animated FLIP-style: measure,
+       switch the class, measure again, then animate between the two boxes. */
+    function setLyricsMode(on) {
+        const bar = document.getElementById('videoInfoBar');
+        if (bar.classList.contains('lyrics-on') === on) return;
+
+        const animate = bar.classList.contains('show') && bar.animate &&
+            !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const first = bar.getBoundingClientRect();
+        if (lyricsAnim) { lyricsAnim.cancel(); lyricsAnim = null; }
+        bar.classList.toggle('lyrics-on', on);
+        if (!animate) return;
+
+        /* the stage sits on the left, the compact card on the right: slide
+           across (transform) while the box resizes */
+        const last = bar.getBoundingClientRect();
+        if (first.width === last.width && first.height === last.height &&
+            first.left === last.left) return;
+        const dx = first.left - last.left, dy = first.top - last.top;
+        const ease = 'cubic-bezier(0.22, 1, 0.36, 1)';
+        lyricsAnim = bar.animate([
+            { width: first.width + 'px', height: first.height + 'px', overflow: 'hidden',
+              transform: `translate(${dx}px, ${dy}px)` },
+            { width: last.width + 'px',  height: last.height + 'px',  overflow: 'hidden',
+              transform: 'none' },
+        ], { duration: 560, easing: ease });
+        lyricsAnim.onfinish = function () {
+            lyricsAnim = null;
+            if (on && lyricsCueIdx >= 0) highlightLine(lyricsCueIdx); /* re-center */
+        };
+        /* the content reflows at once — fade it in behind the moving edges */
+        const fade = [{ opacity: 0 }, { opacity: 1 }];
+        if (on) document.getElementById('lyricsSection')
+            .animate(fade, { duration: 360, delay: 160, easing: 'ease', fill: 'backwards' });
+        bar.querySelector('.vib-info')
+            .animate(fade, { duration: 320, delay: 120, easing: 'ease', fill: 'backwards' });
+    }
+
+    /* Live width of the lyrics stage, in % of the screen (30–80, default 50) */
+    const LYRICS_W_MIN = 30, LYRICS_W_MAX = 80, LYRICS_W_STEP = 5;
+    let lyricsW = 50;
+    function setLyricsWidth(pct, save) {
+        pct = Math.min(LYRICS_W_MAX, Math.max(LYRICS_W_MIN, Math.round(+pct) || 50));
+        lyricsW = pct;
+        document.documentElement.style.setProperty('--lyrics-w', pct);
+        document.getElementById('lyricsWidthVal').textContent = pct + '%';
+        document.getElementById('lyricsNarrower').disabled = pct <= LYRICS_W_MIN;
+        document.getElementById('lyricsWider').disabled    = pct >= LYRICS_W_MAX;
+        if (save) { try { localStorage.setItem('mg_lyrics_w', pct); } catch (e) {} }
     }
 
     function highlightLine(idx) {
@@ -551,18 +618,45 @@
     function startLyricsSync() {
         stopLyricsSync();
         if (!lyricsData.length) return;
-        lyricsTimer = setInterval(function () {
-            if (!ytPlayer || typeof ytPlayer.getCurrentTime !== 'function') return;
-            const t = ytPlayer.getCurrentTime();
-            let idx = -1;
-            for (let i = 0; i < lyricsData.length; i++) {
-                if (lyricsData[i].time <= t) idx = i; else break;
-            }
-            if (idx !== lyricsCueIdx) {
-                lyricsCueIdx = idx;
-                highlightLine(idx);
-            }
-        }, 100);
+        lyricsTimer = setInterval(syncLyricsNow, 100);
+    }
+
+    /* Highlight the line for the player's current time (+ the song's offset) */
+    function syncLyricsNow() {
+        if (!lyricsData.length) return;
+        if (!ytPlayer || typeof ytPlayer.getCurrentTime !== 'function') return;
+        const t = ytPlayer.getCurrentTime() + lyricsOffset;
+        let idx = -1;
+        for (let i = 0; i < lyricsData.length; i++) {
+            if (lyricsData[i].time <= t) idx = i; else break;
+        }
+        if (idx !== lyricsCueIdx) {
+            lyricsCueIdx = idx;
+            highlightLine(idx);
+        }
+    }
+
+    /* Lyrics timing, remembered per song (uploads of the same song drift
+       differently). Step 0.25s, ±10s. */
+    const LYRICS_OFFSET_STEP = 0.25, LYRICS_OFFSET_MAX = 10;
+    function readOffsets() {
+        try { return JSON.parse(localStorage.getItem('mg_lyrics_offsets') || '{}') || {}; }
+        catch (e) { return {}; }
+    }
+    function setLyricsOffset(sec, save) {
+        sec = Math.round(Math.min(LYRICS_OFFSET_MAX, Math.max(-LYRICS_OFFSET_MAX, +sec || 0)) * 100) / 100;
+        lyricsOffset = sec;
+        document.getElementById('lyricsOffsetVal').textContent =
+            (sec > 0 ? '+' : sec < 0 ? '−' : '±') + Math.abs(sec).toFixed(2) + 's';
+        document.getElementById('lyricsOffset').classList.toggle('shifted', sec !== 0);
+        document.getElementById('lyricsLater').disabled  = sec <= -LYRICS_OFFSET_MAX;
+        document.getElementById('lyricsSooner').disabled = sec >= LYRICS_OFFSET_MAX;
+        if (save && currentAlbum) {
+            const all = readOffsets();
+            if (sec) all[currentAlbum.url] = sec; else delete all[currentAlbum.url];
+            try { localStorage.setItem('mg_lyrics_offsets', JSON.stringify(all)); } catch (e) {}
+        }
+        syncLyricsNow();   /* follow at once, even while paused */
     }
 
     function stopLyricsSync() {
@@ -601,6 +695,7 @@
             width: 640, height: 360,
             playerVars: { autoplay: 1, rel: 0, modestbranding: 1 },
             events: {
+                onReady: syncLyricsNow,   /* a saved offset can land on a line before play */
                 onStateChange: function (e) {
                     if (e.data === YT.PlayerState.PLAYING) {
                         startLyricsSync();
@@ -609,6 +704,7 @@
                         advanceAfterEnd();
                     } else {
                         stopLyricsSync();
+                        syncLyricsNow();   /* paused/cued: show where it stopped */
                     }
                 }
             }
@@ -630,21 +726,24 @@
         currentAlbum = album;
         updateURL();
 
-        hideLyricsPanel();
+        clearLyrics();
+        setLyricsOffset(readOffsets()[album.url] || 0, false);
 
         /* Try to load lyrics by video ID */
         fetch(`assets/lyrics/${album.url}.lrc`)
             .then(function (r) { if (!r.ok) throw 0; return r.text(); })
             .then(function (text) {
+                if (currentAlbum !== album) return; /* a newer song took over */
                 const cues = parseLRC(text);
-                if (!cues.length) return;
+                if (!cues.length) throw 0;
                 buildLyricsPanel(cues);
+                syncLyricsNow();   /* the song's saved offset may already land on a line */
                 if (ytPlayer && typeof ytPlayer.getPlayerState === 'function' &&
                     ytPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
                     startLyricsSync();
                 }
             })
-            .catch(function () {});
+            .catch(function () { if (currentAlbum === album) setLyricsMode(false); });
 
         /* Title comes straight from the catalog tag — no API key, no quota. */
         displayVideoInfo(album.tag || '', album);
@@ -673,6 +772,8 @@
             album.country ? { type: 'country', value: album.country, label: countryLabel(album.country) } : null,
             album.genre   ? { type: 'genre',   value: album.genre,   label: genreLabel(album.genre) }     : null,
             album.mood    ? { type: 'mood',    value: album.mood,    label: moodLabel(album.mood) }        : null,
+            ...(album.party || []).map(id => ({ type: 'party', value: id, label: partyLabel(id) })),
+            album.meme    ? { type: 'meme',    value: '',            label: t('😂 Meme') }                 : null,
         ].filter(Boolean).forEach(function (chip) {
             const c = document.createElement('button');
             c.className = 'meta-chip';
@@ -737,7 +838,12 @@
     function closePanel() {
         document.getElementById('videoInfoBar').classList.remove('show');
         if (ytPlayer && ytPlayer.stopVideo) ytPlayer.stopVideo();
-        hideLyricsPanel();
+        clearLyrics();
+        /* keep the card's shape while it fades out, then reset it */
+        setTimeout(function () {
+            const bar = document.getElementById('videoInfoBar');
+            if (!bar.classList.contains('show')) setLyricsMode(false);
+        }, 300);
         clearActiveCell();
         currentAlbum = null;
         renderQueue();
@@ -804,19 +910,33 @@
         /* Lyrics toggle */
         lyricsTgl.addEventListener('click', function () {
             lyricsHidden = !lyricsHidden;
-            const section = document.getElementById('lyricsSection');
-            if (lyricsHidden) {
-                section.classList.remove('visible');
-                /* keep display:flex briefly so transition plays, then hide */
-                setTimeout(function () {
-                    if (lyricsHidden) section.style.display = 'none';
-                }, 460);
-            } else if (lyricsData.length) {
-                section.style.display = 'flex';
-                void section.offsetWidth;
-                section.classList.add('visible');
-            }
+            setLyricsMode(!lyricsHidden && lyricsData.length > 0);
             updateLyricsToggle();
+        });
+
+        /* Lyrics width — − / + in 5% steps, live and remembered; the number resets to half */
+        let savedW = 50;
+        try { savedW = +localStorage.getItem('mg_lyrics_w') || 50; } catch (e) {}
+        setLyricsWidth(savedW, false);
+        document.getElementById('lyricsNarrower').addEventListener('click', function () {
+            setLyricsWidth(lyricsW - LYRICS_W_STEP, true);
+        });
+        document.getElementById('lyricsWider').addEventListener('click', function () {
+            setLyricsWidth(lyricsW + LYRICS_W_STEP, true);
+        });
+        document.getElementById('lyricsWidthVal').addEventListener('click', function () {
+            setLyricsWidth(50, true);
+        });
+
+        /* Lyrics timing — per song; the number resets it */
+        document.getElementById('lyricsSooner').addEventListener('click', function () {
+            setLyricsOffset(lyricsOffset + LYRICS_OFFSET_STEP, true);
+        });
+        document.getElementById('lyricsLater').addEventListener('click', function () {
+            setLyricsOffset(lyricsOffset - LYRICS_OFFSET_STEP, true);
+        });
+        document.getElementById('lyricsOffsetVal').addEventListener('click', function () {
+            setLyricsOffset(0, true);
         });
 
         /* Grid layout fix — aspect-ratio in CSS Grid can get stuck until resize.

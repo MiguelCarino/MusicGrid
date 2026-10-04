@@ -85,35 +85,51 @@
     <div id="queueBar"></div>
 
     <!--
-        Lyrics overlay — position: fixed, covers the screen area to the LEFT
-        of the info panel. Displayed as a full karaoke view when a .lrc file
-        exists for the playing video. Separate from the panel intentionally.
+        Player card (fixed, bottom right). With lyrics on (desktop) it grows to
+        --lyrics-w of the screen: synced lyrics on top, the track info merged
+        in below. Without lyrics it is the compact info panel.
     -->
-    <div id="lyricsSection">
-        <div id="lyricsContainer"></div>
-    </div>
-
-    <!-- Info panel (fixed, right side) -->
     <div id="videoInfoBar">
         <button id="closeInfoBar" aria-label="Close panel">✕</button>
 
-        <!-- Player on top -->
-        <div id="videoPlayer">
-            <div id="ytPlayerSlot"></div>
+        <div id="lyricsSection">
+            <div id="lyricsCtls">
+                <div class="lyrics-ctl" id="lyricsWidth">
+                    <button id="lyricsNarrower" aria-label="Narrower lyrics">−</button>
+                    <button id="lyricsWidthVal" title="Lyrics width — click to reset">50%</button>
+                    <button id="lyricsWider" aria-label="Wider lyrics">+</button>
+                </div>
+                <div class="lyrics-ctl" id="lyricsOffset">
+                    <span class="lyrics-ctl-icon" aria-hidden="true">⏱</span>
+                    <button id="lyricsLater" aria-label="Show lyrics later">−</button>
+                    <button id="lyricsOffsetVal" title="Lyrics timing for this song — + shows lines sooner, click to reset">±0.00s</button>
+                    <button id="lyricsSooner" aria-label="Show lyrics sooner">+</button>
+                </div>
+            </div>
+            <div id="lyricsContainer"></div>
         </div>
 
-        <!-- Track header: cover thumb + title + meta chips -->
-        <div class="vib-head">
-            <div id="albumImage"></div>
-            <div class="vib-headtext">
-                <div id="videoTitle"></div>
-                <div id="videoMeta"></div>
+        <div class="vib-info">
+            <!-- Player on top (left of the details when lyrics are on) -->
+            <div id="videoPlayer">
+                <div id="ytPlayerSlot"></div>
+            </div>
+
+            <div class="vib-side">
+                <!-- Track header: cover thumb + title + meta chips -->
+                <div class="vib-head">
+                    <div id="albumImage"></div>
+                    <div class="vib-headtext">
+                        <div id="videoTitle"></div>
+                        <div id="videoMeta"></div>
+                    </div>
+                </div>
+
+                <!-- Streaming links + queue action -->
+                <div id="videoLinks"></div>
+                <div id="videoActions"></div>
             </div>
         </div>
-
-        <!-- Streaming links + queue action -->
-        <div id="videoLinks"></div>
-        <div id="videoActions"></div>
     </div>
 
     <div id="musicgrid"></div>

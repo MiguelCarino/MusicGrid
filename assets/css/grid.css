@@ -22,6 +22,7 @@ body {
 :root {
     --controls-h: 44px;
     --panel-w:    320px;
+    --lyrics-w:   50;      /* % of the screen the player card covers with lyrics on */
     --radius:     10px;
 
     /* Carino navbar palette (self-contained — mirrors carino.systems) */
@@ -216,6 +217,14 @@ body {
     background: linear-gradient(130deg, #fef08a 0%, #eab308 60%, #b45309 100%);
     border-color: #eab308;
     color: #1a1300;
+}
+
+/* 😂 Meme — the meme list pill */
+.filter-btn.filter-meme:hover { background: rgba(244, 114, 182, 0.12); color: #fbcfe8; }
+.filter-btn.filter-meme.active {
+    background: #f472b6;
+    border-color: #f472b6;
+    color: #1a0010;
 }
 
 /* ── Country / Genre / Mood dropdown menus ────────────────── */
@@ -459,6 +468,7 @@ body {
 
 /* ── Info panel (right side, fixed) — redesigned ──────────── */
 #videoInfoBar {
+    container: card / inline-size;
     position: fixed;
     bottom: 18px;
     right: 18px;
@@ -513,6 +523,7 @@ body {
 
 /* YouTube player — on top, prominent */
 #videoPlayer {
+    position: relative;
     width: 100%;
     aspect-ratio: 16 / 9;
     border-radius: 12px;
@@ -521,11 +532,23 @@ body {
     flex-shrink: 0;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
 }
+/* pinned to the box: a percentage height inside an aspect-ratio grid item
+   resolves short and left a black band under the video */
 #videoPlayer iframe {
+    position: absolute;
+    inset: 0;
     width: 100% !important;
     height: 100% !important;
     border: none;
     display: block;
+}
+
+/* Everything below the lyrics: player + details */
+.vib-info, .vib-side {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
 }
 
 /* Track header: cover thumb + title + meta chips */
@@ -640,32 +663,108 @@ body {
 #queueAddBtn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.15); color: #fff; }
 #queueAddBtn:disabled { opacity: 0.5; cursor: default; color: var(--cs-ok, #22c55e); border-color: rgba(34, 197, 94, 0.4); }
 
-/* ── Lyrics floating panel ────────────────────────────────── */
+/* ── Lyrics (inside the player card) ─────────────────────── */
 /*
-   Floating card that mirrors the info panel's visual style.
-   Sits to the left of the info panel, filling most of the screen.
-   Hidden via display:none + opacity so backdrop-filter is inactive when closed.
+   Desktop only: .lyrics-on moves the compact card to the left and turns it
+   into a stage covering --lyrics-w of the screen — lyrics on top, the video
+   (as wide as it can be) + details merged below.
+   grid.js animates the size change (FLIP), so no width/height transition here.
 */
-#lyricsSection {
-    position: fixed;
-    top: calc(var(--nav-h) + var(--controls-h) + 10px);
-    left: 10px;
-    bottom: 20px;
-    right: calc(var(--panel-w) + 30px);
-    z-index: 50;
-    display: none; /* JS sets to flex, then triggers opacity transition */
-    flex-direction: column;
-    overflow: hidden;
-    border-radius: var(--radius);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(12, 12, 12, 0.93);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    opacity: 0;
-    transition: opacity 0.45s ease;
+#lyricsSection { display: none; }
+
+@media (min-width: 769px) {
+    #videoInfoBar.lyrics-on {
+        left: 18px;
+        right: auto;
+        transform-origin: bottom left;
+        width: calc(var(--lyrics-w) * 1vw - 18px);
+        max-width: none;
+        height: calc(100dvh - var(--nav-h) - var(--controls-h) - 28px);
+        overflow: hidden;
+    }
+    #videoInfoBar.lyrics-on #lyricsSection {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-height: 0;
+        position: relative;
+        container-type: size;
+        border-radius: 12px;
+        background: rgba(0, 0, 0, 0.28);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    #videoInfoBar.lyrics-on .vib-info {
+        flex-shrink: 0;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+        align-items: start;
+    }
+    #videoInfoBar.lyrics-on .vib-side { gap: 12px; }
+    /* cover = half the info row, whose height is the video's: the video column
+       is the card's content width minus the 280px details column and the gap */
+    #videoInfoBar.lyrics-on {
+        --cover: calc((100cqw - 294px) * 9 / 32);
+    }
+    #videoInfoBar.lyrics-on #albumImage {
+        width: var(--cover);
+        height: var(--cover);
+        border-radius: 12px;
+        transition: width 0.3s ease, height 0.3s ease;
+    }
+    /* a big cover leaves no room beside it: the title wraps underneath */
+    #videoInfoBar.lyrics-on .vib-head { flex-wrap: wrap; }
+    #videoInfoBar.lyrics-on .vib-headtext { padding-right: 0; min-width: 110px; }
+}
+/* a narrow stage stacks the details under the video so it stays big */
+@container card (max-width: 640px) {
+    #videoInfoBar.lyrics-on .vib-info { grid-template-columns: minmax(0, 1fr); }
+    #videoInfoBar.lyrics-on #albumImage { width: 58px; height: 58px; }
 }
 
-#lyricsSection.visible { opacity: 1; }
+/* Live controls — width (− 50% +) and timing (⏱ − ±0.00s +), top-left of the
+   lyrics, faint until hovered */
+#lyricsCtls {
+    position: absolute;
+    top: 10px;
+    left: 12px;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.lyrics-ctl {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 20px;
+    background: rgba(0, 0, 0, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-family: var(--cs-mono);
+    font-size: 0.68rem;
+    color: rgba(255, 255, 255, 0.6);
+    opacity: 0.35;
+    transition: opacity 0.2s, border-color 0.2s;
+}
+#lyricsSection:hover .lyrics-ctl { opacity: 0.8; }
+.lyrics-ctl:hover, .lyrics-ctl:focus-within { opacity: 1; border-color: rgba(234, 179, 8, 0.5); }
+.lyrics-ctl-icon { padding: 0 2px 0 6px; }
+.lyrics-ctl button {
+    background: none;
+    border: none;
+    border-radius: 14px;
+    color: inherit;
+    font: inherit;
+    line-height: 1;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+.lyrics-ctl button:hover:not(:disabled) { background: rgba(234, 179, 8, 0.16); color: #fde68a; }
+.lyrics-ctl button:disabled { opacity: 0.3; cursor: default; }
+#lyricsWidthVal { min-width: 5ch; }
+#lyricsOffsetVal { min-width: 7ch; }
+#lyricsOffset.shifted { opacity: 0.8; color: #fde68a; }   /* a non-zero offset stays visible */
 
 #lyricsContainer {
     flex: 1;
@@ -676,7 +775,7 @@ body {
      * Large vertical padding keeps the active line centered in the viewport
      * rather than clipped at the top or bottom.
      */
-    padding: 30vh 10vw;
+    padding: 42cqh 8%;
     scroll-behavior: smooth;
 }
 
@@ -742,7 +841,7 @@ body {
 
     .cell:hover { transform: none; }
 
-    /* Lyrics overlay doesn't fit alongside the mobile bottom sheet — hide it */
+    /* Lyrics don't fit in the mobile bottom sheet — keep it compact */
     #lyricsSection { display: none !important; }
 
     #videoInfoBar {

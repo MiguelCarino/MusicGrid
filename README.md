@@ -14,12 +14,17 @@ collection **by country**, queue songs, and follow along with synced lyrics.
 - **Browse menus** — **🌍 Country**, **🎵 Genre** and **🎭 Mood** dropdown menus, each
   listing its options with song counts, generated automatically from the catalog.
 - **★ Carino list** — a quick pill that filters to Miguel's personal picks (`carino: true`).
+- **🎉 Party menu** — the songs every party plays, per country (Mexico, Colombia and the US
+  so far). A song lists every country it's a staple in (`party: ["mexico", "colombia"]`), so
+  it can sit in several party lists; party songs aren't personal picks (`carino: false`).
+- **😂 Meme pill** — songs that became memes (`meme: true`).
 - **Autoplay** — toggle in the controls; when on, a fresh song keeps playing after each
   one ends even with an empty queue (preference saved in `localStorage`).
 - Randomizer, auto-scrolling wall, a 10-song queue, per-video `.lrc` karaoke lyrics, and a
   redesigned now-playing panel with clickable country/genre/mood chips.
 - Everything is shareable via URL params (`?v=` play, `?q=` queue, `?cat=` filter). Filters
-  encode as `?cat=country:japan`, `?cat=genre:rock` or `?cat=mood:chill` (a bare
+  encode as `?cat=country:japan`, `?cat=genre:rock`, `?cat=mood:chill`,
+  `?cat=party:mexico` or `?cat=meme` (a bare
   `?cat=japan` still works as a country).
 
 ## Adding music
@@ -47,7 +52,8 @@ python3 tools/batchadd.py review    # asks only for what's missing (usually the 
 python3 tools/batchadd.py commit    # covers → assets/covers/mu_N.webp, entries → catalog
 ```
 
-`--country`, `--genre`, `--mood` and `--no-carino` apply to the whole batch. `check` shows
+`--country`, `--genre`, `--mood`, `--party mexico,colombia` and `--no-carino` apply to the
+whole batch. `check` shows
 the inbox without changing it, and `review --all` also walks entries flagged for a second
 look (a guessed iTunes match, a possible duplicate) so you can fix the tag or delete them.
 You can also edit `tools/inbox/inbox.jsonl` by hand; fields starting with `_` are hints
@@ -76,6 +82,8 @@ each match yourself; the front page of `tools/addsong_web.py` is the same flow i
    | `genre`         | a key in the `GENRES` registry at the top of the file          |
    | `mood`          | a key in the `MOODS` registry at the top of the file           |
    | `carino`        | `true` to include it in the ★ Carino personal list             |
+   | `party`         | optional — country ids where it's a party staple (🎉 Party)     |
+   | `meme`          | optional — `true` for songs that became memes (😂 Meme)         |
    | `spotifyurl`    | Spotify track id, or `""` to link a search by `tag`            |
    | `applemusicurl` | Apple Music path, or `""` to link a search by `tag`           |
 
@@ -95,6 +103,14 @@ each match yourself; the front page of `tools/addsong_web.py` is the same flow i
 Add a file named `assets/lyrics/<youtube-id>.lrc`. Each line is
 `[MM:SS.xx]Original | Optional translation`. The ♪ Lyrics toggle appears whenever a
 matching file exists for the playing video.
+On a desktop screen the lyrics turn the player card into a stage on the left half of
+the screen: lyrics on top, the video and song details merged below. The − / + buttons
+in its corner change the width live in 5% steps (30–80%, remembered); click the number
+to go back to half.
+Next to it, **⏱ − ±0.00s +** fixes lyrics that run early or late: each press moves them
+0.25s (+ shows lines sooner, up to ±10s). It's remembered per song, since different uploads
+of a song drift differently; click the number to reset. A `.lrc` file can also carry the
+standard `[offset:+500]` tag (milliseconds, + = sooner) to fix a song for everyone.
 
 ## Licensing
 
