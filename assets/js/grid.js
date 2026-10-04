@@ -150,7 +150,7 @@
     /* Human label for the active filter (navbar diagnostics) */
     function filterLabel(f) {
         if (f.type === 'carino')  return '★ Carino';
-        if (f.type === 'meme')    return t('😂 Meme');
+        if (f.type === 'meme')    return t('Meme');
         if (f.type === 'party')   return partyLabel(f.value);
         if (f.type === 'country') return countryLabel(f.value);
         if (f.type === 'genre')   return genreLabel(f.value);
@@ -523,14 +523,14 @@
            🎉 Party (the songs every party plays, per country) and 😂 Meme come
            first: they are lists, the rest describe the songs. */
         const party = countBy('party', countryMeta);
-        if (party.ids.length) container.appendChild(buildMenu('party', t('🎉 Party'), party, partyLabel, countryLabel));
+        if (party.ids.length) container.appendChild(buildMenu('party', t('Party'), party, id => t('Party') + ' · ' + countryLabel(id), countryLabel));
         if (albums.some(a => a.meme)) {
-            container.appendChild(quickPill(t('😂 Meme'), 'meme', '', 'filter-meme', t('Songs that became memes')));
+            container.appendChild(quickPill(t('Meme'), 'meme', '', 'filter-meme', t('Songs that became memes')));
         }
         const dims = [
-            { type: 'country', label: t('🌍 Country'), metaFn: countryMeta, labelFn: countryLabel },
-            { type: 'genre',   label: t('🎵 Genre'),   metaFn: genreMeta,   labelFn: genreLabel },
-            { type: 'mood',    label: t('🎭 Mood'),    metaFn: moodMeta,    labelFn: moodLabel },
+            { type: 'country', label: t('Country'), metaFn: countryMeta, labelFn: countryLabel },
+            { type: 'genre',   label: t('Genre'),   metaFn: genreMeta,   labelFn: genreLabel },
+            { type: 'mood',    label: t('Mood'),    metaFn: moodMeta,    labelFn: moodLabel },
         ];
         dims.forEach(function (d) {
             const data = countBy(d.type, d.metaFn);
@@ -654,8 +654,9 @@
         const hasLyrics = lyricsData.length > 0;
         btn.style.display = hasLyrics ? '' : 'none';
         if (hasLyrics) {
-            btn.textContent = lyricsHidden ? t('♪ Lyrics') : t('♪ Hide');
+            btn.textContent = t('Lyrics');
             btn.classList.toggle('active', !lyricsHidden);
+            btn.setAttribute('aria-pressed', lyricsHidden ? 'false' : 'true');
         }
     }
 
@@ -922,7 +923,7 @@
             album.genre   ? { type: 'genre',   value: album.genre,   label: genreLabel(album.genre) }     : null,
             album.mood    ? { type: 'mood',    value: album.mood,    label: moodLabel(album.mood) }        : null,
             ...(album.party || []).map(id => ({ type: 'party', value: id, label: partyLabel(id) })),
-            album.meme    ? { type: 'meme',    value: '',            label: t('😂 Meme') }                 : null,
+            album.meme    ? { type: 'meme',    value: '',            label: t('Meme') }                 : null,
         ].filter(Boolean).forEach(function (chip) {
             const c = document.createElement('button');
             c.className = 'meta-chip';
@@ -956,13 +957,14 @@
             ? `https://geo.music.apple.com/${album.applemusicurl}`
             : `https://geo.music.apple.com/us/search?term=${q}`;
         [
-            { label: 'YouTube',     href: `https://www.youtube.com/watch?v=${album.url}`, platform: 'youtube' },
-            { label: 'Spotify',     href: spotifyHref,                                    platform: 'spotify' },
-            { label: 'Apple Music', href: appleHref,                                      platform: 'apple'   },
-        ].forEach(function ({ label, href, platform }) {
+            { label: 'YouTube', title: 'YouTube',     href: `https://www.youtube.com/watch?v=${album.url}`, platform: 'youtube' },
+            { label: 'Spotify', title: 'Spotify',     href: spotifyHref,                                    platform: 'spotify' },
+            { label: 'Apple',   title: 'Apple Music', href: appleHref,                                      platform: 'apple'   },
+        ].forEach(function ({ label, title, href, platform }) {
             const a = document.createElement('a');
             a.href = href; a.target = '_blank'; a.rel = 'noopener noreferrer';
             a.textContent = label;
+            a.title = title;
             a.dataset.platform = platform;
             linksEl.appendChild(a);
         });
@@ -1030,13 +1032,15 @@
         /* ONLY the button pauses/resumes scroll */
         toggleBtn.addEventListener('click', function () {
             scrollPaused = !scrollPaused;
-            toggleBtn.textContent = scrollPaused ? t('▶ Resume') : t('⏸ Pause');
+            toggleBtn.textContent = scrollPaused ? t('Resume') : t('Pause');
+            toggleBtn.classList.toggle('paused', scrollPaused);
         });
 
         /* Autoplay toggle — keeps music playing after a song ends, even with no queue */
         function syncAutoplayBtn() {
             autoplayBtn.classList.toggle('active', autoplayOn);
-            autoplayBtn.textContent = autoplayOn ? t('↻ Autoplay: On') : t('↻ Autoplay');
+            autoplayBtn.textContent = t('Autoplay');
+            autoplayBtn.setAttribute('aria-pressed', autoplayOn ? 'true' : 'false');
         }
         syncAutoplayBtn();
         autoplayBtn.addEventListener('click', function () {

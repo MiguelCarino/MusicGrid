@@ -159,7 +159,7 @@ body {
     z-index: 60;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     padding: 0 12px;
     height: var(--controls-h);
     background: rgba(10, 10, 10, 0.97);
@@ -181,61 +181,65 @@ body {
 
 #sectionFilters::-webkit-scrollbar { display: none; }
 
-.filter-btn {
+/* One control recipe for the whole bar (Branding .cs-btn): mono uppercase,
+   hairline border, 6px corners; hover turns gold; "on" is solid gold. Every
+   filter, menu and toggle shares it so the bar reads as one row. */
+.filter-btn, .ctl-btn {
     flex-shrink: 0;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 20px;
-    color: rgba(255, 255, 255, 0.65);
-    font-size: 0.78rem;
-    padding: 4px 13px;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 30px;
+    padding: 0 12px;
+    background: transparent;
+    border: 1px solid var(--cs-border);
+    border-radius: 6px;
+    color: var(--cs-text-sec);
+    font-family: var(--cs-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
     white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s, border-color 0.18s;
 }
+.filter-btn:hover, .ctl-btn:hover {
+    border-color: var(--cs-accent);
+    color: var(--cs-accent);
+    background: var(--cs-accent-faint);
+}
+.filter-btn.active, .ctl-btn.active {
+    background: var(--cs-accent);
+    border-color: var(--cs-accent);
+    color: #050505;
+}
+.filter-btn:focus-visible, .ctl-btn:focus-visible { outline: 2px solid var(--cs-accent); outline-offset: 2px; }
 
-.filter-btn:hover { background: rgba(255, 255, 255, 0.16); color: #fff; }
+/* ★ Carino keeps a gold star so the personal list stands out at rest */
+.filter-btn.filter-carino { color: var(--cs-accent); }
+.filter-btn.filter-carino.active { color: #050505; }
 
-.filter-btn.active {
-    background: #fff;
-    border-color: #fff;
-    color: #000;
-    font-weight: 600;
-}
-
-/* ★ Carino — the personal list pill, gold-tinted to match the brand */
-.filter-btn.filter-carino {
-    color: var(--cs-accent, #eab308);
-    border-color: rgba(234, 179, 8, 0.4);
-    font-weight: 600;
-}
-.filter-btn.filter-carino:hover {
-    background: rgba(234, 179, 8, 0.12);
-    color: #fde68a;
-}
-.filter-btn.filter-carino.active {
-    background: linear-gradient(130deg, #fef08a 0%, #eab308 60%, #b45309 100%);
-    border-color: #eab308;
-    color: #1a1300;
-}
-
-/* 😂 Meme — the meme list pill */
-.filter-btn.filter-meme:hover { background: rgba(244, 114, 182, 0.12); color: #fbcfe8; }
-.filter-btn.filter-meme.active {
-    background: #f472b6;
-    border-color: #f472b6;
-    color: #1a0010;
+/* icon-only control (shuffle) */
+.ctl-btn.ctl-icon { width: 30px; padding: 0; justify-content: center; }
+.ctl-btn svg {
+    width: 15px;
+    height: 15px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 /* ── Country / Genre / Mood dropdown menus ────────────────── */
 /* The button lives in the bar; the .menu-panel is appended to <body> so it is
-   never clipped by #controls (a fixed-pos containing block via backdrop-filter). */
-.filter-menu-btn.active,
-.filter-menu-btn.menu-open {
-    background: rgba(234, 179, 8, 0.16);
-    border-color: rgba(234, 179, 8, 0.55);
-    color: #fde68a;
-    font-weight: 600;
+   never clipped by #controls (a fixed-pos containing block via backdrop-filter).
+   Open = gold outline; a picked value = solid gold (.active, above). */
+.filter-menu-btn.menu-open:not(.active) {
+    border-color: var(--cs-accent);
+    color: var(--cs-accent);
+    background: var(--cs-accent-faint);
 }
 
 .menu-panel {
@@ -296,38 +300,6 @@ body {
     flex-shrink: 0;
 }
 .menu-item.chosen .menu-count { color: rgba(253, 230, 138, 0.7); }
-
-/* List + Autoplay + Lyrics toggle + Random + scroll toggle — shared pill style */
-#listToggle, #autoplayToggle, #lyricsToggle, #randomBtn, #scrollToggle {
-    flex-shrink: 0;
-    white-space: nowrap;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 20px;
-    color: rgba(255, 255, 255, 0.65);
-    font-size: 0.78rem;
-    padding: 4px 13px;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-}
-
-#listToggle:hover, #autoplayToggle:hover, #lyricsToggle:hover, #randomBtn:hover, #scrollToggle:hover {
-    background: rgba(255, 255, 255, 0.16);
-    color: #fff;
-}
-
-#listToggle.active, #lyricsToggle.active {
-    background: rgba(255, 255, 255, 0.18);
-    border-color: rgba(255, 255, 255, 0.35);
-    color: #fff;
-}
-
-/* Autoplay ON — gold-tinted to match the brand */
-#autoplayToggle.active {
-    background: rgba(234, 179, 8, 0.16);
-    border-color: rgba(234, 179, 8, 0.55);
-    color: #fde68a;
-}
 
 /* ── Queue strip ──────────────────────────────────────────── */
 #queueBar {
@@ -587,81 +559,87 @@ body {
     margin-top: 7px;
 }
 .meta-chip {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 20px;
-    color: rgba(255, 255, 255, 0.75);
-    font-size: 0.68rem;
+    background: transparent;
+    border: 1px solid var(--cs-border);
+    border-radius: 4px;
+    color: var(--cs-text-sec);
+    font-size: 0.7rem;
     line-height: 1;
-    padding: 4px 9px;
+    padding: 4px 8px;
     cursor: pointer;
     white-space: nowrap;
     transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 .meta-chip:hover {
-    background: rgba(234, 179, 8, 0.16);
-    border-color: rgba(234, 179, 8, 0.5);
-    color: #fde68a;
+    border-color: var(--cs-accent);
+    color: var(--cs-accent);
+    background: var(--cs-accent-faint);
 }
 
-/* Streaming links */
+/* Streaming links + queue — Branding outline buttons. Each link carries a
+   small platform-colour dot and takes that colour on hover. */
 #videoLinks {
     display: flex;
-    flex-wrap: wrap;
+    gap: 6px;
+}
+#videoLinks a, #queueAddBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     gap: 7px;
+    height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--cs-border);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--cs-text-sec);
+    font-family: var(--cs-mono);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s, border-color 0.18s;
 }
 #videoLinks a {
-    flex: 1;
-    min-width: 84px;
-    text-align: center;
-    border-radius: 10px;
-    padding: 8px 10px;
-    font-size: 0.76rem;
-    font-weight: 600;
-    color: #fff;
-    text-decoration: none;
-    transition: background 0.2s, color 0.2s, transform 0.15s;
-    border: 1px solid transparent;
+    --platform: var(--cs-text);
+    flex: 1 1 0;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-#videoLinks a:hover { transform: translateY(-2px); }
-
-#videoLinks a[data-platform="youtube"] {
-    background: rgba(255, 40, 40, 0.16);
-    border-color: rgba(255, 40, 40, 0.4);
-    color: #ff6b6b;
+#videoLinks a::before {
+    content: '';
+    flex-shrink: 0;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--platform);
 }
-#videoLinks a[data-platform="youtube"]:hover { background: rgba(255, 40, 40, 0.3); color: #ff8585; }
-
-#videoLinks a[data-platform="spotify"] {
-    background: rgba(30, 215, 96, 0.14);
-    border-color: rgba(30, 215, 96, 0.4);
-    color: #1ed760;
+#videoLinks a[data-platform="youtube"] { --platform: #ff4e45; }
+#videoLinks a[data-platform="spotify"] { --platform: #1ed760; }
+#videoLinks a[data-platform="apple"]   { --platform: #fa586a; }
+#videoLinks a:hover {
+    border-color: var(--platform);
+    color: var(--platform);
+    background: color-mix(in srgb, var(--platform) 8%, transparent);
 }
-#videoLinks a[data-platform="spotify"]:hover { background: rgba(30, 215, 96, 0.28); color: #3ffe7a; }
 
-#videoLinks a[data-platform="apple"] {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.22);
-    color: #fff;
-}
-#videoLinks a[data-platform="apple"]:hover { background: rgba(255, 255, 255, 0.22); }
-
-/* Queue action */
 #videoActions { display: flex; }
-#queueAddBtn {
-    flex: 1;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 10px;
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 0.8rem;
-    font-weight: 600;
-    padding: 9px 13px;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
+#queueAddBtn { flex: 1; }
+#queueAddBtn:hover:not(:disabled) {
+    border-color: var(--cs-accent);
+    color: var(--cs-accent);
+    background: var(--cs-accent-faint);
 }
-#queueAddBtn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.15); color: #fff; }
-#queueAddBtn:disabled { opacity: 0.5; cursor: default; color: var(--cs-ok, #22c55e); border-color: rgba(34, 197, 94, 0.4); }
+#queueAddBtn:disabled {
+    cursor: default;
+    color: var(--cs-ok);
+    border-color: rgba(34, 197, 94, 0.4);
+    background: rgba(34, 197, 94, 0.06);
+}
 
 /* ── Song list (right side) ───────────────────────────────── */
 /*
@@ -709,9 +687,9 @@ body {
 #songSearch {
     flex: 1;
     min-width: 0;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--cs-border);
+    border-radius: 6px;
     color: #fff;
     font: inherit;
     font-size: 0.85rem;
@@ -723,9 +701,9 @@ body {
 #songListClose {
     flex-shrink: 0;
     width: 34px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 6px;
+    background: transparent;
+    border: 1px solid var(--cs-border);
     color: rgba(255, 255, 255, 0.75);
     cursor: pointer;
     transition: background 0.2s, color 0.2s;
@@ -780,9 +758,9 @@ body {
     flex-shrink: 0;
     width: 28px;
     height: 28px;
-    border-radius: 50%;
+    border-radius: 6px;
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    border: 1px solid var(--cs-border);
     color: rgba(255, 255, 255, 0.6);
     cursor: pointer;
     opacity: 0;
@@ -882,7 +860,7 @@ body {
     align-items: center;
     gap: 2px;
     padding: 3px;
-    border-radius: 20px;
+    border-radius: 6px;
     background: rgba(0, 0, 0, 0.45);
     border: 1px solid rgba(255, 255, 255, 0.1);
     font-family: var(--cs-mono);
@@ -897,7 +875,7 @@ body {
 .lyrics-ctl button {
     background: none;
     border: none;
-    border-radius: 14px;
+    border-radius: 4px;
     color: inherit;
     font: inherit;
     line-height: 1;
@@ -980,6 +958,12 @@ body {
     .header-clock { display: none; }
     .brand-name   { font-size: 1.3rem; }
     .cn-brand .app-tag { display: none; }
+
+    /* the whole control row scrolls sideways as one strip, so the toggles
+       never squeeze the filters off screen */
+    #controls { overflow-x: auto; scrollbar-width: none; }
+    #controls::-webkit-scrollbar { display: none; }
+    #sectionFilters { flex: none; overflow: visible; }
     .diag-dropdown { right: 10px; width: min(88vw, 280px); }
 
     #musicgrid {

@@ -75,11 +75,13 @@
     <!-- Controls: category menus + autoplay + random + scroll toggle -->
     <div id="controls">
         <div id="sectionFilters"></div>
-        <button id="listToggle" title="Show the songs in this section" aria-expanded="false" aria-controls="songList" data-i18n>☰ List</button>
-        <button id="autoplayToggle" title="Keep playing songs automatically">↻ Autoplay</button>
-        <button id="lyricsToggle" title="Toggle lyrics" style="display:none">♪ Lyrics</button>
-        <button id="randomBtn" title="Play a random song">⇌</button>
-        <button id="scrollToggle" title="Pause auto-scroll">⏸ Pause</button>
+        <button id="listToggle" class="ctl-btn" title="Show the songs in this section" aria-expanded="false" aria-controls="songList" data-i18n>List</button>
+        <button id="autoplayToggle" class="ctl-btn" title="Keep playing songs automatically" aria-pressed="false">Autoplay</button>
+        <button id="lyricsToggle" class="ctl-btn" title="Toggle lyrics" aria-pressed="true" style="display:none">Lyrics</button>
+        <button id="randomBtn" class="ctl-btn ctl-icon" title="Play a random song" aria-label="Play a random song">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/></svg>
+        </button>
+        <button id="scrollToggle" class="ctl-btn" title="Pause auto-scroll">Pause</button>
     </div>
 
     <!-- Queue strip — hidden until songs are queued -->

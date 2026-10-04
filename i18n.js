@@ -25,15 +25,13 @@ const I18N = {
         'Carino Systems — back to hub': 'Carino Systems — volver al hub',
         'Music — reload': 'Music — recargar',
         // Controls bar
-        '↻ Autoplay': '↻ Reproducción automática',
-        '↻ Autoplay: On': '↻ Reproducción automática: activada',
-        '⏸ Pause': '⏸ Pausar',
-        '▶ Resume': '▶ Reanudar',
-        '♪ Lyrics': '♪ Letra',
-        '♪ Hide': '♪ Ocultar',
+        'Autoplay': 'Reproducción automática',
+        'Pause': 'Pausar',
+        'Resume': 'Reanudar',
+        'Lyrics': 'Letra',
         'Keep playing songs automatically': 'Seguir reproduciendo canciones automáticamente',
         'Toggle lyrics': 'Mostrar u ocultar la letra',
-        '☰ List': '☰ Lista',
+        'List': 'Lista',
         'Show the songs in this section': 'Mostrar las canciones de esta sección',
         'Search songs…': 'Buscar canciones…',
         'Close list': 'Cerrar la lista',
@@ -46,11 +44,11 @@ const I18N = {
         'Pause auto-scroll': 'Pausar el desplazamiento automático',
         // Filters
         'All': 'Todo',
-        '🌍 Country': '🌍 País',
-        '🎵 Genre': '🎵 Género',
-        '🎭 Mood': '🎭 Ánimo',
-        '🎉 Party': '🎉 Fiesta',
-        '😂 Meme': '😂 Meme',
+        'Country': 'País',
+        'Genre': 'Género',
+        'Mood': 'Ánimo',
+        'Party': 'Fiesta',
+        'Meme': 'Meme',
         'Songs that became memes': 'Canciones que se volvieron memes',
         "Miguel's personal list": 'La lista personal de Miguel',
         'Filter by': 'Filtrar por',
@@ -84,15 +82,13 @@ const I18N = {
         'Library status': 'Status da biblioteca',
         'Carino Systems — back to hub': 'Carino Systems — voltar ao hub',
         'Music — reload': 'Music — recarregar',
-        '↻ Autoplay': '↻ Reprodução automática',
-        '↻ Autoplay: On': '↻ Reprodução automática: ativada',
-        '⏸ Pause': '⏸ Pausar',
-        '▶ Resume': '▶ Retomar',
-        '♪ Lyrics': '♪ Letra',
-        '♪ Hide': '♪ Ocultar',
+        'Autoplay': 'Reprodução automática',
+        'Pause': 'Pausar',
+        'Resume': 'Retomar',
+        'Lyrics': 'Letra',
         'Keep playing songs automatically': 'Continuar tocando músicas automaticamente',
         'Toggle lyrics': 'Mostrar ou ocultar a letra',
-        '☰ List': '☰ Lista',
+        'List': 'Lista',
         'Show the songs in this section': 'Mostrar as músicas desta seção',
         'Search songs…': 'Buscar músicas…',
         'Close list': 'Fechar a lista',
@@ -104,11 +100,11 @@ const I18N = {
         'Play a random song': 'Tocar uma música aleatória',
         'Pause auto-scroll': 'Pausar a rolagem automática',
         'All': 'Tudo',
-        '🌍 Country': '🌍 País',
-        '🎵 Genre': '🎵 Gênero',
-        '🎭 Mood': '🎭 Clima',
-        '🎉 Party': '🎉 Festa',
-        '😂 Meme': '😂 Meme',
+        'Country': 'País',
+        'Genre': 'Gênero',
+        'Mood': 'Clima',
+        'Party': 'Festa',
+        'Meme': 'Meme',
         'Songs that became memes': 'Músicas que viraram memes',
         "Miguel's personal list": 'A lista pessoal do Miguel',
         'Filter by': 'Filtrar por',
@@ -140,15 +136,13 @@ const I18N = {
         'Library status': 'ライブラリの状態',
         'Carino Systems — back to hub': 'Carino Systems — ハブに戻る',
         'Music — reload': 'Music — 再読み込み',
-        '↻ Autoplay': '↻ 自動再生',
-        '↻ Autoplay: On': '↻ 自動再生: オン',
-        '⏸ Pause': '⏸ 一時停止',
-        '▶ Resume': '▶ 再開',
-        '♪ Lyrics': '♪ 歌詞',
-        '♪ Hide': '♪ 隠す',
+        'Autoplay': '自動再生',
+        'Pause': '一時停止',
+        'Resume': '再開',
+        'Lyrics': '歌詞',
         'Keep playing songs automatically': '曲を自動で再生し続けます',
         'Toggle lyrics': '歌詞の表示を切り替え',
-        '☰ List': '☰ リスト',
+        'List': 'リスト',
         'Show the songs in this section': 'このセクションの曲を表示',
         'Search songs…': '曲を検索…',
         'Close list': 'リストを閉じる',
@@ -160,11 +154,11 @@ const I18N = {
         'Play a random song': 'ランダムに1曲再生',
         'Pause auto-scroll': '自動スクロールを一時停止',
         'All': 'すべて',
-        '🌍 Country': '🌍 国',
-        '🎵 Genre': '🎵 ジャンル',
-        '🎭 Mood': '🎭 ムード',
-        '🎉 Party': '🎉 パーティー',
-        '😂 Meme': '😂 ミーム',
+        'Country': '国',
+        'Genre': 'ジャンル',
+        'Mood': 'ムード',
+        'Party': 'パーティー',
+        'Meme': 'ミーム',
         'Songs that became memes': 'ミームになった曲',
         "Miguel's personal list": 'Miguelの個人リスト',
         'Filter by': '絞り込み:',
@@ -196,15 +190,13 @@ const I18N = {
         'Library status': 'Состояние библиотеки',
         'Carino Systems — back to hub': 'Carino Systems — вернуться в хаб',
         'Music — reload': 'Music — перезагрузить',
-        '↻ Autoplay': '↻ Автовоспроизведение',
-        '↻ Autoplay: On': '↻ Автовоспроизведение: вкл.',
-        '⏸ Pause': '⏸ Пауза',
-        '▶ Resume': '▶ Продолжить',
-        '♪ Lyrics': '♪ Текст',
-        '♪ Hide': '♪ Скрыть',
+        'Autoplay': 'Автовоспроизведение',
+        'Pause': 'Пауза',
+        'Resume': 'Продолжить',
+        'Lyrics': 'Текст',
         'Keep playing songs automatically': 'Продолжать воспроизведение автоматически',
         'Toggle lyrics': 'Показать или скрыть текст песни',
-        '☰ List': '☰ Список',
+        'List': 'Список',
         'Show the songs in this section': 'Показать песни этого раздела',
         'Search songs…': 'Поиск песен…',
         'Close list': 'Закрыть список',
@@ -216,11 +208,11 @@ const I18N = {
         'Play a random song': 'Включить случайную песню',
         'Pause auto-scroll': 'Приостановить автопрокрутку',
         'All': 'Все',
-        '🌍 Country': '🌍 Страна',
-        '🎵 Genre': '🎵 Жанр',
-        '🎭 Mood': '🎭 Настроение',
-        '🎉 Party': '🎉 Вечеринка',
-        '😂 Meme': '😂 Мемы',
+        'Country': 'Страна',
+        'Genre': 'Жанр',
+        'Mood': 'Настроение',
+        'Party': 'Вечеринка',
+        'Meme': 'Мемы',
         'Songs that became memes': 'Песни, ставшие мемами',
         "Miguel's personal list": 'Личный список Мигеля',
         'Filter by': 'Фильтр:',
@@ -274,6 +266,7 @@ const I18N_ATTRS = [
     ['#lyricsSooner',   'aria-label', 'Show lyrics sooner'],
     ['#lyricsLater',    'aria-label', 'Show lyrics later'],
     ['#randomBtn',      'title', 'Play a random song'],
+    ['#randomBtn',      'aria-label', 'Play a random song'],
     ['#scrollToggle',   'title', 'Pause auto-scroll'],
     ['#closeInfoBar',   'aria-label', 'Close panel'],
     ['#diagToggle',     'title', 'Library status'],
@@ -294,18 +287,15 @@ function applyAttrI18n() {
 function applyDynamicI18n() {
     const scrollBtn = document.getElementById('scrollToggle');
     if (scrollBtn) {
-        scrollBtn.textContent =
-            scrollBtn.textContent.trim().startsWith('▶') ? t('▶ Resume') : t('⏸ Pause');
+        scrollBtn.textContent = scrollBtn.classList.contains('paused') ? t('Resume') : t('Pause');
     }
     const autoplayBtn = document.getElementById('autoplayToggle');
     if (autoplayBtn) {
-        autoplayBtn.textContent =
-            autoplayBtn.classList.contains('active') ? t('↻ Autoplay: On') : t('↻ Autoplay');
+        autoplayBtn.textContent = t('Autoplay');
     }
     const lyricsBtn = document.getElementById('lyricsToggle');
     if (lyricsBtn && lyricsBtn.style.display !== 'none') {
-        lyricsBtn.textContent =
-            lyricsBtn.classList.contains('active') ? t('♪ Hide') : t('♪ Lyrics');
+        lyricsBtn.textContent = t('Lyrics');
     }
     const queueAdd = document.getElementById('queueAddBtn');
     if (queueAdd) {
@@ -319,12 +309,12 @@ function applyDynamicI18n() {
         el.textContent = t('All');
     });
     document.querySelectorAll('.filter-btn[data-ftype="meme"]').forEach(function (el) {
-        el.textContent = t('😂 Meme');
+        el.textContent = t('Meme');
         el.title = t('Songs that became memes');
     });
     // Dropdown buttons showing their default label (an active pick keeps its
     // own country/genre label, which is data and stays untouched).
-    const MENU_LABELS = { party: '🎉 Party', country: '🌍 Country', genre: '🎵 Genre', mood: '🎭 Mood' };
+    const MENU_LABELS = { party: 'Party', country: 'Country', genre: 'Genre', mood: 'Mood' };
     document.querySelectorAll('.filter-menu-btn').forEach(function (el) {
         const def = MENU_LABELS[el.dataset.menu];
         if (def && !el.classList.contains('active')) el.textContent = t(def) + ' ▾';

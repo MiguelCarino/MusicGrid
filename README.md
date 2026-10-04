@@ -18,7 +18,7 @@ collection **by country**, queue songs, and follow along with synced lyrics.
   so far). A song lists every country it's a staple in (`party: ["mexico", "colombia"]`), so
   it can sit in several party lists; party songs aren't personal picks (`carino: false`).
 - **😂 Meme pill** — songs that became memes (`meme: true`).
-- **☰ List** — opens a list of every song in the current section (A–Z), with a search box
+- **List** — opens a list of every song in the current section (A–Z), with a search box
   (accent-insensitive; matches title, artist, country, genre and mood). Click a song to play
   it, **+** to queue it; ↑/↓ and Enter work from the search box, Escape closes it. It stays
   clear of the player card, above it or beside it.
