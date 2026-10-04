@@ -75,6 +75,7 @@
     <!-- Controls: category menus + autoplay + random + scroll toggle -->
     <div id="controls">
         <div id="sectionFilters"></div>
+        <button id="listToggle" title="Show the songs in this section" aria-expanded="false" aria-controls="songList" data-i18n>☰ List</button>
         <button id="autoplayToggle" title="Keep playing songs automatically">↻ Autoplay</button>
         <button id="lyricsToggle" title="Toggle lyrics" style="display:none">♪ Lyrics</button>
         <button id="randomBtn" title="Play a random song">⇌</button>
@@ -125,6 +126,17 @@
                 <div id="videoActions"></div>
             </div>
         </div>
+    </div>
+
+    <!-- Song list (fixed, right side) — every song in the current section,
+         searchable; hidden until ☰ List is pressed -->
+    <div id="songList" aria-hidden="true">
+        <div class="sl-head">
+            <input type="search" id="songSearch" placeholder="Search songs…" autocomplete="off" spellcheck="false">
+            <button id="songListClose" aria-label="Close list">✕</button>
+        </div>
+        <div class="sl-meta" id="songListMeta"></div>
+        <div class="sl-items" id="songListItems"></div>
     </div>
 
     <div id="musicgrid"></div>

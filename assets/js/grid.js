@@ -265,6 +265,146 @@
         updateURL();
         syncFilterUI(container);
         if (window.CarinoNav) window.CarinoNav.filter(filterLabel(filter));
+        renderSongList();
+    }
+
+    /* ── Song list ──────────────────────────────────────────── */
+    /* Every song in the current section, A–Z, searchable (accent-insensitive,
+       across tag, country, genre and mood). Hidden until ☰ List is pressed. */
+    let listOpen = false;
+    const fold = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const isPhone = () => window.matchMedia('(max-width: 768px)').matches;
+
+    function listMatches(album, words) {
+        if (!words.length) return true;
+        const hay = fold([album.tag, countryMeta(album.country).name,
+                          genreMeta(album.genre).name, moodMeta(album.mood).name].join(' '));
+        return words.every(w => hay.includes(w));
+    }
+
+    function renderSongList() {
+        if (!listOpen) return;
+        const items = document.getElementById('songListItems');
+        const words = fold(document.getElementById('songSearch').value).split(/\s+/).filter(Boolean);
+        const pool  = visibleAlbums().slice().sort((a, b) => (a.tag || '').localeCompare(b.tag || ''));
+        const shown = pool.filter(a => listMatches(a, words));
+
+        document.getElementById('songListMeta').textContent = filterLabel(filter) + ' · ' +
+            (shown.length === pool.length ? pool.length : shown.length + ' / ' + pool.length) + ' ' + t('songs');
+
+        items.innerHTML = '';
+        if (!shown.length) {
+            const empty = document.createElement('div');
+            empty.className = 'sl-empty';
+            empty.textContent = t('No songs match');
+            items.appendChild(empty);
+            return;
+        }
+        const frag = document.createDocumentFragment();
+        shown.forEach(function (album) {
+            const row = document.createElement('div');
+            row.className = 'sl-row';
+            row.dataset.url = album.url;
+
+            const img = document.createElement('img');
+            img.src = `assets/covers/${album.image}`;
+            img.alt = '';
+            img.loading = 'lazy';
+
+            const sep    = (album.tag || '').indexOf(' — ');
+            const text   = document.createElement('div');
+            text.className = 'sl-text';
+            const title  = document.createElement('div');
+            title.className = 'sl-title';
+            title.textContent = sep >= 0 ? album.tag.slice(sep + 3) : album.tag;
+            const artist = document.createElement('div');
+            artist.className = 'sl-artist';
+            artist.textContent = countryMeta(album.country).flag + ' ' + (sep >= 0 ? album.tag.slice(0, sep) : '');
+            text.append(title, artist);
+
+            const q = document.createElement('button');
+            q.className = 'sl-queue';
+            q.textContent = '+';
+            q.setAttribute('aria-label', t('Add to queue'));
+            q.addEventListener('click', function (e) {
+                e.stopPropagation();
+                addToQueue(album);
+                q.textContent = '✓';
+                q.classList.add('done');
+            });
+
+            row.append(img, text, q);
+            row.addEventListener('click', function () { playFromList(album); });
+            frag.appendChild(row);
+        });
+        items.appendChild(frag);
+        markListPlaying();
+    }
+
+    function playFromList(album) {
+        clearActiveCell();
+        openPanel(album);
+        if (isPhone()) setListOpen(false);   /* the list covers the player there */
+    }
+
+    function markListPlaying() {
+        document.querySelectorAll('#songListItems .sl-row').forEach(function (r) {
+            r.classList.toggle('playing', !!currentAlbum && r.dataset.url === currentAlbum.url);
+        });
+    }
+
+    function setListOpen(open) {
+        listOpen = open;
+        const panel = document.getElementById('songList');
+        const btn   = document.getElementById('listToggle');
+        panel.classList.toggle('open', open);
+        panel.setAttribute('aria-hidden', open ? 'false' : 'true');
+        btn.classList.toggle('active', open);
+        btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (!open) return;
+        syncListBottom();
+        renderSongList();
+        const playing = document.querySelector('#songListItems .sl-row.playing');
+        if (playing) playing.scrollIntoView({ block: 'center' });
+        if (!isPhone()) document.getElementById('songSearch').focus();
+    }
+
+    /* Keep the list clear of the compact player card (bottom right): it ends
+       just above it, or sits beside it when there's no room above for a useful
+       list. The lyrics stage lives on the left, so it needs no room. */
+    const LIST_MIN_H = 220;
+    function syncListBottom() {
+        const bar  = document.getElementById('videoInfoBar');
+        const list = document.getElementById('songList');
+        let bottom = 18, right = 18;
+        if (!isPhone() && bar.classList.contains('show') && !bar.classList.contains('lyrics-on')) {
+            const above = window.innerHeight - (18 + bar.offsetHeight + 12) - list.offsetTop;
+            if (above >= LIST_MIN_H) bottom = 18 + bar.offsetHeight + 12;
+            else right = 18 + bar.offsetWidth + 12;
+        }
+        const root = document.documentElement.style;
+        root.setProperty('--list-bottom', bottom + 'px');
+        root.setProperty('--list-right', right + 'px');
+    }
+
+    /* Arrow keys pick a row, Enter plays it (or the first match), Escape closes */
+    function onSearchKey(e) {
+        const rows = [...document.querySelectorAll('#songListItems .sl-row')];
+        let i = rows.findIndex(r => r.classList.contains('kbd'));
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (!rows.length) return;
+            if (i >= 0) rows[i].classList.remove('kbd');
+            i = e.key === 'ArrowDown' ? Math.min(rows.length - 1, i + 1) : Math.max(0, i - 1);
+            rows[i].classList.add('kbd');
+            rows[i].scrollIntoView({ block: 'nearest' });
+        } else if (e.key === 'Enter') {
+            const row = rows[i >= 0 ? i : 0];
+            const album = row && albumByUrl(row.dataset.url);
+            if (album) playFromList(album);
+        } else if (e.key === 'Escape') {
+            setListOpen(false);
+        }
     }
 
     /* Close every open dropdown */
@@ -530,6 +670,7 @@
             const line = document.createElement('div');
             line.className  = 'lyric-line';
             line.dataset.idx = idx;
+            line.addEventListener('click', function () { seekToCue(idx); });
 
             const orig = document.createElement('div');
             orig.className   = 'lyric-original';
@@ -615,6 +756,18 @@
         stopLyricsSync();
         if (!lyricsData.length) return;
         lyricsTimer = setInterval(syncLyricsNow, 100);
+    }
+
+    /* Jump the song to a lyric line and keep playing from there. The line's
+       time is in lyrics time, so the song's offset is taken back off; a hair
+       past the cue so the sync lands on this line, not the one before. */
+    function seekToCue(idx) {
+        const cue = lyricsData[idx];
+        if (!cue || !ytPlayer || typeof ytPlayer.seekTo !== 'function') return;
+        ytPlayer.seekTo(Math.max(0, cue.time - lyricsOffset + 0.05), true);
+        if (typeof ytPlayer.playVideo === 'function') ytPlayer.playVideo();
+        lyricsCueIdx = idx;
+        highlightLine(idx);
     }
 
     /* Highlight the line for the player's current time (+ the song's offset) */
@@ -829,6 +982,8 @@
 
         loadVideo(album.url);
         document.getElementById('videoInfoBar').classList.add('show');
+        markListPlaying();
+        syncListBottom();
     }
 
     function closePanel() {
@@ -845,6 +1000,8 @@
         renderQueue();
         updateURL();
         if (window.CarinoNav) window.CarinoNav.nowPlaying('—', '—');
+        markListPlaying();
+        syncListBottom();
     }
 
     /* ── Init ───────────────────────────────────────────────── */
@@ -902,6 +1059,15 @@
         });
 
         closeBtn.addEventListener('click', closePanel);
+
+        /* Song list — ☰ List toggles it; the player card's size keeps it clear */
+        document.getElementById('listToggle').addEventListener('click', function () { setListOpen(!listOpen); });
+        document.getElementById('songListClose').addEventListener('click', function () { setListOpen(false); });
+        const search = document.getElementById('songSearch');
+        search.addEventListener('input', renderSongList);
+        search.addEventListener('keydown', onSearchKey);
+        if (window.ResizeObserver) new ResizeObserver(syncListBottom).observe(document.getElementById('videoInfoBar'));
+        window.addEventListener('resize', syncListBottom);
 
         /* Lyrics toggle */
         lyricsTgl.addEventListener('click', function () {

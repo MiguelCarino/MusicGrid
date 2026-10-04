@@ -18,6 +18,10 @@ collection **by country**, queue songs, and follow along with synced lyrics.
   so far). A song lists every country it's a staple in (`party: ["mexico", "colombia"]`), so
   it can sit in several party lists; party songs aren't personal picks (`carino: false`).
 - **😂 Meme pill** — songs that became memes (`meme: true`).
+- **☰ List** — opens a list of every song in the current section (A–Z), with a search box
+  (accent-insensitive; matches title, artist, country, genre and mood). Click a song to play
+  it, **+** to queue it; ↑/↓ and Enter work from the search box, Escape closes it. It stays
+  clear of the player card, above it or beside it.
 - **Autoplay** — toggle in the controls; when on, a fresh song keeps playing after each
   one ends even with an empty queue (preference saved in `localStorage`).
 - Randomizer, auto-scrolling wall, a 10-song queue, per-video `.lrc` karaoke lyrics, and a
@@ -106,6 +110,7 @@ matching file exists for the playing video.
 On a desktop screen the lyrics turn the player card into a stage on the left half of
 the screen: lyrics on top, the video and song details merged below. It always starts under
 the queue strip, so the two never overlap.
+Click any line to jump the song there; it keeps playing from that line.
 In its corner, **⏱ − ±0.00s +** fixes lyrics that run early or late: each press moves them
 0.25s (+ shows lines sooner, up to ±10s). It's remembered per song, since different uploads
 of a song drift differently; click the number to reset. A `.lrc` file can also carry the

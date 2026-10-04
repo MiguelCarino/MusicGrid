@@ -58,6 +58,7 @@ ISO_TO_COUNTRY = {
     "RO": "romania", "RU": "russia", "KR": "korea", "SE": "sweden",
     "UA": "ukraine", "GB": "uk", "US": "usa", "ES": "spain", "VE": "venezuela", "AR": "argentina",
     "DO": "dominicanrepublic", "HN": "honduras", "BO": "bolivia", "UY": "uruguay",
+    "CU": "cuba", "PA": "panama",
 }
 
 # iTunes primaryGenreName (lower-cased) -> GENRES id
