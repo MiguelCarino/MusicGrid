@@ -312,7 +312,7 @@ const albums = [
   {"url":"K4_Qzx-E2LQ","image":"mu_43.webp","tag":"the pillows — Ride on Shooting Star","country":"japan","genre":"rock","mood":"energetic","carino":true,"spotifyurl":"","applemusicurl":""},
   {"url":"PKRUKalbx3s","image":"mu_44.webp","tag":"Shoko Nakagawa — Sorairo Days","country":"japan","genre":"soundtrack","mood":"epic","carino":true,"spotifyurl":"","applemusicurl":""},
   {"url":"Kq_plVrBPx4","image":"mu_44.webp","tag":"Shoko Nakagawa — Happily Ever After","country":"japan","genre":"pop","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":""},
-  {"url":"VLW1ieY4Izw","image":"mu_45.webp","tag":"XS Project — Bochka, Bass, Kolbaser","country":"russia","genre":"electronic","mood":"energetic","carino":true,"meme":true,"spotifyurl":"","applemusicurl":""},
+  {"url":"mM14xW7edWM","image":"mu_45.webp","tag":"XS Project — Bochka, Bass, Kolbaser","country":"russia","genre":"electronic","mood":"energetic","carino":true,"meme":true,"spotifyurl":"","applemusicurl":""},
   {"url":"PNGbvYSp08A","image":"mu_46.webp","tag":"Kylee — VACANCY","country":"usa","genre":"rock","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
   {"url":"xMK7IHF69Sc","image":"mu_47.webp","tag":"Giles Corey — No One Is Ever Going to Want Me","country":"usa","genre":"folk","mood":"melancholic","carino":true,"spotifyurl":"","applemusicurl":""},
   {"url":"SRQGOtBVELo","image":"mu_48.webp","tag":"Poets of the Fall — My Dark Disquiet","country":"finland","genre":"rock","mood":"dark","carino":true,"spotifyurl":"","applemusicurl":""},

@@ -28,6 +28,7 @@
     let lyricsHidden = false; /* user-toggled preference */
     let lyricsAnim   = null;  /* running card resize animation */
     let lyricsOffset = 0;     /* seconds, per song; + shows lines sooner */
+    let lyricsNotes  = false; /* no lyrics (missing or instrumental): music notes instead */
 
     /* ── YouTube IFrame API ─────────────────────────────────── */
     let ytPlayer    = null;
@@ -687,7 +688,7 @@
     function updateLyricsToggle() {
         const btn = document.getElementById('lyricsToggle');
         if (!btn) return;
-        const hasLyrics = lyricsData.length > 0;
+        const hasLyrics = lyricsData.length > 0 || lyricsNotes;
         btn.style.display = hasLyrics ? '' : 'none';
         if (hasLyrics) {
             btn.textContent = t('Lyrics');
@@ -733,9 +734,36 @@
     function clearLyrics() {
         lyricsData   = [];
         lyricsCueIdx = -1;
+        lyricsNotes  = false;
         stopLyricsSync();
         document.getElementById('lyricsContainer').innerHTML = '';
+        document.getElementById('lyricsSection').classList.remove('no-lyrics');
         updateLyricsToggle();
+    }
+
+    /* A song with no lyrics (none found yet, or instrumental) keeps the lyrics
+       stage, with a few music notes drifting up while it plays. */
+    const NOTE_SVG = [
+        '<svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
+        '<svg viewBox="0 0 24 24"><circle cx="8" cy="18" r="4"/><path d="M12 18V2l7 4"/></svg>',
+    ];
+    function showLyricsNotes() {
+        lyricsNotes = true;
+        const notes = document.createElement('div');
+        notes.className = 'lyric-notes';
+        notes.setAttribute('aria-hidden', 'true');
+        for (let i = 0; i < 5; i++) {
+            const n = document.createElement('span');
+            n.innerHTML = NOTE_SVG[i % 2];
+            n.style.setProperty('--i', i);
+            notes.appendChild(n);
+        }
+        const container = document.getElementById('lyricsContainer');
+        container.innerHTML = '';
+        container.appendChild(notes);
+        document.getElementById('lyricsSection').classList.add('no-lyrics');
+        updateLyricsToggle();
+        setLyricsMode(!lyricsHidden);
     }
 
     /* Switch the player card between compact and the lyrics stage (lyrics on
@@ -912,6 +940,7 @@
     function syncTransport(playing) {
         const btn = document.getElementById('playBtn');
         btn.classList.toggle('is-playing', !!playing);
+        document.getElementById('lyricsSection').classList.toggle('playing', !!playing);
         const label = playing ? t('Pause') : t('Play');
         btn.title = label;
         btn.setAttribute('aria-label', label);
@@ -983,7 +1012,7 @@
                     startLyricsSync();
                 }
             })
-            .catch(function () { if (currentAlbum === album) setLyricsMode(false); });
+            .catch(function () { if (currentAlbum === album) showLyricsNotes(); });
 
         /* Title comes straight from the catalog tag — no API key, no quota. */
         displayVideoInfo(album.tag || '', album);
@@ -1178,7 +1207,7 @@
         /* Lyrics toggle */
         lyricsTgl.addEventListener('click', function () {
             lyricsHidden = !lyricsHidden;
-            setLyricsMode(!lyricsHidden && lyricsData.length > 0);
+            setLyricsMode(!lyricsHidden && (lyricsData.length > 0 || lyricsNotes));
             updateLyricsToggle();
         });
 
