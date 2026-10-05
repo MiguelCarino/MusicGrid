@@ -107,10 +107,6 @@
     }
 
     /* ── Helpers ────────────────────────────────────────────── */
-    function getScrollSpeed() {
-        return navigator.userAgent.includes('Firefox') ? 1.4 : 1;
-    }
-
     function shuffle(arr) {
         const a = [...arr];
         for (let i = a.length - 1; i > 0; i--) {
@@ -160,32 +156,38 @@
     }
 
     /* ── Grid ───────────────────────────────────────────────── */
+    /* Cells carry their album; clicks are handled once on the grid (onGridClick)
+       rather than by two listeners per cell — the wall holds thousands. */
     function addCell(grid, album) {
         const cell = document.createElement('div');
         cell.className = 'cell';
         cell.style.backgroundImage = `url(assets/covers/${album.image})`;
         if (album.tag) cell.title = album.tag;
-
-        /* Clicking the cover always plays immediately */
-        cell.addEventListener('click', function () {
-            setActiveCell(cell);
-            openPanel(album);
-        });
+        cell._album = album;
 
         /* Small + button to queue without interrupting current playback */
         const qBtn = document.createElement('button');
         qBtn.className = 'cell-queue-btn';
         qBtn.textContent = '+';
         qBtn.setAttribute('aria-label', t('Add to queue'));
-        qBtn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            addToQueue(album, cell);
-            qBtn.textContent = '✓';
-            setTimeout(function () { qBtn.textContent = '+'; }, 1000);
-        });
         cell.appendChild(qBtn);
 
         grid.appendChild(cell);
+    }
+
+    function onGridClick(e) {
+        const cell = e.target.closest('.cell');
+        if (!cell) return;
+        const qBtn = e.target.closest('.cell-queue-btn');
+        if (qBtn) {
+            addToQueue(cell._album, cell);
+            qBtn.textContent = '✓';
+            setTimeout(function () { qBtn.textContent = '+'; }, 1000);
+            return;
+        }
+        /* Clicking the cover always plays immediately */
+        setActiveCell(cell);
+        openPanel(cell._album);
     }
 
     function cellsNeeded(grid) {
@@ -219,6 +221,33 @@
         }
     }
 
+    /* Infinite scroll only ever appends, so a long session grew the wall
+       without bound (~6,800 cells after an hour) and every relayout got slower
+       — 5× worse in Firefox and WebKit than Chromium. Once the wall passes
+       twice what fills the screen, whole rows that have scrolled out of view
+       are dropped from the top and scrollTop moves up by the same amount, so
+       nothing on screen shifts. */
+    function trimGrid(grid) {
+        const max  = cellsNeeded(grid) * 2;
+        const over = grid.children.length - max;
+        if (over <= 0) return;
+        const cols = getComputedStyle(grid).gridTemplateColumns.split(' ').length;
+        const rowH = grid.firstElementChild.offsetHeight;
+        if (!cols || !rowH) return;
+        /* keep a row of margin above the viewport */
+        const rows = Math.min(Math.floor(over / cols), Math.floor(grid.scrollTop / rowH) - 1);
+        if (rows <= 0) return;
+        const n = rows * cols;
+        const anchor = grid.children[n];
+        const before = anchor.offsetTop;
+        for (let i = 0; i < n; i++) {
+            const c = grid.firstElementChild;
+            if (c === activeCell) activeCell = null;
+            c.remove();
+        }
+        grid.scrollTop -= before - anchor.offsetTop;
+    }
+
     function refreshGrid(grid) {
         grid.innerHTML = '';
         clearActiveCell();
@@ -236,12 +265,24 @@
     function clearActiveCell() { setActiveCell(null); }
 
     /* ── Auto-scroll ────────────────────────────────────────── */
+    /* 20 px/s, stepped once per frame. Firefox rounds and WebKit truncates a
+       fractional scrollTop (+1.4 moved 1px, +0.5 would never move), so the
+       fraction is carried over and only whole pixels are written. rAF also
+       stops on its own in background tabs. */
+    const SCROLL_PX_PER_S = 20;
     function startAutoScroll(grid) {
-        if (scrollTimer) clearInterval(scrollTimer);
-        const speed = getScrollSpeed();
-        scrollTimer = setInterval(function () {
-            if (!scrollPaused) grid.scrollTop += speed;
-        }, 50);
+        if (scrollTimer) cancelAnimationFrame(scrollTimer);
+        let last = performance.now(), carry = 0;
+        scrollTimer = requestAnimationFrame(function step(now) {
+            const dt = Math.min(now - last, 100);   /* no jump after a stall */
+            last = now;
+            if (!scrollPaused) {
+                carry += SCROLL_PX_PER_S * dt / 1000;
+                const px = Math.floor(carry);
+                if (px) { grid.scrollTop += px; carry -= px; }
+            }
+            scrollTimer = requestAnimationFrame(step);
+        });
     }
 
     /* ── Filters: ★ Carino · All quick pills + Country & Genre menus ── */
@@ -805,15 +846,20 @@
             .animate(fade, { duration: 320, delay: 120, easing: 'ease', fill: 'backwards' });
     }
 
+    /* Scrolls only the lyrics box: scrollIntoView also walks every scrollable
+       ancestor, including the overflow:hidden player card */
     function highlightLine(idx) {
         const container = document.getElementById('lyricsContainer');
-        container.querySelectorAll('.lyric-line').forEach(function (el) {
-            el.classList.toggle('current', +el.dataset.idx === idx);
+        const prev = container.querySelector('.lyric-line.current');
+        if (prev) prev.classList.remove('current');
+        const el = idx >= 0 ? container.children[idx] : null;
+        if (!el || !el.classList.contains('lyric-line')) return;
+        el.classList.add('current');
+        const box = container.getBoundingClientRect(), r = el.getBoundingClientRect();
+        container.scrollTo({
+            top: container.scrollTop + r.top - box.top - (box.height - r.height) / 2,
+            behavior: 'smooth',
         });
-        if (idx >= 0) {
-            const el = container.querySelector(`.lyric-line[data-idx="${idx}"]`);
-            if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
-        }
     }
 
     /* ── Lyrics sync ────────────────────────────────────────── */
@@ -1233,19 +1279,17 @@
             }).observe(musicgrid);
         }
 
-        /* Tab-out fix: browsers throttle setInterval in background tabs */
-        document.addEventListener('visibilitychange', function () {
-            if (!document.hidden) startAutoScroll(musicgrid);
-        });
+        musicgrid.addEventListener('click', onGridClick);
 
-        /* Infinite scroll */
+        /* Infinite scroll — and drop what has scrolled far out of view */
         musicgrid.addEventListener('scroll', function () {
             if (musicgrid.scrollTop + musicgrid.clientHeight >=
                 musicgrid.scrollHeight - musicgrid.clientHeight * 0.5) {
                 populateGrid(musicgrid);
                 ensureScrollable(musicgrid);
+                trimGrid(musicgrid);
             }
-        });
+        }, { passive: true });
 
         populateGrid(musicgrid);
         ensureScrollable(musicgrid);
