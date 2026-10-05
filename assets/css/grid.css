@@ -965,17 +965,25 @@ body {
 
 #lyricsContainer::-webkit-scrollbar { display: none; }
 
-/* No lyrics (missing or instrumental): music notes in place of the lines,
-   drifting up while the song plays, resting while it's paused */
+/* Nothing sung for 3 s (no lyrics at all, or an intro/break/outro): music
+   notes fade in over the stage, drifting while the song plays, resting while
+   it's paused; the lines fade back just before the next one is sung */
 #lyricsSection.no-lyrics #lyricsCtls { display: none; }   /* nothing to time */
-#lyricsSection.no-lyrics #lyricsContainer { padding: 0; display: flex; }
+#lyricsContainer { transition: opacity 0.6s ease; }
+#lyricsSection.gap #lyricsContainer { opacity: 0; }
 .lyric-notes {
-    flex: 1;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: clamp(14px, 3cqw, 34px);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.6s ease;
 }
+#lyricsSection.gap .lyric-notes { opacity: 1; }
 .lyric-notes span {
     display: block;
     width: clamp(26px, 5cqw, 52px);
@@ -996,7 +1004,7 @@ body {
     stroke-linecap: round;
     stroke-linejoin: round;
 }
-#lyricsSection.playing .lyric-notes span {
+#lyricsSection.gap.playing .lyric-notes span {
     animation: noteDrift 2.6s ease-in-out infinite;
     animation-delay: calc(var(--i) * -0.52s);
 }
@@ -1005,7 +1013,7 @@ body {
     50%      { transform: translateY(-14px) rotate(6deg); }
 }
 @media (prefers-reduced-motion: reduce) {
-    #lyricsSection.playing .lyric-notes span { animation: none; }
+    #lyricsSection.gap.playing .lyric-notes span { animation: none; }
 }
 
 .lyric-line {

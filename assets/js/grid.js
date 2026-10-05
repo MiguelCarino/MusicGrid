@@ -29,6 +29,7 @@
     let lyricsAnim   = null;  /* running card resize animation */
     let lyricsOffset = 0;     /* seconds, per song; + shows lines sooner */
     let lyricsNotes  = false; /* no lyrics (missing or instrumental): music notes instead */
+    let notesTimer   = null;  /* shows the notes if no lyrics arrive within NOTES_AFTER */
 
     /* ── YouTube IFrame API ─────────────────────────────────── */
     let ytPlayer    = null;
@@ -741,6 +742,8 @@
     function buildLyricsPanel(cues) {
         lyricsData   = cues;
         lyricsCueIdx = -1;
+        lyricsNotes  = false;   /* lyrics that arrived late replace the notes */
+        document.getElementById('lyricsSection').classList.remove('no-lyrics', 'gap');
 
         const container = document.getElementById('lyricsContainer');
         container.innerHTML = '';
@@ -776,20 +779,25 @@
         lyricsData   = [];
         lyricsCueIdx = -1;
         lyricsNotes  = false;
+        clearTimeout(notesTimer);
         stopLyricsSync();
         document.getElementById('lyricsContainer').innerHTML = '';
-        document.getElementById('lyricsSection').classList.remove('no-lyrics');
+        document.getElementById('lyricsSection').classList.remove('no-lyrics', 'gap');
         updateLyricsToggle();
     }
 
-    /* A song with no lyrics (none found yet, or instrumental) keeps the lyrics
-       stage, with a few music notes drifting up while it plays. */
+    /* Music notes drift over the lyrics stage whenever nothing has been sung
+       for NOTES_AFTER seconds: a song with no lyrics (none found within that
+       time, or instrumental), and a long intro, break or outro in one that
+       has them. They give way NOTES_LEAD seconds before the next line. */
+    const NOTES_AFTER = 3, NOTES_LEAD = 1;
     const NOTE_SVG = [
         '<svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
         '<svg viewBox="0 0 24 24"><circle cx="8" cy="18" r="4"/><path d="M12 18V2l7 4"/></svg>',
     ];
-    function showLyricsNotes() {
-        lyricsNotes = true;
+    function ensureNotes() {
+        const section = document.getElementById('lyricsSection');
+        if (section.querySelector('.lyric-notes')) return;
         const notes = document.createElement('div');
         notes.className = 'lyric-notes';
         notes.setAttribute('aria-hidden', 'true');
@@ -799,12 +807,31 @@
             n.style.setProperty('--i', i);
             notes.appendChild(n);
         }
-        const container = document.getElementById('lyricsContainer');
-        container.innerHTML = '';
-        container.appendChild(notes);
-        document.getElementById('lyricsSection').classList.add('no-lyrics');
+        section.appendChild(notes);
+    }
+
+    function showLyricsNotes() {
+        lyricsNotes = true;
+        ensureNotes();
+        document.getElementById('lyricsSection').classList.add('no-lyrics', 'gap');
         updateLyricsToggle();
         setLyricsMode(!lyricsHidden);
+    }
+
+    /* Blank lines (LRC end markers) and "(Instrumental)"-style lines are gaps */
+    const GAP_LINE = /^[\s♪♫…・.\-–—]*$|^[(（[]\s*(instrumental|interlude|intro|outro|solo|music|break|間奏)[^)）\]]*[)）\]]$/i;
+    function updateGap(t) {
+        const cur  = lyricsData[lyricsCueIdx];
+        if (cur && !GAP_LINE.test(cur.original)) { setGap(false); return; }
+        const since = cur ? cur.time : 0;
+        const next  = lyricsData[lyricsCueIdx + 1];
+        setGap(t - since >= NOTES_AFTER && (!next || next.time - t >= NOTES_LEAD));
+    }
+    function setGap(on) {
+        const section = document.getElementById('lyricsSection');
+        if (section.classList.contains('gap') === on) return;
+        if (on) ensureNotes();
+        section.classList.toggle('gap', on);
     }
 
     /* Switch the player card between compact and the lyrics stage (lyrics on
@@ -894,6 +921,7 @@
             lyricsCueIdx = idx;
             highlightLine(idx);
         }
+        updateGap(t);
     }
 
     /* Lyrics timing, remembered per song (uploads of the same song drift
@@ -1044,6 +1072,12 @@
         clearLyrics();
         setLyricsOffset(readOffsets()[album.url] || 0, false);
 
+        /* No lyrics within NOTES_AFTER seconds (none exist, or a slow
+           network) → the notes; lyrics that turn up later still replace them */
+        notesTimer = setTimeout(function () {
+            if (currentAlbum === album && !lyricsData.length) showLyricsNotes();
+        }, NOTES_AFTER * 1000);
+
         /* Try to load lyrics by video ID */
         fetch(`assets/lyrics/${album.url}.lrc`)
             .then(function (r) { if (!r.ok) throw 0; return r.text(); })
@@ -1051,6 +1085,7 @@
                 if (currentAlbum !== album) return; /* a newer song took over */
                 const cues = parseLRC(text);
                 if (!cues.length) throw 0;
+                clearTimeout(notesTimer);
                 buildLyricsPanel(cues);
                 syncLyricsNow();   /* the song's saved offset may already land on a line */
                 if (ytPlayer && typeof ytPlayer.getPlayerState === 'function' &&
@@ -1058,7 +1093,7 @@
                     startLyricsSync();
                 }
             })
-            .catch(function () { if (currentAlbum === album) showLyricsNotes(); });
+            .catch(function () {});   /* no lyrics: notesTimer brings the notes */
 
         /* Title comes straight from the catalog tag — no API key, no quota. */
         displayVideoInfo(album.tag || '', album);
