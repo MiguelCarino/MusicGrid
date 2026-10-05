@@ -825,4 +825,5 @@ const albums = [
   {"url":"FkVwZMjgjm8","image":"mu_478.webp","tag":"Kazuma Kiryu (Takaya Kuroda) — Judgement -Shinpan-","country":"japan","genre":"soundtrack","mood":"epic","carino":true,"spotifyurl":"","applemusicurl":"us/album/judgement-shinpan-full-spec-edition/1492276149?i=1492276163"},
   {"url":"7FPjMy6crU8","image":"mu_480.webp","tag":"Hidenori Shoji — Pledge of Demon (Yakuza 0)","country":"japan","genre":"soundtrack","mood":"epic","carino":true,"spotifyurl":"","applemusicurl":"us/album/%E6%80%A8%E9%AD%94%E3%81%AE%E5%A5%91%E3%82%8A/971025747?i=971027232"},
   {"url":"7HRDMK-ibTc","image":"mu_481.webp","tag":"SEGA — Koi no Disco Queen (Yakuza 0)","country":"japan","genre":"soundtrack","mood":"upbeat","carino":true,"spotifyurl":"","applemusicurl":"us/album/%E6%81%8B%E3%81%AE%E3%83%87%E3%82%A3%E3%82%B9%E3%82%B3%E3%82%AF%E3%82%A4%E3%83%BC%E3%83%B3/971012615?i=971012772"},
+  {"url":"uj80VjraMQc","image":"mu_482.webp","tag":"Grupo Soñador — El Paso del Gigante","country":"mexico","genre":"latin","mood":"energetic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/el-paso-del-gigante/1475190072?i=1475190083"},
 ];
