@@ -842,4 +842,5 @@ const albums = [
   {"url":"nYbcVK2jjXc","image":"mu_493.webp","tag":"Shakira — Inevitable","country":"colombia","genre":"rock","mood":"melancholic","carino":false,"spotifyurl":"","applemusicurl":"us/album/inevitable/192682818?i=192683028"},
   {"url":"uwBwKcQ1k84","image":"mu_494.webp","tag":"Shakira — Underneath Your Clothes","country":"colombia","genre":"pop","mood":"romantic","carino":false,"spotifyurl":"","applemusicurl":"us/album/underneath-your-clothes/188260845?i=188260898"},
   {"url":"ZGsjpuUrKGc","image":"mu_495.webp","tag":"Shakira — Antología","country":"colombia","genre":"pop","mood":"romantic","carino":false,"spotifyurl":"","applemusicurl":"us/album/antolog%C3%ADa/193662156?i=193662184"},
+  {"url":"KFhdezcPhGA","image":"mu_496.webp","tag":"Eddie Santiago — Lluvia","country":"puertorico","genre":"latin","mood":"romantic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/lluvia/1445663460?i=1445663838"},
 ];
