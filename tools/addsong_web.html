@@ -162,7 +162,7 @@ $("btnSearch").onclick = async () => {
   const { results } = await api(`/api/ytsearch?q=${encodeURIComponent(q)}`);
   $("ytResults").innerHTML = results.map(v => `
     <div class="vid" data-id="${v.id}">
-      <img loading="lazy" src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg">
+      <img loading="lazy" src="https://i.ytimg.com/vi/${v.id}/hqdefault.jpg" alt="">
       <div>${esc(v.title)}</div>
       <div class="meta">${esc(v.channel)} · ${v.dur}</div>
     </div>`).join("") || '<div class="meta">no results</div>';
@@ -180,7 +180,7 @@ async function searchItunes() {
   const { results } = await api(`/api/itunes?term=${encodeURIComponent(term)}`);
   $("itResults").innerHTML = results.map((h, i) => `
     <div class="hit" data-i="${i}">
-      <img src="${h.art.replace("100x100", "200x200")}">
+      <img src="${h.art.replace("100x100", "200x200")}" alt="">
       <div><div>${esc(h.artist)} — ${esc(h.track)}</div>
       <div class="meta">${esc(h.album)} (${h.year})</div></div>
     </div>`).join("") || '<div class="meta">no matches — retry with other terms or skip</div>';
