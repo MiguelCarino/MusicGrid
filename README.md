@@ -30,7 +30,7 @@ collection **by country**, queue songs, and follow along with synced lyrics.
   queue sits right after them as small covers (hover one for × to remove it).
 - **Autoplay** — toggle in the dock; when on, a fresh song keeps playing after each
   one ends even with an empty queue (preference saved in `localStorage`).
-- Randomizer, auto-scrolling wall, a 10-song queue, per-video `.lrc` karaoke lyrics, and a
+- Randomizer, auto-scrolling wall, a 10-song queue, synced karaoke lyrics from LRCLIB, and a
   redesigned now-playing panel with clickable country/genre/mood chips.
 - Everything is shareable via URL params (`?v=` play, `?q=` queue, `?cat=` filter). Filters
   encode as `?cat=country:japan`, `?cat=genre:rock`, `?cat=mood:chill`,
@@ -45,13 +45,13 @@ YouTube links, video ids, a whole playlist link, or plain search terms. Everythi
 resolved automatically into a review inbox (`tools/inbox/`, not committed): the
 "Artist — Title" tag, Apple Music link and cover come from iTunes, the artist's country
 from songs already in the catalog or else from MusicBrainz, the genre from iTunes, and
-synced lyrics from LRCLIB. Songs already in the catalog are skipped, and songs from an
+the LRCLIB record of its synced lyrics. Songs already in the catalog are skipped, and songs from an
 album that's already there reuse its cover.
 
 Press **Fetch** and watch the list fill in. Every song gets a card with its cover and
 dropdowns: green means ready, red marks what still needs picking (usually just the mood,
 which the "Set mood on songs without one" button fills in one go). **Write ready songs**
-saves the covers, lyrics and catalog entries; review with `git diff` and commit.
+saves the covers and catalog entries; review with `git diff` and commit.
 
 The same thing works from the terminal with `tools/batchadd.py`:
 
@@ -110,17 +110,17 @@ each match yourself; the front page of `tools/addsong_web.py` is the same flow i
    for un-attributable scores; genre 🎬 for theme songs).
 
 ## Lyrics
-Add a file named `assets/lyrics/<youtube-id>.lrc`. Each line is
-`[MM:SS.xx]Original | Optional translation`. The ♪ Lyrics toggle appears whenever a
-matching file exists for the playing video.
+Lyrics are copyrighted, so this repository does not store them. A song's catalog entry
+carries `"lrclib": <id>`, the id of its record on [LRCLIB](https://lrclib.net), and the
+player fetches that record's synced lyrics from lrclib.net when the song plays. The add-song
+tools look the record up and fill in the id. The ♪ Lyrics toggle appears once lyrics arrive.
 On a desktop screen the lyrics turn the player card into a stage on the left half of
 the screen: lyrics on top, the video and song details merged below. It always starts under
 the queue strip, so the two never overlap.
 Click any line to jump the song there; it keeps playing from that line.
 In its corner, **⏱ − ±0.00s +** fixes lyrics that run early or late: each press moves them
 0.25s (+ shows lines sooner, up to ±10s). It's remembered per song, since different uploads
-of a song drift differently; click the number to reset. A `.lrc` file can also carry the
-standard `[offset:+500]` tag (milliseconds, + = sooner) to fix a song for everyone.
+of a song drift differently; click the number to reset.
 
 ## Licensing
 

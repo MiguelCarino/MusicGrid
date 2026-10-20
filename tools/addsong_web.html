@@ -92,8 +92,10 @@
         <div class="field"><span>mood</span><select id="mood"></select></div>
         <label style="margin-top:14px"><input type="checkbox" id="carino" checked> carino list</label>
       </div>
-      <div class="field"><span>lyrics (.lrc, synced) <span id="lyrStatus" style="text-transform:none"></span></span>
-        <textarea id="lyrics" rows="6" placeholder="no synced lyrics — paste LRC here, or leave empty (optional '| translation' per line)"></textarea>
+      <!-- Preview only: the catalog stores the LRCLIB record id and the player
+           fetches the lyrics at play time. Lyrics are copyrighted; the site never hosts them. -->
+      <div class="field"><span>lyrics (LRCLIB, linked by id — preview) <span id="lyrStatus" style="text-transform:none"></span></span>
+        <textarea id="lyrics" rows="6" readonly placeholder="no synced lyrics on LRCLIB — the song is added without lyrics"></textarea>
       </div>
       <div class="row">
         <button class="primary" id="btnAdd">Add song</button>
@@ -198,18 +200,20 @@ async function searchItunes() {
   });
 }
 
+let lrclibId = null;
 async function fetchLyrics(h) {
   const st = $("lyrStatus");
   $("lyrics").value = "";
+  lrclibId = null;
   st.textContent = "· searching LRCLIB…";
   const p = new URLSearchParams({ vid: video.id, artist: h.artist, track: h.track,
     album: h.album, duration: h.ms ? String(h.ms / 1000) : "0" });
   try {
     const d = await api("/api/lyrics?" + p);
-    if (d.exists) { st.textContent = "· a .lrc for this video already exists — leave empty to keep it"; return; }
-    if (d.synced) {
+    if (d.synced && d.id) {
       $("lyrics").value = d.synced;
-      st.textContent = `· ${d.synced.split("\n").length} synced lines from LRCLIB (editable)`;
+      lrclibId = d.id;
+      st.textContent = `· ${d.synced.split("\n").length} synced lines, LRCLIB #${d.id}`;
     } else {
       st.textContent = "· none found on LRCLIB";
     }
@@ -260,7 +264,7 @@ $("btnAdd").onclick = async () => {
       image: $("coverSel").value, size: $("size").value,
       country: $("country").value, genre: $("genre").value, mood: $("mood").value,
       carino: $("carino").checked, spotifyurl: $("spotify").value,
-      applemusicurl: $("apple").value, lyrics: $("lyrics").value,
+      applemusicurl: $("apple").value, lrclib: lrclibId,
     }),
   });
   const d = await r.json();
@@ -268,7 +272,7 @@ $("btnAdd").onclick = async () => {
     out.className = "ok";
     out.textContent = `✓ added\n${d.line}\n` +
       (d.cover ? `cover: ${d.cover}\n` : `cover: reused ${d.image}\n`) +
-      (d.lyrics ? `lyrics: ${d.lyrics}\n` : "") +
+      (d.lrclib ? `lyrics: LRCLIB #${d.lrclib}\n` : "") +
       `catalog: ${d.catalog}\n\nreview with git diff, then commit when happy.`;
     loadState();
   } else {

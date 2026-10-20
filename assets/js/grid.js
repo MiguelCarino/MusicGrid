@@ -696,8 +696,9 @@
 
     /* ── LRC parser ─────────────────────────────────────────── */
     /*
-     * File: assets/lyrics/<youtube-video-id>.lrc
-     * Keyed to video ID so songs sharing a cover still get separate files.
+     * Source: the song's LRCLIB record (catalog field "lrclib"), fetched from
+     * lrclib.net at play time. Lyrics are copyrighted, so the site never hosts
+     * them; the catalog keeps only the record id, which pins the exact version.
      *
      * Format:
      *   [MM:SS.xx]Original | Translation
@@ -1029,6 +1030,8 @@
         slot.appendChild(div);
 
         ytPlayer = new YT.Player(div, {
+            /* privacy-enhanced mode: no YouTube cookies until the visitor interacts */
+            host: 'https://www.youtube-nocookie.com',
             videoId,
             width: 640, height: 360,
             playerVars: { autoplay: 1, rel: 0, modestbranding: 1 },
@@ -1078,9 +1081,10 @@
             if (currentAlbum === album && !lyricsData.length) showLyricsNotes();
         }, NOTES_AFTER * 1000);
 
-        /* Try to load lyrics by video ID */
-        fetch(`assets/lyrics/${album.url}.lrc`)
-            .then(function (r) { if (!r.ok) throw 0; return r.text(); })
+        /* Lyrics come from LRCLIB by record id; a song without one shows the notes */
+        if (album.lrclib) fetch(`https://lrclib.net/api/get/${album.lrclib}`)
+            .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+            .then(function (rec) { return rec.syncedLyrics || ''; })
             .then(function (text) {
                 if (currentAlbum !== album) return; /* a newer song took over */
                 const cues = parseLRC(text);

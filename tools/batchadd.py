@@ -7,8 +7,8 @@ Two steps, with a reviewable inbox in between:
   batchadd.py fetch --from list.txt           (one item per line, '-' = stdin)
       Resolves every item without asking anything: YouTube title, best iTunes
       match (tag, Apple Music path, cover), artist country (existing catalog
-      first, then MusicBrainz), genre (from iTunes), synced lyrics (LRCLIB).
-      Results land in tools/inbox/inbox.jsonl; covers/lyrics next to it.
+      first, then MusicBrainz), genre (from iTunes), synced lyrics (LRCLIB record id).
+      Results land in tools/inbox/inbox.jsonl; covers next to it.
       Batch defaults: --country --genre --mood --carino/--no-carino, and
       --party mexico,usa (the party lists the songs belong to).
 
@@ -41,7 +41,6 @@ import addsong  # noqa: E402
 REPO = addsong.REPO
 CATALOG = REPO / "assets/json/catalog.json"
 COVERS = REPO / "assets/covers"
-LYRICS = REPO / "assets/lyrics"
 INBOX = Path(__file__).resolve().parent / "inbox"
 INBOX_FILE = INBOX / "inbox.jsonl"
 MB_UA = {"User-Agent": "MusicGrid-batchadd/1.0 ( https://music.carino.systems )",
@@ -259,7 +258,6 @@ def fetch_items(items, country=None, genre=None, mood=None, carino=True, lyrics=
 
     genre_default, country_default = genre, country
     (INBOX / "covers").mkdir(parents=True, exist_ok=True)
-    (INBOX / "lyrics").mkdir(parents=True, exist_ok=True)
     added = 0
     for v in expand(items, log):
         if stop():
@@ -327,11 +325,9 @@ def fetch_items(items, country=None, genre=None, mood=None, carino=True, lyrics=
             checks.append(f"country unknown{f' (MusicBrainz says {area})' if area else ''}"
                           " — add it to COUNTRIES if new")
 
-        lyr = ""
+        lyr, lrclib_id = "", None
         if lyrics and artist:
-            lyr = addsong.lrclib_lyrics(artist, tag.partition(" — ")[2], it_album, it_dur)
-            if lyr:
-                (INBOX / "lyrics" / f"{vid}.lrc").write_text(lyr + "\n", encoding="utf-8")
+            lyr, lrclib_id = addsong.lrclib_lyrics(artist, tag.partition(" — ")[2], it_album, it_dur)
 
         entry = {
             "url": vid, "image": (image or f"inbox:{vid}") if (image or art) else UNSET,
@@ -340,6 +336,7 @@ def fetch_items(items, country=None, genre=None, mood=None, carino=True, lyrics=
             "mood": mood or UNSET,
             "carino": carino, **({"party": list(party)} if party else {}),
             "spotifyurl": "", "applemusicurl": apple,
+            **({"lrclib": lrclib_id} if lyr and lrclib_id else {}),
             "_video": f"{v['title']} · {v['channel']}",
             "_itunes": (f"{hit['artistName']} — {hit['trackName']} · {it_album}"
                         f" · {hit.get('primaryGenreName', '')}") if hit else "",
@@ -478,12 +475,9 @@ def _commit_ready(dry_run, log):
             img = inbox_image[img]
         entry = {k: v for k, v in e.items() if not k.startswith("_")}
         entry["image"] = img
-        lrc = INBOX / "lyrics" / f"{e['url']}.lrc"
         log(("would add: " if dry_run else "added: ") + addsong.entry_line(entry))
         if not dry_run:
             addsong.append_entry(CATALOG, entry)
-            if lrc.is_file() and not (LYRICS / lrc.name).exists():
-                shutil.move(lrc, LYRICS / lrc.name)
         in_catalog.add(e["url"])
         done += 1
     if not dry_run:

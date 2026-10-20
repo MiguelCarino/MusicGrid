@@ -54,7 +54,7 @@ def batch_state():
             "countries": regs["COUNTRIES"], "genres": regs["GENRES"], "moods": regs["MOODS"]}
 
 
-def make_handler(catalog, covers, lyrics_dir):
+def make_handler(catalog, covers):
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *_):
             pass
@@ -117,13 +117,10 @@ def make_handler(catalog, covers, lyrics_dir):
                         "ms": h.get("trackTimeMillis") or 0,
                     } for h in hits]})
                 elif u.path == "/api/lyrics":
-                    vid = qs.get("vid", "")
-                    if vid and (lyrics_dir / f"{vid}.lrc").is_file():
-                        self.send_json({"synced": "", "exists": True})
-                    else:
-                        self.send_json({"exists": False, "synced": addsong.lrclib_lyrics(
-                            qs.get("artist", ""), qs.get("track", ""),
-                            qs.get("album", ""), float(qs.get("duration", "0") or 0))})
+                    synced, rid = addsong.lrclib_lyrics(
+                        qs.get("artist", ""), qs.get("track", ""),
+                        qs.get("album", ""), float(qs.get("duration", "0") or 0))
+                    self.send_json({"synced": synced, "id": rid})
                 elif u.path == "/api/check":
                     src, _, _ = addsong.load_catalog(catalog)
                     self.send_json({"dup": f'"url":"{qs.get("vid", "")}"' in src})
@@ -182,16 +179,12 @@ def make_handler(catalog, covers, lyrics_dir):
                     "spotifyurl": addsong.spotify_id_from(d.get("spotifyurl", "") or ""),
                     "applemusicurl": d.get("applemusicurl", ""),
                 }
-                lyrics = (d.get("lyrics") or "").strip()
-                wrote_lyrics = None
-                if lyrics:
-                    lyrics_dir.mkdir(parents=True, exist_ok=True)
-                    lp = lyrics_dir / f"{vid}.lrc"
-                    lp.write_text(lyrics + "\n", encoding="utf-8")
-                    wrote_lyrics = str(lp)
+                # Lyrics are linked by LRCLIB id, never stored (see addsong.lrclib_lyrics).
+                if str(d.get("lrclib") or "").isdigit():
+                    entry["lrclib"] = int(d["lrclib"])
                 line = addsong.append_entry(catalog, entry)
                 self.send_json({"ok": True, "line": line, "cover": wrote_cover,
-                                "image": image, "lyrics": wrote_lyrics,
+                                "image": image, "lrclib": entry.get("lrclib"),
                                 "catalog": str(catalog)})
             except Exception as e:
                 self.send_json({"error": str(e)}, 500)
@@ -255,19 +248,17 @@ def main():
     ap.add_argument("--json", dest="catalog", type=Path,
                     default=addsong.REPO / "assets/json/catalog.json")
     ap.add_argument("--covers", type=Path, default=None)
-    ap.add_argument("--lyrics-dir", type=Path, default=None)
     ap.add_argument("--no-browser", action="store_true")
     args = ap.parse_args()
 
     covers = args.covers or args.catalog.parent.parent / "covers"
-    lyrics_dir = args.lyrics_dir or args.catalog.parent.parent / "lyrics"
     if not args.catalog.is_file():
         sys.exit(f"error: catalog not found: {args.catalog}")
     if not PAGE.is_file():
         sys.exit(f"error: {PAGE.name} missing next to this script")
 
     srv = ThreadingHTTPServer(("127.0.0.1", args.port),
-                              make_handler(args.catalog, covers, lyrics_dir))
+                              make_handler(args.catalog, covers))
     url = f"http://localhost:{args.port}"
     print(f"MusicGrid add-song GUI: {url}   (batch: {url}/batch)")
     print(f"catalog: {args.catalog}\ncovers:  {covers}\nCtrl+C to stop")

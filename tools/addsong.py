@@ -97,8 +97,12 @@ def apple_path(track_view_url):
 
 
 def lrclib_lyrics(artist, track, album="", duration=0):
-    """Fetch synced LRC lyrics from lrclib.net (keyless, community DB).
-    Returns '' on no match or any network trouble — the service is best-effort."""
+    """Find synced LRC lyrics on lrclib.net (keyless, community DB).
+
+    Returns (lyrics, id): the text, for previewing, and the LRCLIB record id,
+    which is what the catalog stores ("lrclib"). The site never hosts lyrics:
+    they are copyrighted, so the player fetches the record from LRCLIB at play
+    time. ('', None) on no match or any network trouble — best-effort."""
     base = "https://lrclib.net/api/"
     params = {"artist_name": artist, "track_name": track}
     if album:
@@ -108,11 +112,11 @@ def lrclib_lyrics(artist, track, album="", duration=0):
     try:
         d = json.loads(fetch(base + "get?" + urllib.parse.urlencode(params), timeout=10))
         if d.get("syncedLyrics"):
-            return d["syncedLyrics"]
+            return d["syncedLyrics"], d.get("id")
     except urllib.error.HTTPError:
         pass          # 404 = no exact match; the search fallback may still hit
     except Exception:
-        return ""     # timeout / network trouble: don't stall on a second request
+        return "", None   # timeout / network trouble: don't stall on a second request
     try:
         arr = json.loads(fetch(base + "search?" + urllib.parse.urlencode(
             {"artist_name": artist, "track_name": track}), timeout=10))
@@ -121,10 +125,10 @@ def lrclib_lyrics(artist, track, album="", duration=0):
                 continue
             if duration and r.get("duration") and abs(r["duration"] - duration) > 7:
                 continue
-            return r["syncedLyrics"]
+            return r["syncedLyrics"], r.get("id")
     except Exception:
         pass
-    return ""
+    return "", None
 
 
 def spotify_id_from(text):
@@ -251,10 +255,9 @@ def main():
     ap.add_argument("--spotify", default=None, help="Spotify track URL/id ('' to skip)")
     ap.add_argument("--image", help="reuse an existing cover file name (mu_X.webp)")
     ap.add_argument("--lyrics", action="store_true", default=None,
-                    help="save LRCLIB lyrics without asking")
+                    help="link the LRCLIB lyrics without asking")
     ap.add_argument("--no-lyrics", dest="lyrics", action="store_false",
                     help="skip the lyrics lookup")
-    ap.add_argument("--lyrics-dir", type=Path, default=None)
     ap.add_argument("--carino", dest="carino", action="store_true", default=None)
     ap.add_argument("--no-carino", dest="carino", action="store_false")
     ap.add_argument("--force", action="store_true", help="allow duplicate video id")
@@ -349,26 +352,24 @@ def main():
         input("carino list? [Y/n]: ").strip().lower() != "n")
 
     # ── 4b. synced lyrics (LRCLIB, best-effort) ──
-    lyrics_dir = args.lyrics_dir or args.catalog.parent.parent / "lyrics"
-    lyrics_path = lyrics_dir / f"{vid}.lrc"
-    lyrics_text = ""
+    # Only the LRCLIB record id is stored; the player fetches the lyrics at play time.
+    lrclib_id = None
     if args.lyrics is not False:
-        if lyrics_path.exists():
-            print(f"lyrics: {lyrics_path.name} already exists, keeping it")
+        artist, sep, track = tag.partition(" — ")
+        lyrics_text = ""
+        if sep:
+            print("searching LRCLIB for synced lyrics…")
+            lyrics_text, lrclib_id = lrclib_lyrics(artist, track, it_album, it_dur)
+        if lyrics_text and lrclib_id:
+            n = lyrics_text.count("\n") + 1
+            keep = True if (args.lyrics or args.yes) else (
+                input(f"synced lyrics found ({n} lines, LRCLIB #{lrclib_id}) — link them? "
+                      "[Y/n]: ").strip().lower() != "n")
+            if not keep:
+                lrclib_id = None
         else:
-            artist, sep, track = tag.partition(" — ")
-            if sep:
-                print("searching LRCLIB for synced lyrics…")
-                lyrics_text = lrclib_lyrics(artist, track, it_album, it_dur)
-            if lyrics_text:
-                n = lyrics_text.count("\n") + 1
-                keep = True if (args.lyrics or args.yes) else (
-                    input(f"synced lyrics found ({n} lines) — save {lyrics_path.name}? "
-                          "[Y/n]: ").strip().lower() != "n")
-                if not keep:
-                    lyrics_text = ""
-            else:
-                print("no synced lyrics found (or LRCLIB unreachable)")
+            lrclib_id = None
+            print("no synced lyrics found (or LRCLIB unreachable)")
 
     # ── 5. cover file ──
     if args.image:
@@ -383,11 +384,11 @@ def main():
     entry = {"url": vid, "image": image, "tag": tag, "country": country,
              "genre": genre, "mood": mood, "carino": carino,
              "spotifyurl": spotifyurl, "applemusicurl": applemusicurl}
+    if lrclib_id:
+        entry["lrclib"] = lrclib_id
     line = entry_line(entry)
 
     print("\n" + line)
-    if lyrics_text:
-        print(f"(+ lyrics: {lyrics_text.count(chr(10)) + 1} lines → {lyrics_path.name})")
     if args.dry_run:
         print("(dry run: nothing written)")
         return
@@ -398,10 +399,6 @@ def main():
     if write_cover:
         make_cover(art_bytes, covers / image, args.size)
         print(f"wrote {covers / image}")
-    if lyrics_text:
-        lyrics_dir.mkdir(parents=True, exist_ok=True)
-        lyrics_path.write_text(lyrics_text.rstrip() + "\n", encoding="utf-8")
-        print(f"wrote {lyrics_path}")
 
     try:
         append_entry(args.catalog, entry)
