@@ -12,7 +12,18 @@
     <meta property="og:title" content="Music Wall">
     <meta property="og:description" content="A personal music wall and per-country collection. Click any cover to play, browse by country, queue songs and follow along with synced lyrics.">
     <meta property="og:url" content="https://music.carino.systems/">
-    <meta property="og:image" content="https://music.carino.systems/assets/images/logo.webp">
+    <meta property="og:image" content="https://music.carino.systems/og.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Music Wall">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="alternate" hreflang="en" href="https://music.carino.systems/">
+    <link rel="alternate" hreflang="es" href="https://music.carino.systems/?lang=es">
+    <link rel="alternate" hreflang="pt-BR" href="https://music.carino.systems/?lang=pt-BR">
+    <link rel="alternate" hreflang="ja" href="https://music.carino.systems/?lang=ja">
+    <link rel="alternate" hreflang="ru" href="https://music.carino.systems/?lang=ru">
+    <link rel="alternate" hreflang="x-default" href="https://music.carino.systems/">
+    <script type="application/json" id="carino-head-i18n">{"es": {"title": "Carino Music Grid — música por país", "desc": "Un muro musical personal y una colección por país. Haz clic en una portada para reproducir, explora por país, arma una cola y sigue la letra sincronizada."}, "pt-BR": {"title": "Carino Music Grid — música por país", "desc": "Um mural musical pessoal e uma coleção por país. Clique em qualquer capa para tocar, navegue por país, monte uma fila e acompanhe a letra sincronizada."}, "ja": {"title": "Carino Music Grid — 国別の音楽", "desc": "個人の音楽ウォールと国別コレクション。ジャケットをクリックして再生、国別に閲覧、曲をキューに追加、同期歌詞も表示。"}, "ru": {"title": "Carino Music Grid — музыка по странам", "desc": "Личная музыкальная стена и коллекция по странам. Нажмите на обложку, чтобы слушать, выбирайте страну, ставьте песни в очередь и следите за синхронным текстом."}}</script>
     <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Music Wall", "url": "https://music.carino.systems/", "description": "A personal music wall and per-country collection. Click any cover to play, browse by country, queue songs and follow along with synced lyrics.", "operatingSystem": "Any (runs in a web browser)", "isAccessibleForFree": true, "author": {"@type": "Person", "name": "Miguel Cariño", "url": "https://carino.systems/"}}</script>
     <!-- /carino:head -->
     <link rel="stylesheet" href="fonts/carino-fonts.css">
@@ -163,6 +174,6 @@
         <div class="sl-items" id="songListItems"></div>
     </div>
 
-    <div id="musicgrid"></div>
+    <div id="musicgrid" role="main"></div>
 </body>
 </html>

@@ -1308,13 +1308,15 @@
         });
 
         /* Grid layout fix — aspect-ratio in CSS Grid can get stuck until resize.
-           ResizeObserver forces a style recalc whenever the container changes. */
+           ResizeObserver forces a style recalc whenever the container changes.
+           The flip and the restore happen in the same frame (the offsetWidth
+           read forces the layout in between), so the one-column state is never
+           painted: restoring it a frame later made every load jump (CLS 0.88). */
         if (window.ResizeObserver) {
             new ResizeObserver(function () {
                 musicgrid.style.gridTemplateColumns = 'none';
-                requestAnimationFrame(function () {
-                    musicgrid.style.gridTemplateColumns = '';
-                });
+                void musicgrid.offsetWidth;
+                musicgrid.style.gridTemplateColumns = '';
             }).observe(musicgrid);
         }
 
