@@ -9,8 +9,12 @@ collection **by country**, queue songs, and follow along with synced lyrics.
 ![mpv-shot0002](https://github.com/MiguelCarino/MusicGrid/assets/6355310/175d165f-b21e-4361-8afa-e77a104764be)
 
 ## Features
-- **Carino navbar** — brand, live clock + greeting, and a *Status* panel with live
-  library/now-playing/session stats (`assets/js/navbar.js`).
+- **Carino navbar** — the shared `carino-navbar.js` (it slides away in fullscreen or
+  when idle); the filters and a *Status* panel with live library/now-playing/session
+  stats (`assets/js/status.js`) ride in it.
+- **Help and keys** — `?`/`H` help, `P`/`Space` pause the wall, `M` sound, `L` list,
+  `F` fullscreen. Under reduced motion the wall starts paused. YouTube and LRCLIB load
+  only after you play a song.
 - **Browse menus** — **🌍 Country**, **🎵 Genre** and **🎭 Mood** dropdown menus, each
   listing its options with song counts, generated automatically from the catalog.
 - **★ Carino list** — a quick pill that filters to Miguel's personal picks (`carino: true`).
@@ -134,7 +138,6 @@ relicense. Each keeps its own terms, and each carries its own notice.
 
 | Path | What it is | Licence | Notice |
 | --- | --- | --- | --- |
-| [`assets/webfonts/`](assets/webfonts/) | Liberation Sans | SIL OFL 1.1 | [`assets/webfonts/OFL.txt`](assets/webfonts/OFL.txt) |
 | [`fonts/`](fonts/) | IBM Plex Mono, IBM Plex Sans, Red Hat Display | SIL OFL 1.1 | [`fonts/OFL.txt`](fonts/OFL.txt) |
 
 Those files travel with any fork, mirror or repackaging of this repository, and

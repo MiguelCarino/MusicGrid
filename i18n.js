@@ -3,8 +3,8 @@
 // (carino-lang.js → window.CarinoLang.current) — this file only owns the
 // dictionaries and applies them. Content (albums, countries, genres in
 // catalog.json) is data and is never translated here.
-// Load order: catalog -> clock -> carino-lang -> i18n -> navbar -> grid
-// (all deferred, so t() is a global by the time navbar.js / grid.js run).
+// Load order: catalog -> carino-navbar -> carino-lang -> i18n -> status -> grid
+// (all deferred, so t() is a global by the time status.js / grid.js run).
 
 const I18N = {
     es: {
@@ -45,6 +45,24 @@ const I18N = {
         'Show lyrics later': 'Mostrar la letra después',
         'Play a random song': 'Reproducir una canción al azar',
         'Pause auto-scroll': 'Pausar el desplazamiento automático',
+        // Play controls + help overlay
+        "Late shift.": "Turno nocturno.",
+        "More": "Más",
+        "Resume auto-scroll": "Reanudar el desplazamiento automático",
+        "Sound on": "Sonido",
+        "Sound off": "Silencio",
+        "Sound (M)": "Sonido (M)",
+        "Help": "Ayuda",
+        "Close": "Cerrar",
+        "Fullscreen": "Pantalla completa",
+        "How the wall works": "Cómo funciona el muro",
+        "Click a cover to play it. + on a cover adds it to the queue. The buttons in the bar pick a list, a country, a genre or a mood.": "Haz clic en una portada para reproducirla. El + de una portada la añade a la cola. Los botones de la barra eligen una lista, un país, un género o un ánimo.",
+        "Touch": "Táctil",
+        "Tap a cover to play it. The filters are under ⋯ in the top bar; Pause in the dock stops the wall.": "Toca una portada para reproducirla. Los filtros están en ⋯ de la barra superior; Pausar en la barra inferior detiene el muro.",
+        "Pause or resume the wall": "Pausar o reanudar el muro",
+        "Sound on or off": "Activar o silenciar el sonido",
+        "Song list and search": "Lista de canciones y búsqueda",
+        "Nothing loads from outside until you play a song. Then the video comes from YouTube (youtube-nocookie.com) and the lyrics from LRCLIB (lrclib.net).": "No se carga nada de fuera hasta que reproduces una canción. Entonces el video viene de YouTube (youtube-nocookie.com) y la letra de LRCLIB (lrclib.net).",
         // Filters
         'All': 'Todo',
         'Country': 'País',
@@ -105,6 +123,24 @@ const I18N = {
         'Show lyrics later': 'Mostrar a letra depois',
         'Play a random song': 'Tocar uma música aleatória',
         'Pause auto-scroll': 'Pausar a rolagem automática',
+        // Play controls + help overlay
+        "Late shift.": "Turno da noite.",
+        "More": "Mais",
+        "Resume auto-scroll": "Retomar a rolagem automática",
+        "Sound on": "Som",
+        "Sound off": "Mudo",
+        "Sound (M)": "Som (M)",
+        "Help": "Ajuda",
+        "Close": "Fechar",
+        "Fullscreen": "Tela cheia",
+        "How the wall works": "Como o mural funciona",
+        "Click a cover to play it. + on a cover adds it to the queue. The buttons in the bar pick a list, a country, a genre or a mood.": "Clique numa capa para tocá-la. O + numa capa a adiciona à fila. Os botões da barra escolhem uma lista, um país, um gênero ou um clima.",
+        "Touch": "Toque",
+        "Tap a cover to play it. The filters are under ⋯ in the top bar; Pause in the dock stops the wall.": "Toque numa capa para tocá-la. Os filtros ficam em ⋯ na barra superior; Pausar na barra inferior para o mural.",
+        "Pause or resume the wall": "Pausar ou retomar o mural",
+        "Sound on or off": "Ligar ou desligar o som",
+        "Song list and search": "Lista de músicas e busca",
+        "Nothing loads from outside until you play a song. Then the video comes from YouTube (youtube-nocookie.com) and the lyrics from LRCLIB (lrclib.net).": "Nada é carregado de fora até você tocar uma música. Aí o vídeo vem do YouTube (youtube-nocookie.com) e a letra do LRCLIB (lrclib.net).",
         'All': 'Tudo',
         'Country': 'País',
         'Genre': 'Gênero',
@@ -162,6 +198,24 @@ const I18N = {
         'Show lyrics later': '歌詞を遅く表示',
         'Play a random song': 'ランダムに1曲再生',
         'Pause auto-scroll': '自動スクロールを一時停止',
+        // Play controls + help overlay
+        "Late shift.": "夜勤お疲れさま。",
+        "More": "その他",
+        "Resume auto-scroll": "自動スクロールを再開",
+        "Sound on": "音あり",
+        "Sound off": "消音",
+        "Sound (M)": "音 (M)",
+        "Help": "ヘルプ",
+        "Close": "閉じる",
+        "Fullscreen": "全画面",
+        "How the wall works": "ウォールの使い方",
+        "Click a cover to play it. + on a cover adds it to the queue. The buttons in the bar pick a list, a country, a genre or a mood.": "ジャケットをクリックすると再生します。ジャケットの + でキューに追加。バーのボタンでリスト、国、ジャンル、ムードを選べます。",
+        "Touch": "タッチ",
+        "Tap a cover to play it. The filters are under ⋯ in the top bar; Pause in the dock stops the wall.": "ジャケットをタップすると再生します。フィルターは上のバーの ⋯ にあります。下のバーの一時停止でウォールが止まります。",
+        "Pause or resume the wall": "ウォールを一時停止／再開",
+        "Sound on or off": "音のオン／オフ",
+        "Song list and search": "曲リストと検索",
+        "Nothing loads from outside until you play a song. Then the video comes from YouTube (youtube-nocookie.com) and the lyrics from LRCLIB (lrclib.net).": "曲を再生するまで外部からは何も読み込みません。再生すると動画は YouTube (youtube-nocookie.com) から、歌詞は LRCLIB (lrclib.net) から読み込みます。",
         'All': 'すべて',
         'Country': '国',
         'Genre': 'ジャンル',
@@ -219,6 +273,24 @@ const I18N = {
         'Show lyrics later': 'Показывать текст позже',
         'Play a random song': 'Включить случайную песню',
         'Pause auto-scroll': 'Приостановить автопрокрутку',
+        // Play controls + help overlay
+        "Late shift.": "Ночная смена.",
+        "More": "Ещё",
+        "Resume auto-scroll": "Продолжить автопрокрутку",
+        "Sound on": "Звук",
+        "Sound off": "Без звука",
+        "Sound (M)": "Звук (M)",
+        "Help": "Справка",
+        "Close": "Закрыть",
+        "Fullscreen": "Полный экран",
+        "How the wall works": "Как устроена стена",
+        "Click a cover to play it. + on a cover adds it to the queue. The buttons in the bar pick a list, a country, a genre or a mood.": "Нажмите на обложку, чтобы включить песню. + на обложке добавляет её в очередь. Кнопки на панели выбирают список, страну, жанр или настроение.",
+        "Touch": "Касание",
+        "Tap a cover to play it. The filters are under ⋯ in the top bar; Pause in the dock stops the wall.": "Коснитесь обложки, чтобы включить песню. Фильтры — под ⋯ в верхней панели; «Пауза» внизу останавливает стену.",
+        "Pause or resume the wall": "Пауза или продолжение стены",
+        "Sound on or off": "Включить или выключить звук",
+        "Song list and search": "Список песен и поиск",
+        "Nothing loads from outside until you play a song. Then the video comes from YouTube (youtube-nocookie.com) and the lyrics from LRCLIB (lrclib.net).": "Пока вы не включите песню, извне ничего не загружается. Затем видео загружается с YouTube (youtube-nocookie.com), а текст — с LRCLIB (lrclib.net).",
         'All': 'Все',
         'Country': 'Страна',
         'Genre': 'Жанр',
@@ -287,8 +359,10 @@ const I18N_ATTRS = [
     ['#closeInfoBar',   'aria-label', 'Close panel'],
     ['#diagToggle',     'title', 'Library status'],
     ['#diagToggle',     'aria-label', 'Library status'],
-    ['.brand-name',     'title', 'Carino Systems — back to hub'],
-    ['.app-tag',        'title', 'Music — reload'],
+    ['#helpBtn',        'title', 'Help'],
+    ['#helpBtn',        'aria-label', 'Help'],
+    ['#helpX',          'aria-label', 'Close'],
+    ['#muteBtn',        'title', 'Sound (M)'],
 ];
 
 function applyAttrI18n() {
@@ -303,7 +377,13 @@ function applyAttrI18n() {
 function applyDynamicI18n() {
     const scrollBtn = document.getElementById('scrollToggle');
     if (scrollBtn) {
-        scrollBtn.textContent = scrollBtn.classList.contains('paused') ? t('Resume') : t('Pause');
+        const paused = scrollBtn.classList.contains('paused');
+        scrollBtn.textContent = paused ? t('Resume') : t('Pause');
+        scrollBtn.title = paused ? t('Resume auto-scroll') : t('Pause auto-scroll');
+    }
+    const muteBtn = document.getElementById('muteBtn');
+    if (muteBtn) {
+        muteBtn.textContent = muteBtn.getAttribute('aria-pressed') === 'true' ? t('Sound off') : t('Sound on');
     }
     const autoplayBtn = document.getElementById('autoplayToggle');
     if (autoplayBtn) {

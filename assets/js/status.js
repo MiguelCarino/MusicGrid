@@ -1,10 +1,11 @@
 /* ============================================================
-   navbar.js — Carino navbar for Music Grid
+   status.js — the "Status" library readout for Music Grid
    ------------------------------------------------------------
-   Self-contained: live clock + greeting, the "Status" diagnostics
-   dropdown, and live library stats. grid.js feeds it the playing
-   track / active filter / queue size through window.CarinoNav.*.
-   No external dependencies (does NOT need carino.systems).
+   The navbar itself is the shared carino-navbar.js (clock and
+   greeting included); this file only drives the Status dropdown
+   that rides in its right cluster, and the live library stats.
+   grid.js feeds it the playing track / active filter / queue size
+   through window.CarinoNav.*.
    ============================================================ */
 (function () {
     'use strict';
@@ -12,18 +13,11 @@
     function $(sel) { return document.querySelector(sel); }
     function set(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
 
-    /* ── Live clock + greeting (click clock to cycle Local/UTC/Epoch) ── */
+    /* ── The diag "Local time" (the navbar has its own clock) ── */
     const pad = n => String(n).padStart(2, '0');
-    // Header clock (#clockLocal/#tzName + click-to-cycle) is owned by the shared
-    // module carino-clock.js; here we only keep the diag "Local time" + greeting.
     function tick() {
         const d = new Date();
         set('diagClock', [d.getHours(), d.getMinutes(), d.getSeconds()].map(pad).join(':'));
-        const h = d.getHours();
-        set('greeting',
-            h < 5  ? t('Burning the midnight oil.') :
-            h < 12 ? t('Good morning.') :
-            h < 18 ? t('Good afternoon.') : t('Good evening.'));
     }
 
     /* ── Library stats (derived from the catalog) ───────────── */

@@ -5,25 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MusicGrid — Add Song</title>
 <style>
-  :root { --bg:#050505; --card:#0d0d0d; --border:#262626; --dim:#52525b; --gold:#eab308; --bright:#fbbf24; --red:#ef4444; --green:#22c55e; }
+  :root { --tool-bg:#050505; --card:#0d0d0d; --tool-border:#262626; --dim:#52525b; --gold:#eab308; --bright:#fbbf24; --red:#ef4444; --green:#22c55e; }
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:var(--bg); color:#d4d4d8; font-family:system-ui,sans-serif; padding:20px; max-width:980px; margin:0 auto; }
+  body { background:var(--tool-bg); color:#d4d4d8; font-family:system-ui,sans-serif; padding:20px; max-width:980px; margin:0 auto; }
   h1 { font-size:1.15rem; color:var(--gold); letter-spacing:.05em; margin-bottom:2px; }
   .sub { font-family:monospace; font-size:.7rem; color:var(--dim); margin-bottom:18px; }
-  section { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:14px; }
+  section { background:var(--card); border:1px solid var(--tool-border); border-radius:10px; padding:14px; margin-bottom:14px; }
   section h2 { font-size:.72rem; text-transform:uppercase; letter-spacing:.15em; color:var(--dim); margin-bottom:10px; }
   section h2 .done { color:var(--green); }
   .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-  input[type=text], select, textarea { background:#111; border:1px solid var(--border); border-radius:6px; color:#fff; padding:8px 10px; font-size:.85rem; outline:none; }
+  input[type=text], select, textarea { background:#111; border:1px solid var(--tool-border); border-radius:6px; color:#fff; padding:8px 10px; font-size:.85rem; outline:none; }
   input[type=text]:focus, select:focus, textarea:focus { border-color:var(--gold); }
   textarea { font-family:monospace; font-size:.72rem; resize:vertical; width:100%; }
   input.wide { flex:1; min-width:200px; }
-  button { background:transparent; border:1px solid var(--border); color:#d4d4d8; padding:8px 14px; border-radius:6px; cursor:pointer; font-size:.8rem; letter-spacing:.04em; transition:.15s; }
+  button { background:transparent; border:1px solid var(--tool-border); color:#d4d4d8; padding:8px 14px; border-radius:6px; cursor:pointer; font-size:.8rem; letter-spacing:.04em; transition:.15s; }
   button:hover { border-color:var(--gold); color:var(--gold); }
   button.primary { border-color:var(--gold); color:var(--gold); }
   button.primary:hover { background:rgba(234,179,8,.1); }
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:8px; margin-top:10px; }
-  .vid, .hit { background:#111; border:1px solid var(--border); border-radius:8px; padding:8px; cursor:pointer; transition:.12s; font-size:.78rem; }
+  .vid, .hit { background:#111; border:1px solid var(--tool-border); border-radius:8px; padding:8px; cursor:pointer; transition:.12s; font-size:.78rem; }
   .vid:hover, .hit:hover { border-color:var(--gold); }
   .vid.sel, .hit.sel { border-color:var(--bright); background:rgba(234,179,8,.07); }
   .vid img { width:100%; border-radius:5px; display:block; margin-bottom:6px; }
@@ -34,8 +34,8 @@
   label { font-size:.78rem; color:#a1a1aa; display:flex; align-items:center; gap:6px; }
   .field { display:flex; flex-direction:column; gap:4px; }
   .field span { font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--dim); }
-  #coverPrev { width:160px; height:160px; border-radius:8px; border:1px solid var(--border); object-fit:cover; background:#111; }
-  #out { font-family:monospace; font-size:.72rem; white-space:pre-wrap; word-break:break-all; background:#111; border:1px solid var(--border); border-radius:8px; padding:10px; margin-top:10px; display:none; }
+  #coverPrev { width:160px; height:160px; border-radius:8px; border:1px solid var(--tool-border); object-fit:cover; background:#111; }
+  #out { font-family:monospace; font-size:.72rem; white-space:pre-wrap; word-break:break-all; background:#111; border:1px solid var(--tool-border); border-radius:8px; padding:10px; margin-top:10px; display:none; }
   #out.ok { border-color:var(--green); }
   #out.err { border-color:var(--red); }
   .hidden { display:none; }

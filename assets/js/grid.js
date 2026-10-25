@@ -41,6 +41,36 @@
         if (pendingVideo) { createYTPlayer(pendingVideo); pendingVideo = null; }
     };
 
+    /* Outside media loads only after a click or tap: the YouTube API is fetched
+       the first time a song is played, never on page load, and a song restored
+       from a shared link (?v=) waits in the card until Play is pressed. */
+    let ytRequested  = false;
+    let mediaDeferred = null;   /* album shown from the link but not loaded yet */
+    function ensureYTApi() {
+        if (ytRequested) return;
+        ytRequested = true;
+        const s = document.createElement('script');
+        s.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(s);
+    }
+
+    /* Sound on/off (M or the dock button), remembered on this device. */
+    let muted = false;
+    try { muted = localStorage.getItem('mg_muted') === '1'; } catch (e) {}
+    function applyMute() {
+        if (ytPlayer && typeof ytPlayer.mute === 'function') { if (muted) ytPlayer.mute(); else ytPlayer.unMute(); }
+        const b = document.getElementById('muteBtn');
+        if (b) {
+            b.textContent = muted ? t('Sound off') : t('Sound on');
+            b.setAttribute('aria-pressed', muted ? 'true' : 'false');
+        }
+    }
+    function toggleMute() {
+        muted = !muted;
+        try { localStorage.setItem('mg_muted', muted ? '1' : '0'); } catch (e) {}
+        applyMute();
+    }
+
     /* ── URL state ──────────────────────────────────────────── */
     /*
      * URL format: ?v=VIDEO_ID&q=ID1,ID2,ID3&cat=CATEGORY&s=SEARCH
@@ -103,7 +133,7 @@
         const vStr = p.get('v');
         if (vStr) {
             const a = albumByUrl(vStr.trim());
-            if (a) openPanel(a);
+            if (a) openPanel(a, { defer: true });
         }
     }
 
@@ -271,6 +301,30 @@
        fraction is carried over and only whole pixels are written. rAF also
        stops on its own in background tabs. */
     const SCROLL_PX_PER_S = 20;
+
+    /* Reduced motion is read live: under it the wall starts paused (Resume
+       starts it), and switching the setting on mid-scroll pauses it. Help
+       pauses it too. Either pause lifts by itself only if nothing else holds
+       it, so a visitor's own Pause is never undone. */
+    const motionMQ = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+    let pausedByMotion = false, pausedByHelp = false;
+    function setScrollPaused(p) {
+        scrollPaused = !!p;
+        const btn = document.getElementById('scrollToggle');
+        if (!btn) return;
+        btn.textContent = scrollPaused ? t('Resume') : t('Pause');
+        btn.classList.toggle('paused', scrollPaused);
+        btn.title = scrollPaused ? t('Resume auto-scroll') : t('Pause auto-scroll');
+    }
+    function onMotionChange() {
+        if (motionMQ.matches) {
+            if (!scrollPaused) { pausedByMotion = true; setScrollPaused(true); }
+        } else if (pausedByMotion) {
+            pausedByMotion = false;
+            if (!pausedByHelp) setScrollPaused(false);
+        }
+    }
+
     function startAutoScroll(grid) {
         if (scrollTimer) cancelAnimationFrame(scrollTimer);
         let last = performance.now(), carry = 0;
@@ -486,7 +540,7 @@
 
         function quickPill(label, type, value, extraClass, title) {
             const btn = document.createElement('button');
-            btn.className = 'filter-btn' + (extraClass ? ' ' + extraClass : '');
+            btn.className = 'cs-btn filter-btn' + (extraClass ? ' ' + extraClass : '');
             btn.textContent = label;
             btn.dataset.ftype = type;
             btn.dataset.fvalue = value || '';
@@ -500,7 +554,7 @@
            block thanks to its backdrop-filter). */
         function buildMenu(type, defLabel, data, labelFor, itemLabelFor) {
             const btn = document.createElement('button');
-            btn.className = 'filter-btn filter-menu-btn';
+            btn.className = 'cs-btn filter-btn filter-menu-btn';
             btn.textContent = defLabel + ' ▾';
             btn.dataset.menu = type;
             btn.setAttribute('aria-haspopup', 'true');
@@ -1006,6 +1060,7 @@
 
     function togglePlay() {
         if (!currentAlbum) { playRandom(); return; }
+        if (mediaDeferred === currentAlbum) { startMedia(currentAlbum); return; }
         if (!ytPlayer || typeof ytPlayer.getPlayerState !== 'function') return;
         if (ytPlayer.getPlayerState() === YT.PlayerState.PLAYING) ytPlayer.pauseVideo();
         else ytPlayer.playVideo();
@@ -1036,7 +1091,7 @@
             width: 640, height: 360,
             playerVars: { autoplay: 1, rel: 0, modestbranding: 1 },
             events: {
-                onReady: syncLyricsNow,   /* a saved offset can land on a line before play */
+                onReady: function () { applyMute(); syncLyricsNow(); },   /* a saved offset can land on a line before play */
                 onStateChange: function (e) {
                     syncTransport(e.data === YT.PlayerState.PLAYING || e.data === YT.PlayerState.BUFFERING);
                     if (e.data === YT.PlayerState.PLAYING) {
@@ -1054,6 +1109,7 @@
     }
 
     function loadVideo(videoId) {
+        ensureYTApi();
         if (ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
             ytPlayer.loadVideoById(videoId);
         } else if (ytReady) {
@@ -1075,6 +1131,16 @@
         clearLyrics();
         setLyricsOffset(readOffsets()[album.url] || 0, false);
 
+        mediaDeferred = (opts && opts.defer) ? album : null;
+        if (!mediaDeferred) loadLyrics(album);
+
+        /* Title comes straight from the catalog tag — no API key, no quota. */
+        displayVideoInfo(album.tag || '', album);
+        renderQueue();
+    }
+
+    /* Lyrics for the song now in the card: fetched from LRCLIB, on play only */
+    function loadLyrics(album) {
         /* No lyrics within NOTES_AFTER seconds (none exist, or a slow
            network) → the notes; lyrics that turn up later still replace them */
         notesTimer = setTimeout(function () {
@@ -1098,10 +1164,13 @@
                 }
             })
             .catch(function () {});   /* no lyrics: notesTimer brings the notes */
+    }
 
-        /* Title comes straight from the catalog tag — no API key, no quota. */
-        displayVideoInfo(album.tag || '', album);
-        renderQueue();
+    /* A song the card was showing from a link starts here, on Play */
+    function startMedia(album) {
+        mediaDeferred = null;
+        loadLyrics(album);
+        loadVideo(album.url);
     }
 
     function displayVideoInfo(title, album) {
@@ -1190,7 +1259,7 @@
             addToQueue(album, thumb.offsetWidth ? thumb : qBtn);
         };
 
-        loadVideo(album.url);
+        if (mediaDeferred !== album) loadVideo(album.url);
         document.getElementById('videoInfoBar').classList.add('show');
         document.getElementById('prevBtn').disabled = false;
         markListPlaying();
@@ -1216,6 +1285,82 @@
         syncTransport(false);
     }
 
+    function toggleScroll() {
+        pausedByMotion = false;
+        pausedByHelp = false;
+        setScrollPaused(!scrollPaused);
+    }
+
+    /* ── Help overlay (Branding .modal) ─────────────────────── */
+    let helpLastFocus = null;
+    function helpOpen() { return !document.getElementById('helpScrim').hidden; }
+    function openHelp() {
+        const scrim = document.getElementById('helpScrim');
+        if (!scrim.hidden) return;
+        helpLastFocus = document.activeElement;
+        scrim.hidden = false;
+        if (!scrollPaused) { pausedByHelp = true; setScrollPaused(true); }
+        document.getElementById('helpResume').focus();
+    }
+    function closeHelp(resume) {
+        const scrim = document.getElementById('helpScrim');
+        if (scrim.hidden) return;
+        scrim.hidden = true;
+        if (pausedByHelp || resume) { pausedByHelp = false; pausedByMotion = false; setScrollPaused(false); }
+        if (helpLastFocus && helpLastFocus.focus && helpLastFocus !== document.body) helpLastFocus.focus();
+    }
+    function toggleFullscreen() {
+        const d = document, e = d.documentElement;
+        if (d.fullscreenElement) { if (d.exitFullscreen) d.exitFullscreen(); return; }
+        if (e.requestFullscreen) e.requestFullscreen().catch(function () {});
+    }
+    function wireHelp() {
+        const scrim = document.getElementById('helpScrim');
+        document.getElementById('helpBtn').addEventListener('click', openHelp);
+        document.getElementById('helpX').addEventListener('click', function () { closeHelp(); });
+        document.getElementById('helpResume').addEventListener('click', function () { closeHelp(true); });
+        document.getElementById('helpFull').addEventListener('click', function () { closeHelp(); toggleFullscreen(); });
+        scrim.addEventListener('click', function (e) { if (e.target === scrim) closeHelp(); });
+    }
+
+    /* The fleet's play keys: ? or H help, P or Space pause, Esc close,
+       F fullscreen, M sound; L opens the song list. Never while typing. */
+    function wireKeys() {
+        document.addEventListener('keydown', function (e) {
+            if (e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
+            const tg = e.target;
+            if (tg && (tg.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName || ''))) return;
+            const k = e.key;
+            if (helpOpen()) {
+                if (k === 'Escape' || k === '?' || k === 'h' || k === 'H') { e.preventDefault(); closeHelp(); }
+                return;
+            }
+            if (k === '?' || k === 'h' || k === 'H') { e.preventDefault(); openHelp(); }
+            else if (k === 'p' || k === 'P' || (k === ' ' && !(tg && /^(BUTTON|A)$/.test(tg.tagName || '')))) { e.preventDefault(); toggleScroll(); }
+            else if (k === 'm' || k === 'M') toggleMute();
+            else if (k === 'f' || k === 'F') toggleFullscreen();
+            else if (k === 'l' || k === 'L') { e.preventDefault(); setListOpen(!listOpen); }
+        });
+    }
+
+    /* The dock wraps to two rows on a phone, and the navbar slides away in
+       fullscreen or when idle (data-immersive): keep --dock-space and the
+       panels' top edge (--mg-nav) in step with both. */
+    function watchStage() {
+        const dock = document.getElementById('dock');
+        const root = document.documentElement.style;
+        function sync() {
+            if (dock.offsetHeight) root.setProperty('--dock-space', (dock.offsetHeight + 20) + 'px');
+            syncListBottom();
+        }
+        if (window.ResizeObserver) new ResizeObserver(sync).observe(dock);
+        sync();
+        window.addEventListener('carino:navbar', function (e) {
+            if (e.detail && e.detail.hidden) root.setProperty('--mg-nav', '0px');
+            else root.removeProperty('--mg-nav');
+        });
+    }
+
     /* ── Init ───────────────────────────────────────────────── */
     document.addEventListener('DOMContentLoaded', function () {
         const musicgrid   = document.getElementById('musicgrid');
@@ -1228,10 +1373,8 @@
 
         if (!musicgrid) { console.error('MusicGrid element not found.'); return; }
 
-        /* Load YouTube IFrame API */
-        const s = document.createElement('script');
-        s.src = 'https://www.youtube.com/iframe_api';
-        document.head.appendChild(s);
+        /* The YouTube IFrame API is NOT loaded here: ensureYTApi() fetches it
+           on the first play, so nothing outside loads before a click. */
 
         /* Seed active filter from URL before building filters / grid */
         seedStateFromURL();
@@ -1239,12 +1382,18 @@
         buildFilters(filtersEl, musicgrid);
         if (window.CarinoNav) window.CarinoNav.filter(filterLabel(filter));
 
-        /* ONLY the button pauses/resumes scroll */
-        toggleBtn.addEventListener('click', function () {
-            scrollPaused = !scrollPaused;
-            toggleBtn.textContent = scrollPaused ? t('Resume') : t('Pause');
-            toggleBtn.classList.toggle('paused', scrollPaused);
-        });
+        /* The button (or P / Space) pauses and resumes the wall */
+        toggleBtn.addEventListener('click', toggleScroll);
+        if (motionMQ) {
+            if (motionMQ.matches) { pausedByMotion = true; setScrollPaused(true); }
+            if (motionMQ.addEventListener) motionMQ.addEventListener('change', onMotionChange);
+            else if (motionMQ.addListener) motionMQ.addListener(onMotionChange);
+        }
+        document.getElementById('muteBtn').addEventListener('click', toggleMute);
+        applyMute();
+        wireHelp();
+        wireKeys();
+        watchStage();
 
         /* Autoplay toggle — keeps music playing after a song ends, even with no queue */
         function syncAutoplayBtn() {

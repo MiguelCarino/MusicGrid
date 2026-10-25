@@ -27,82 +27,65 @@
     <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Music Wall", "url": "https://music.carino.systems/", "description": "A personal music wall and per-country collection. Click any cover to play, browse by country, queue songs and follow along with synced lyrics.", "operatingSystem": "Any (runs in a web browser)", "isAccessibleForFree": true, "author": {"@type": "Person", "name": "Miguel Cariño", "url": "https://carino.systems/"}}</script>
     <!-- /carino:head -->
     <link rel="stylesheet" href="fonts/carino-fonts.css">
+    <link rel="stylesheet" href="carino-ui.css">
     <link rel="stylesheet" href="assets/css/grid.css">
     <link rel="icon" href="assets/images/logo.webp">
     <script src="assets/json/catalog.json" defer></script>
-    <script src="carino-clock.js" defer></script>
+    <!-- The shared navbar (it loads carino-clock.js itself) slides away in
+         fullscreen or when idle; the filters and Status ride in it. -->
+    <script src="carino-navbar.js" data-app="Music" data-repo="MusicGrid" data-immersive defer></script>
     <script src="carino-lang.js" defer></script>
     <script src="i18n.js" defer></script>
-    <script src="assets/js/navbar.js" defer></script>
+    <script src="assets/js/status.js" defer></script>
     <script src="assets/js/grid.js" defer></script>
     <meta property="twitter:title" content="Music Grid"/>
 </head>
-<body>
-    <!-- ============================ Carino navbar ============================ -->
-    <header class="top-header" id="navbar">
-        <div class="header-left">
-            <span class="cn-brand">
-                <a class="brand-name" href="https://carino.systems/" title="Carino Systems — back to hub">Carino</a>
-                <a class="app-tag" href="./" title="Music — reload">Music</a>
-            </span>
-            <div class="header-clock" aria-hidden="true">
-                <span class="clock-time" id="clockLocal">00:00:00</span>
-                <span class="clock-tz" id="tzName">UTC</span>
-                <span class="brand-greeting" id="greeting">System Ready.</span>
-            </div>
-        </div>
-
-        <!-- Lists + filters (★ Carino · All · Party · Meme · Country · Genre · Mood) -->
-        <nav id="sectionFilters" class="header-filters" aria-label="Lists and filters"></nav>
-
-        <div class="header-right">
-            <div class="social-row">
-                <a href="https://carino.systems/legal.html" class="icon-btn" id="cnLegal" title="Legal notice &amp; privacy" aria-label="Legal notice &amp; privacy">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                </a>
-                <a href="https://github.com/MiguelCarino/MusicGrid" target="_blank" rel="noopener" class="icon-btn" title="MusicGrid on GitHub">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
-                </a>
-                <a href="https://www.linkedin.com/in/miguelcarino94/" target="_blank" rel="noopener" class="icon-btn" title="LinkedIn">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
-                </a>
-            </div>
-            <button class="status-toggle" id="diagToggle" title="Library status" aria-label="Library status" aria-haspopup="true" aria-expanded="false" aria-controls="diagBox">
-                <span data-i18n>Status</span><div class="pulse-dot"></div>
+<body class="play-body">
+    <!-- App controls: carino-navbar.js moves this group into its right
+         cluster (one top bar). Lists + filters (★ Carino · All · Party · Meme ·
+         Country · Genre · Mood) are built by grid.js; Status is the library
+         readout status.js keeps current. -->
+    <div class="mg-actions" data-carino-actions>
+        <nav id="sectionFilters" class="header-filters" aria-label="Lists and filters" data-priority="1"></nav>
+        <div class="diag-wrap">
+            <button class="cs-btn" id="diagToggle" title="Library status" aria-label="Library status" aria-haspopup="true" aria-expanded="false" aria-controls="diagBox">
+                <span data-i18n>Status</span><span class="pulse-dot"></span>
             </button>
-        </div>
-
-        <!-- Diagnostics dropdown -->
-        <div class="diag-dropdown" id="diagBox">
-            <div class="diag-section" data-i18n>Library</div>
-            <div class="diag-pair">
-                <div class="diag-row"><span class="diag-lbl" data-i18n>Songs</span><span class="diag-val" id="diagSongs">0</span></div>
-                <div class="diag-row"><span class="diag-lbl" data-i18n>Countries</span><span class="diag-val" id="diagCountries">0</span></div>
+            <div class="diag-dropdown" id="diagBox">
+                <div class="diag-section" data-i18n>Library</div>
+                <div class="diag-pair">
+                    <div class="diag-row"><span class="diag-lbl" data-i18n>Songs</span><span class="diag-val" id="diagSongs">0</span></div>
+                    <div class="diag-row"><span class="diag-lbl" data-i18n>Countries</span><span class="diag-val" id="diagCountries">0</span></div>
+                </div>
+                <div class="diag-row"><span class="diag-lbl" data-i18n>Carino picks</span><span class="diag-val" id="diagCarino">0</span></div>
+                <div class="diag-section" data-i18n>Now playing</div>
+                <div class="diag-row"><span class="diag-lbl" data-i18n>Track</span><span class="diag-val diag-val-trunc" id="diagNow">—</span></div>
+                <div class="diag-row"><span class="diag-lbl" data-i18n>From</span><span class="diag-val" id="diagNowCountry">—</span></div>
+                <div class="diag-section" data-i18n>Session</div>
+                <div class="diag-pair">
+                    <div class="diag-row"><span class="diag-lbl" data-i18n>Filter</span><span class="diag-val" id="diagFilter">All</span></div>
+                    <div class="diag-row"><span class="diag-lbl" data-i18n>In queue</span><span class="diag-val" id="diagQueue">0</span></div>
+                </div>
+                <div class="diag-row"><span class="diag-lbl" data-i18n>Local time</span><span class="diag-val" id="diagClock">--:--:--</span></div>
             </div>
-            <div class="diag-row"><span class="diag-lbl" data-i18n>Carino picks</span><span class="diag-val" id="diagCarino">0</span></div>
-            <div class="diag-section" data-i18n>Now playing</div>
-            <div class="diag-row"><span class="diag-lbl" data-i18n>Track</span><span class="diag-val diag-val-trunc" id="diagNow">—</span></div>
-            <div class="diag-row"><span class="diag-lbl" data-i18n>From</span><span class="diag-val" id="diagNowCountry">—</span></div>
-            <div class="diag-section" data-i18n>Session</div>
-            <div class="diag-pair">
-                <div class="diag-row"><span class="diag-lbl" data-i18n>Filter</span><span class="diag-val" id="diagFilter">All</span></div>
-                <div class="diag-row"><span class="diag-lbl" data-i18n>In queue</span><span class="diag-val" id="diagQueue">0</span></div>
-            </div>
-            <div class="diag-row"><span class="diag-lbl" data-i18n>Local time</span><span class="diag-val" id="diagClock">--:--:--</span></div>
         </div>
-    </header>
+    </div>
 
-    <!-- Floating dock (bottom center): transport + queue · toggles -->
-    <div id="dock">
+    <!-- The stage: the cover wall, with the dock floating at its foot -->
+    <main class="play-stage" id="stage">
+    <div id="musicgrid"></div>
+
+    <!-- Dock (bottom centre): transport + queue · toggles · help -->
+    <div id="dock" class="play-dock">
         <div id="transport">
-            <button id="prevBtn" class="ctl-btn ctl-icon" title="Previous" aria-label="Previous">
+            <button id="prevBtn" class="cs-btn ctl-btn ctl-icon" title="Previous" aria-label="Previous">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="fill" points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg>
             </button>
-            <button id="playBtn" class="ctl-btn ctl-icon ctl-play" title="Play" aria-label="Play">
+            <button id="playBtn" class="cs-btn ctl-btn ctl-icon ctl-play" title="Play" aria-label="Play">
                 <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><polygon class="fill" points="7 4 20 12 7 20 7 4"/></svg>
                 <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><rect class="fill" x="6" y="4" width="4" height="16" rx="1"/><rect class="fill" x="14" y="4" width="4" height="16" rx="1"/></svg>
             </button>
-            <button id="nextBtn" class="ctl-btn ctl-icon" title="Next" aria-label="Next">
+            <button id="nextBtn" class="cs-btn ctl-btn ctl-icon" title="Next" aria-label="Next">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="fill" points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/></svg>
             </button>
             <!-- queued songs, as small covers — hidden until something is queued -->
@@ -110,15 +93,18 @@
         </div>
 
         <div id="ctlRight">
-            <button id="listToggle" class="ctl-btn" title="Show the songs in this section" aria-expanded="false" aria-controls="songList" data-i18n>List</button>
-            <button id="autoplayToggle" class="ctl-btn" title="Keep playing songs automatically" aria-pressed="false">Autoplay</button>
-            <button id="lyricsToggle" class="ctl-btn" title="Toggle lyrics" aria-pressed="true" style="display:none">Lyrics</button>
-            <button id="randomBtn" class="ctl-btn ctl-icon" title="Play a random song" aria-label="Play a random song">
+            <button id="listToggle" class="cs-btn ctl-btn" title="Show the songs in this section" aria-expanded="false" aria-controls="songList" data-i18n>List</button>
+            <button id="autoplayToggle" class="cs-btn ctl-btn" title="Keep playing songs automatically" aria-pressed="false">Autoplay</button>
+            <button id="lyricsToggle" class="cs-btn ctl-btn" title="Toggle lyrics" aria-pressed="true" style="display:none">Lyrics</button>
+            <button id="randomBtn" class="cs-btn ctl-btn ctl-icon" title="Play a random song" aria-label="Play a random song">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/></svg>
             </button>
-            <button id="scrollToggle" class="ctl-btn" title="Pause auto-scroll">Pause</button>
+            <button id="muteBtn" class="cs-btn ctl-btn" title="Sound (M)" aria-pressed="false">Sound on</button>
+            <button id="scrollToggle" class="cs-btn ctl-btn" title="Pause auto-scroll">Pause</button>
+            <button id="helpBtn" class="cs-btn ctl-btn ctl-icon" title="Help" aria-label="Help" aria-haspopup="dialog" aria-controls="helpScrim">?</button>
         </div>
     </div>
+    </main>
 
     <!--
         Player card (fixed, bottom right). With lyrics on (desktop) it becomes
@@ -174,6 +160,34 @@
         <div class="sl-items" id="songListItems"></div>
     </div>
 
-    <div id="musicgrid" role="main"></div>
+    <!-- Help (? or H). Opening it pauses the wall. -->
+    <div class="modal-scrim" id="helpScrim" hidden>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+            <div class="modal-head">
+                <div class="mg-mh"><div class="modal-title" id="helpTitle" data-i18n>How the wall works</div><div class="modal-sub">Music</div></div>
+                <button type="button" class="modal-x" id="helpX" aria-label="Close">✕</button>
+            </div>
+            <div class="modal-body">
+                <p class="mg-p" data-i18n>Click a cover to play it. + on a cover adds it to the queue. The buttons in the bar pick a list, a country, a genre or a mood.</p>
+                <div class="mg-touch">
+                    <div class="modal-sub" data-i18n>Touch</div>
+                    <p class="mg-p" data-i18n>Tap a cover to play it. The filters are under ⋯ in the top bar; Pause in the dock stops the wall.</p>
+                </div>
+                <dl class="mg-keys">
+                    <dt><span class="kbd accent">P</span> <span class="kbd accent">Space</span></dt><dd data-i18n>Pause or resume the wall</dd>
+                    <dt><span class="kbd">M</span></dt><dd data-i18n>Sound on or off</dd>
+                    <dt><span class="kbd">L</span></dt><dd data-i18n>Song list and search</dd>
+                    <dt><span class="kbd">F</span></dt><dd data-i18n>Fullscreen</dd>
+                    <dt><span class="kbd">?</span> <span class="kbd">H</span></dt><dd data-i18n>Help</dd>
+                    <dt><span class="kbd">Esc</span></dt><dd data-i18n>Close</dd>
+                </dl>
+                <p class="mg-p mg-also" data-i18n>Nothing loads from outside until you play a song. Then the video comes from YouTube (youtube-nocookie.com) and the lyrics from LRCLIB (lrclib.net).</p>
+            </div>
+            <div class="modal-foot">
+                <button type="button" class="btn" id="helpFull" data-i18n>Fullscreen</button>
+                <button type="button" class="btn btn-primary" id="helpResume" data-i18n>Resume</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

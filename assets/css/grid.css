@@ -2,27 +2,17 @@
    Music Grid — grid.css
    ============================================================ */
 
-/* ── Reset ────────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; }
-
+/* Tokens, base and components come from carino-ui.css (linked first); this
+   file adds the wall's own names (--dock-space, --glass-*, --panel-w) and
+   never redefines a Branding token. body.play-body (carino-ui.css) is the
+   full-height column: the shared navbar on top, the stage under it. */
 html { height: 100%; overflow: hidden; }
-
-body {
-    display: flex;
-    flex-direction: column;
-    height: 100dvh;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: hidden;
-    background: #050505;
-    font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
-}
 
 /* ── Custom properties ────────────────────────────────────── */
 :root {
-    --dock-space: 64px;    /* room kept clear at the bottom for the floating dock */
+    --dock-space: 64px;    /* room kept clear at the bottom for the dock; grid.js measures it */
 
-    /* Apple-style glass, shared by the dock and the player card: a faint tint,
+    /* Apple-style glass for the player card: a faint tint,
        heavy blur with boosted colour so the wall glows through, a bright
        hairline edge and a soft top highlight */
     --glass-bg:     linear-gradient(180deg, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.04) 100%),
@@ -35,226 +25,53 @@ body {
                     0 12px 36px rgba(0, 0, 0, 0.45),
                     0 2px 6px rgba(0, 0, 0, 0.25);
     --panel-w:    320px;
-    --radius:     10px;
-
-    /* Carino navbar palette (self-contained — mirrors carino.systems) */
-    --nav-h:        58px;
-    --cs-bg-header: #050505;
-    --cs-bg-card:   #0b0b0b;
-    --cs-accent:    #eab308;     /* sharp gold */
-    --cs-accent-faint: rgba(234, 179, 8, 0.05);
-    --cs-accent-glow:  rgba(234, 179, 8, 0.15);
-    --cs-border:    #262626;
-    --cs-text:      #ffffff;
-    --cs-text-sec:  #a3a3a3;
-    --cs-text-muted:#666;
-    --cs-ok:        #22c55e;
-    --cs-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-    --cs-display: 'Red Hat Display', system-ui, -apple-system, sans-serif;
 }
 
-/* ── Carino navbar (top-header) ───────────────────────────── */
-.top-header {
-    height: var(--nav-h);
-    flex-shrink: 0;
-    background: linear-gradient(180deg, #0f0f0f 0%, #050505 100%);
-    border-bottom: 1px solid var(--cs-border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 18px;
-    position: relative;
-    z-index: 80;            /* above the grid */
-    gap: 16px;
-}
-.header-left  { display: flex; align-items: center; gap: 22px; min-width: 0; }
-.header-right { display: flex; align-items: center; gap: 12px; }
-/* Right-cluster slot order, fleet convention, read right-to-left:
-   GitHub + LinkedIn last, language beside them, then status, then
-   this app's own controls furthest from the edge. Set with `order`
-   because carino-lang.js injects itself asynchronously. */
-.header-right > * { order: 1; }
-.header-right > .status-toggle { order: 2; }
-.header-right > #cnLangBtn { order: 3; }
-.header-right > .social-row { order: 4; }
-
-.cn-brand { display: flex; align-items: center; flex-shrink: 0; }
-.brand-name {
-    font-family: var(--cs-display);
-    font-size: 1.5rem; font-weight: 900; line-height: 1;
-    background: linear-gradient(130deg, #fef08a 0%, #eab308 50%, #b45309 100%);
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
-    cursor: pointer; white-space: nowrap; text-decoration: none;
-}
-.cn-brand .app-tag {
-    color: var(--cs-accent);
-    font-family: var(--cs-mono); font-size: .6rem; font-weight: 700;
-    letter-spacing: .14em; text-transform: uppercase;
-    border: 1px solid var(--cs-border); border-radius: 4px;
-    padding: 3px 7px; margin-left: 10px;
-    text-decoration: none; transition: .2s;
-}
-.cn-brand .app-tag:hover { border-color: var(--cs-accent); background: var(--cs-accent-faint); }
-.header-clock {
-    display: flex; align-items: baseline; gap: 10px;
-    border-left: 1px solid var(--cs-border); padding-left: 22px;
-}
-.clock-time { font-family: var(--cs-mono); font-size: 1.05rem; font-weight: 700; color: var(--cs-text); }
-.clock-tz {
-    font-family: var(--cs-mono); font-size: .6rem; font-weight: 700;
-    color: var(--cs-bg-header); background: var(--cs-accent);
-    padding: 2px 6px; border-radius: 3px;
-}
-.brand-greeting { font-family: var(--cs-mono); font-size: .7rem; color: var(--cs-text-sec); margin-left: 6px; }
-
-.social-row { display: flex; gap: 8px; }
-.icon-btn {
-    width: 32px; height: 32px;
-    border: 1px solid var(--cs-border); border-radius: 4px;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--cs-text-muted); transition: .2s; text-decoration: none;
-    background: transparent; cursor: pointer;
-}
-.icon-btn:hover {
-    border-color: var(--cs-accent); color: var(--cs-bg-header);
-    background: var(--cs-accent); transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--cs-accent-glow);
-}
-.icon-btn svg { width: 15px; height: 15px; }
-
-.status-toggle {
-    display: flex; align-items: center; gap: 8px;
-    background: transparent; border: 1px solid var(--cs-border);
-    color: var(--cs-text-sec); font-family: var(--cs-mono);
-    font-size: .68rem; text-transform: uppercase; letter-spacing: .1em;
-    padding: 0 14px; height: 32px; border-radius: 4px; cursor: pointer; transition: .2s;
-}
-.status-toggle:hover { border-color: var(--cs-accent); color: var(--cs-accent); background: var(--cs-accent-faint); }
+/* ── Status (library diagnostics), in the navbar ─────────── */
+/* Branding's .diag-wrap / .diag-dropdown; only the pulse and the long
+   now-playing value are the wall's own. */
 .pulse-dot {
     width: 6px; height: 6px; border-radius: 50%;
-    background: var(--cs-accent); box-shadow: 0 0 8px var(--cs-accent);
+    background: var(--accent); box-shadow: 0 0 8px var(--accent);
     animation: cs-pulse-glow 2s ease-in-out infinite;
 }
 @keyframes cs-pulse-glow { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
-
-.diag-dropdown {
-    position: absolute; top: calc(var(--nav-h) - 6px); right: 16px;
-    width: 280px; background: var(--cs-bg-card);
-    border: 1px solid var(--cs-border); border-radius: 8px;
-    padding: 16px; box-shadow: 0 18px 40px rgba(0, 0, 0, .6);
-    opacity: 0; visibility: hidden; transform: translateY(-8px);
-    transition: .18s; z-index: 210;
-}
-.diag-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
-.diag-section {
-    font-family: var(--cs-mono); font-size: .6rem; letter-spacing: .12em;
-    text-transform: uppercase; color: var(--cs-text-muted);
-    margin: 10px 0 5px; border-bottom: 1px solid var(--cs-border); padding-bottom: 4px;
-}
-.diag-section:first-child { margin-top: 0; }
-.diag-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: .8rem; padding: 2px 0; }
-
-/* Two short readings share one line. Each half keeps its natural width, so a
-   translation that outgrows the half wraps the pair back into full-width rows
-   instead of truncating — the panel is only 280px, and es/ru labels are long. */
-.diag-pair { display: flex; flex-wrap: wrap; justify-content: space-between; column-gap: 20px; }
-.diag-pair > .diag-row { flex: 0 1 auto; min-width: max-content; gap: 8px; }
-.diag-lbl { color: var(--cs-text-sec); flex-shrink: 0; }
-.diag-val { font-family: var(--cs-mono); color: var(--cs-text); }
+@media (prefers-reduced-motion: reduce) { .pulse-dot { animation: none; } }
+.mg-actions .diag-dropdown { width: 280px; text-align: left; }
 .diag-val-trunc { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; text-align: right; }
 
 /* ── Lists + filters, in the navbar ─────────────────────── */
-/* Between the clock and the right cluster; scrolls sideways when tight.
-   Its menu panels are appended to <body>, so nothing here clips them. */
-.header-filters {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    overflow-x: auto;
-    scrollbar-width: none;
-}
-.header-filters::-webkit-scrollbar { display: none; }
-/* centered when it fits, start-aligned (scrollable) when it doesn't */
-.header-filters > :first-child { margin-left: auto; }
-.header-filters > :last-child  { margin-right: auto; }
-@media (max-width: 1500px) { .brand-greeting { display: none; } }
-@media (max-width: 1180px) { .header-clock { display: none; } }
+/* carino-navbar.js carries .mg-actions into its right cluster; on a narrow
+   screen the whole group folds into its ⋯ menu, where it wraps. Each menu's
+   panel is appended to <body>, so nothing here clips it. */
+.mg-actions { display: flex; align-items: center; gap: 8px; }
+.header-filters { display: flex; align-items: center; gap: 6px; }
+#carinoNav .cn-more-menu .header-filters { flex-wrap: wrap; }
 
-/* ── Floating dock (bottom center) ────────────────────────── */
-/* Transport + queue · toggles, floating over the wall. The player card, the
-   lyrics stage and the song list keep --dock-space clear above it. */
-#dock {
-    position: fixed;
-    left: 50%;
-    bottom: 14px;
-    transform: translateX(-50%);
-    z-index: 120;           /* above the player card (100), below menus (150) */
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    max-width: calc(100vw - 24px);
-    padding: 7px;
-    background: var(--glass-bg);
-    backdrop-filter: var(--glass-filter);
-    -webkit-backdrop-filter: var(--glass-filter);
-    border: 1px solid var(--glass-edge);
-    border-radius: 18px;
-    box-shadow: var(--glass-shadow);
-    overflow-x: auto;
-    scrollbar-width: none;
-}
-#dock::-webkit-scrollbar { display: none; }
-#dock #ctlRight {
-    padding-left: 10px;
-    border-left: 1px solid var(--glass-line);
-}
-#dock #queueBar.has-items { border-left-color: var(--glass-line); }
+/* ── Dock (bottom of the stage) ───────────────────────────── */
+/* Branding's .play-dock: transport + queue · toggles over the wall. It wraps
+   on a phone rather than scrolling sideways; grid.js measures its height into
+   --dock-space so the player card, lyrics stage and song list stay clear. */
+#transport, #ctlRight { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; }
+#dock #ctlRight { padding-left: 8px; border-left: 1px solid var(--border); }
+#dock #queueBar.has-items { border-left-color: var(--border); }
 
-/* One control recipe for the whole bar (Branding .cs-btn): mono uppercase,
-   hairline border, 6px corners; hover turns gold; "on" is solid gold. Every
-   filter, menu and toggle shares it so the bar reads as one row. */
-.filter-btn, .ctl-btn {
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    height: 30px;
-    padding: 0 12px;
-    background: transparent;
-    border: 1px solid var(--cs-border);
-    border-radius: 6px;
-    color: var(--cs-text-sec);
-    font-family: var(--cs-mono);
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    white-space: nowrap;
-    cursor: pointer;
-    transition: background 0.18s, color 0.18s, border-color 0.18s;
-}
-.filter-btn:hover, .ctl-btn:hover {
-    border-color: var(--cs-accent);
-    color: var(--cs-accent);
-    background: var(--cs-accent-faint);
-}
+/* Every filter, menu and toggle is a Branding .cs-btn; "on" is solid gold,
+   like .cs-btn.primary, so a pressed toggle reads at a glance. */
+.filter-btn, .ctl-btn { flex-shrink: 0; }
 .filter-btn.active, .ctl-btn.active {
-    background: var(--cs-accent);
-    border-color: var(--cs-accent);
+    background: var(--accent);
+    border-color: var(--accent);
     color: #050505;
 }
-.filter-btn:focus-visible, .ctl-btn:focus-visible { outline: 2px solid var(--cs-accent); outline-offset: 2px; }
+.filter-btn:focus-visible, .ctl-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* ★ Carino keeps a gold star so the personal list stands out at rest */
-.filter-btn.filter-carino { color: var(--cs-accent); }
+.filter-btn.filter-carino { color: var(--accent); }
 .filter-btn.filter-carino.active { color: #050505; }
 
 /* icon-only control (shuffle) */
-.ctl-btn.ctl-icon { width: 30px; padding: 0; justify-content: center; }
+.ctl-btn.ctl-icon { width: 32px; padding: 0; justify-content: center; }
 .ctl-btn svg {
     width: 15px;
     height: 15px;
@@ -270,9 +87,9 @@ body {
    ancestor's overflow or stacking can clip it.
    Open = gold outline; a picked value = solid gold (.active, above). */
 .filter-menu-btn.menu-open:not(.active) {
-    border-color: var(--cs-accent);
-    color: var(--cs-accent);
-    background: var(--cs-accent-faint);
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-faint);
 }
 
 .menu-panel {
@@ -284,7 +101,7 @@ body {
     overflow-y: auto;
     background: rgba(17, 17, 17, 0.98);   /* near-opaque: a backdrop blur here
                                              would cost a pass and show nothing */
-    border: 1px solid var(--cs-border, #262626);
+    border: 1px solid var(--border, #262626);
     border-radius: 10px;
     padding: 6px;
     box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
@@ -292,7 +109,7 @@ body {
     visibility: hidden;
     transform: translateY(-6px);
     transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
-    z-index: 150;        /* above the info panel (100), below the navbar diag (210) */
+    z-index: 2147483001; /* above everything, the navbar's ⋯ menu included: it opens from there on phones */
     scrollbar-width: thin;
 }
 .menu-panel.open {
@@ -350,12 +167,12 @@ body {
 /* play/pause is the one solid button in the bar */
 .ctl-btn.ctl-play {
     width: 34px;
-    background: var(--cs-accent);
-    border-color: var(--cs-accent);
+    background: var(--accent);
+    border-color: var(--accent);
     color: #050505;
     margin: 0 2px;
 }
-.ctl-btn.ctl-play:hover { background: #fbbf24; border-color: #fbbf24; color: #050505; box-shadow: 0 4px 14px var(--cs-accent-glow); }
+.ctl-btn.ctl-play:hover { background: #fbbf24; border-color: #fbbf24; color: #050505; box-shadow: 0 4px 14px var(--accent-glow); }
 .ctl-play .i-pause, .ctl-play.is-playing .i-play { display: none; }
 .ctl-play.is-playing .i-pause { display: block; }
 .ctl-btn:disabled { opacity: 0.35; cursor: default; pointer-events: none; }
@@ -368,7 +185,7 @@ body {
     max-width: 148px;
     margin-left: 6px;
     padding-left: 10px;
-    border-left: 1px solid var(--cs-border);
+    border-left: 1px solid var(--border);
     overflow-x: auto;
     scrollbar-width: none;
 }
@@ -390,8 +207,8 @@ body {
     position: relative;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.queue-item:hover { box-shadow: 0 0 0 1px var(--cs-accent); }
-.queue-item.playing { box-shadow: 0 0 0 2px var(--cs-accent); }
+.queue-item:hover { box-shadow: 0 0 0 1px var(--accent); }
+.queue-item.playing { box-shadow: 0 0 0 2px var(--accent); }
 
 /* the cover in flight to the queue (grid.js flyToQueue) */
 .queue-fly {
@@ -436,8 +253,7 @@ body {
 /* ── Music Grid ───────────────────────────────────────────── */
 #musicgrid {
     padding-bottom: var(--dock-space);
-    flex: 1;
-    min-height: 0;
+    height: 100%;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     grid-auto-rows: auto;
@@ -457,6 +273,7 @@ body {
 }
 
 .cell:hover { transform: scale(1.08); z-index: 2; }
+@media (prefers-reduced-motion: reduce) { .cell { transition: none; } .cell:hover { transform: none; } }
 
 /* Per-cell queue button */
 .cell-queue-btn {
@@ -506,7 +323,7 @@ body {
     right: 18px;
     width: var(--panel-w);
     max-width: calc(100vw - 36px);
-    max-height: calc(100dvh - var(--nav-h) - var(--dock-space) - 28px);
+    max-height: calc(100dvh - var(--mg-nav, var(--nav-h)) - var(--dock-space) - 28px);
     overflow-y: auto;
     scrollbar-width: none;
     background: var(--glass-bg);
@@ -621,9 +438,9 @@ body {
 .meta-chip {
     background: transparent;
     text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
-    border: 1px solid var(--cs-border);
+    border: 1px solid var(--border);
     border-radius: 4px;
-    color: var(--cs-text-sec);
+    color: var(--text-sec);
     font-size: 0.7rem;
     line-height: 1;
     padding: 4px 8px;
@@ -632,9 +449,9 @@ body {
     transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 .meta-chip:hover {
-    border-color: var(--cs-accent);
-    color: var(--cs-accent);
-    background: var(--cs-accent-faint);
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-faint);
 }
 
 /* Streaming links + queue — Branding outline buttons. Each link carries a
@@ -650,11 +467,11 @@ body {
     gap: 7px;
     height: 34px;
     padding: 0 10px;
-    border: 1px solid var(--cs-border);
+    border: 1px solid var(--border);
     border-radius: 6px;
     background: transparent;
-    color: var(--cs-text-sec);
-    font-family: var(--cs-mono);
+    color: var(--text-sec);
+    font-family: var(--mono);
     font-size: 0.66rem;
     font-weight: 700;
     letter-spacing: 0.06em;
@@ -665,7 +482,7 @@ body {
     transition: background 0.18s, color 0.18s, border-color 0.18s;
 }
 #videoLinks a {
-    --platform: var(--cs-text);
+    --platform: var(--text);
     flex: 1 1 0;
     min-width: 0;
     overflow: hidden;
@@ -691,13 +508,13 @@ body {
 #videoActions { display: flex; }
 #queueAddBtn { flex: 1; }
 #queueAddBtn:hover:not(:disabled) {
-    border-color: var(--cs-accent);
-    color: var(--cs-accent);
-    background: var(--cs-accent-faint);
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-faint);
 }
 #queueAddBtn:disabled {
     cursor: default;
-    color: var(--cs-ok);
+    color: var(--ok);
     border-color: rgba(34, 197, 94, 0.4);
     background: rgba(34, 197, 94, 0.06);
 }
@@ -711,7 +528,7 @@ body {
 */
 #songList {
     position: fixed;
-    top: calc(var(--nav-h) + 10px);
+    top: calc(var(--mg-nav, var(--nav-h)) + 10px);
     right: var(--list-right, 18px);
     bottom: var(--list-bottom, 18px);
     width: 340px;
@@ -749,7 +566,7 @@ body {
     flex: 1;
     min-width: 0;
     background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--cs-border);
+    border: 1px solid var(--border);
     border-radius: 6px;
     color: #fff;
     font: inherit;
@@ -764,7 +581,7 @@ body {
     width: 34px;
     border-radius: 6px;
     background: transparent;
-    border: 1px solid var(--cs-border);
+    border: 1px solid var(--border);
     color: rgba(255, 255, 255, 0.75);
     cursor: pointer;
     transition: background 0.2s, color 0.2s;
@@ -772,7 +589,7 @@ body {
 #songListClose:hover { background: rgba(220, 40, 40, 0.85); color: #fff; }
 .sl-meta {
     padding: 0 16px 8px;
-    font-family: var(--cs-mono);
+    font-family: var(--mono);
     font-size: 0.68rem;
     color: rgba(255, 255, 255, 0.45);
     white-space: nowrap;
@@ -821,7 +638,7 @@ body {
     height: 28px;
     border-radius: 6px;
     background: transparent;
-    border: 1px solid var(--cs-border);
+    border: 1px solid var(--border);
     color: rgba(255, 255, 255, 0.6);
     cursor: pointer;
     opacity: 0;
@@ -829,7 +646,7 @@ body {
 }
 .sl-row:hover .sl-queue, .sl-queue:focus-visible, .sl-queue.done { opacity: 1; }
 .sl-queue:hover { background: rgba(234, 179, 8, 0.18); color: #fde68a; }
-.sl-queue.done { color: var(--cs-ok, #22c55e); border-color: rgba(34, 197, 94, 0.4); }
+.sl-queue.done { color: var(--ok, #22c55e); border-color: rgba(34, 197, 94, 0.4); }
 .sl-empty { padding: 18px 12px; font-size: 0.8rem; color: rgba(255, 255, 255, 0.45); text-align: center; }
 
 /* ── Lyrics (inside the player card) ─────────────────────── */
@@ -849,14 +666,14 @@ body {
         transform-origin: bottom left;
         width: calc(50vw - 18px);
         max-width: none;
-        height: calc(100dvh - var(--nav-h) - var(--dock-space) - 28px);
+        height: calc(100dvh - var(--mg-nav, var(--nav-h)) - var(--dock-space) - 28px);
         max-height: none;
         overflow: hidden;
         /* details column grows a little on big screens; the video takes the
            rest of the row, but never more than ~45% of the stage height */
         --side: clamp(240px, 26cqw, 360px);
         --video-h: min(calc((100cqw - var(--side) - 14px) * 9 / 16),
-                       calc((100dvh - var(--nav-h) - var(--dock-space) - 56px) * 0.45));
+                       calc((100dvh - var(--mg-nav, var(--nav-h)) - var(--dock-space) - 56px) * 0.45));
         --cover: calc(var(--video-h) / 2);
     }
     #videoInfoBar.lyrics-on #lyricsSection {
@@ -902,7 +719,7 @@ body {
     /* stacked, the video would eat the lyrics: cap it at 30% of the stage */
     #videoInfoBar.lyrics-on #videoPlayer {
         height: min(calc(100cqw * 9 / 16),
-                    calc((100dvh - var(--nav-h) - var(--dock-space) - 56px) * 0.3));
+                    calc((100dvh - var(--mg-nav, var(--nav-h)) - var(--dock-space) - 56px) * 0.3));
     }
     #videoInfoBar.lyrics-on #albumImage { width: 58px; }
 }
@@ -925,7 +742,7 @@ body {
     border-radius: 6px;
     background: rgba(0, 0, 0, 0.45);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    font-family: var(--cs-mono);
+    font-family: var(--mono);
     font-size: 0.68rem;
     color: rgba(255, 255, 255, 0.6);
     opacity: 0.35;
@@ -994,7 +811,7 @@ body {
 }
 /* resting shape: softer at the edges, the gold note in the middle */
 .lyric-notes span:nth-child(2), .lyric-notes span:nth-child(4) { opacity: 0.7; transform: translateY(-8px); }
-.lyric-notes span:nth-child(3) { opacity: 1; color: var(--cs-accent); transform: translateY(4px); }
+.lyric-notes span:nth-child(3) { opacity: 1; color: var(--accent); transform: translateY(4px); }
 .lyric-notes svg {
     width: 100%;
     height: 100%;
@@ -1068,24 +885,11 @@ body {
 
 /* ── Mobile ───────────────────────────────────────────────── */
 @media (max-width: 768px) {
-    /* Navbar shrinks: drop the clock/greeting, tighten spacing */
-    .top-header   { padding: 0 12px; gap: 10px; }
-    .header-clock { display: none; }
-    .brand-name   { font-size: 1.3rem; }
-    .cn-brand .app-tag { display: none; }
-
-    /* navbar wraps: the lists/filters get their own scrolling second line */
-    :root { --nav-h: 100px; --dock-space: 58px; }
-    .top-header { flex-wrap: wrap; height: auto; min-height: var(--nav-h); row-gap: 0; padding-top: 8px; padding-bottom: 6px; }
-    .header-filters { order: 3; flex: 0 0 100%; justify-content: flex-start; padding-top: 6px; }
-    .header-filters > :first-child, .header-filters > :last-child { margin: 0; }
-
-    /* the dock spans the bottom edge and scrolls sideways */
-    #dock { left: 8px; right: 8px; bottom: 8px; transform: none; max-width: none; }
-    #transport, #ctlRight { flex: none; }
+    /* the dock spans the bottom edge (.play-dock) and wraps */
+    #dock #ctlRight { padding-left: 0; border-left: none; }
     #queueBar { max-width: none; overflow: visible; }
     .queue-remove { opacity: 1; }
-    .diag-dropdown { right: 10px; width: min(88vw, 280px); }
+    .mg-actions .diag-dropdown { width: min(88vw, 280px); }
 
     #musicgrid {
         grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
@@ -1095,7 +899,7 @@ body {
 
     /* The song list covers the screen on phones (above the bottom sheet) */
     #songList {
-        top: calc(var(--nav-h) + 6px);
+        top: calc(var(--mg-nav, var(--nav-h)) + 6px);
         right: 8px; left: 8px; bottom: 8px;
         width: auto; max-width: none;
         z-index: 160;
@@ -1109,9 +913,22 @@ body {
     #videoInfoBar {
         bottom: var(--dock-space); right: 8px; left: 8px;
         width: auto; max-width: none;
-        max-height: calc(100dvh - var(--nav-h) - var(--dock-space) - 12px);
+        max-height: calc(100dvh - var(--mg-nav, var(--nav-h)) - var(--dock-space) - 12px);
         border-radius: var(--radius);
     }
 
     #albumImage { display: none; }
 }
+
+/* ── Help overlay (Branding .modal) ───────────────────────── */
+.mg-mh { flex: 1; }
+.mg-p { margin: 0 0 12px; }
+.mg-also { font-size: var(--fs-sm); color: var(--text-muted); margin: 14px 0 0; }
+.mg-keys { display: grid; grid-template-columns: max-content 1fr; gap: 8px 14px; align-items: center; margin: 0;
+           font-family: var(--mono); font-size: var(--fs-btn); color: var(--text-muted); }
+.mg-keys dt { white-space: nowrap; }
+.mg-keys dd { margin: 0; text-transform: uppercase; letter-spacing: .06em; }
+/* the touch section shows only where there is no keyboard to press */
+.mg-touch { display: none; margin: 0 0 12px; }
+@media (pointer: coarse) { .mg-touch { display: block; } }
+#muteBtn[aria-pressed="true"], #scrollToggle.paused { color: var(--accent); border-color: var(--accent); background: var(--accent-faint); }
