@@ -651,7 +651,7 @@ html { height: 100%; overflow: hidden; }
 
 /* ── Lyrics (inside the player card) ─────────────────────── */
 /*
-   Desktop only: .lyrics-on moves the compact card to the left and turns it
+   Desktop only (over 900px): .lyrics-on moves the compact card to the left and turns it
    into a stage covering half the screen — lyrics on top, the video (as big as
    the row allows) + details merged below. It always starts under the queue
    strip, so the two never overlap.
@@ -659,7 +659,7 @@ html { height: 100%; overflow: hidden; }
 */
 #lyricsSection { display: none; }
 
-@media (min-width: 769px) {
+@media (min-width: 901px) {
     #videoInfoBar.lyrics-on {
         left: 18px;
         right: auto;
@@ -883,8 +883,13 @@ html { height: 100%; overflow: hidden; }
     margin-top: 10px;
 }
 
-/* ── Mobile ───────────────────────────────────────────────── */
-@media (max-width: 768px) {
+/* ── Tablet: half the screen is too narrow for the lyrics stage ── */
+@media (max-width: 900px) {
+    #lyricsSection { display: none !important; }
+}
+
+/* ── Phone ────────────────────────────────────────────────── */
+@media (max-width: 640px) {
     /* the dock spans the bottom edge (.play-dock) and wraps */
     #dock #ctlRight { padding-left: 0; border-left: none; }
     #queueBar { max-width: none; overflow: visible; }
@@ -906,9 +911,6 @@ html { height: 100%; overflow: hidden; }
     }
     .sl-queue { opacity: 1; }
 
-    /* Lyrics don't fit in the mobile bottom sheet — keep it compact */
-    #lyricsSection { display: none !important; }
-
     /* bottom sheet, sitting on top of the dock */
     #videoInfoBar {
         bottom: var(--dock-space); right: 8px; left: 8px;
@@ -921,14 +923,6 @@ html { height: 100%; overflow: hidden; }
 }
 
 /* ── Help overlay (Branding .modal) ───────────────────────── */
-.mg-mh { flex: 1; }
 .mg-p { margin: 0 0 12px; }
 .mg-also { font-size: var(--fs-sm); color: var(--text-muted); margin: 14px 0 0; }
-.mg-keys { display: grid; grid-template-columns: max-content 1fr; gap: 8px 14px; align-items: center; margin: 0;
-           font-family: var(--mono); font-size: var(--fs-btn); color: var(--text-muted); }
-.mg-keys dt { white-space: nowrap; }
-.mg-keys dd { margin: 0; text-transform: uppercase; letter-spacing: .06em; }
-/* the touch section shows only where there is no keyboard to press */
-.mg-touch { display: none; margin: 0 0 12px; }
-@media (pointer: coarse) { .mg-touch { display: block; } }
-#muteBtn[aria-pressed="true"], #scrollToggle.paused { color: var(--accent); border-color: var(--accent); background: var(--accent-faint); }
+.mg-touch { margin: 0 0 12px; }

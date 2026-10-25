@@ -100,7 +100,7 @@
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/></svg>
             </button>
             <button id="muteBtn" class="cs-btn ctl-btn" title="Sound (M)" aria-pressed="false">Sound on</button>
-            <button id="scrollToggle" class="cs-btn ctl-btn" title="Pause auto-scroll">Pause</button>
+            <button id="scrollToggle" class="cs-btn ctl-btn" title="Pause auto-scroll" aria-pressed="false">Pause</button>
             <button id="helpBtn" class="cs-btn ctl-btn ctl-icon" title="Help" aria-label="Help" aria-haspopup="dialog" aria-controls="helpScrim">?</button>
         </div>
     </div>
@@ -164,16 +164,16 @@
     <div class="modal-scrim" id="helpScrim" hidden>
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
             <div class="modal-head">
-                <div class="mg-mh"><div class="modal-title" id="helpTitle" data-i18n>How the wall works</div><div class="modal-sub">Music</div></div>
+                <div><div class="modal-title" id="helpTitle" data-i18n>How the wall works</div><div class="modal-sub">Music</div></div>
                 <button type="button" class="modal-x" id="helpX" aria-label="Close">✕</button>
             </div>
             <div class="modal-body">
                 <p class="mg-p" data-i18n>Click a cover to play it. + on a cover adds it to the queue. The buttons in the bar pick a list, a country, a genre or a mood.</p>
-                <div class="mg-touch">
+                <div class="mg-touch touch-only">
                     <div class="modal-sub" data-i18n>Touch</div>
                     <p class="mg-p" data-i18n>Tap a cover to play it. The filters are under ⋯ in the top bar; Pause in the dock stops the wall.</p>
                 </div>
-                <dl class="mg-keys">
+                <dl class="kbd-grid">
                     <dt><span class="kbd accent">P</span> <span class="kbd accent">Space</span></dt><dd data-i18n>Pause or resume the wall</dd>
                     <dt><span class="kbd">M</span></dt><dd data-i18n>Sound on or off</dd>
                     <dt><span class="kbd">L</span></dt><dd data-i18n>Song list and search</dd>

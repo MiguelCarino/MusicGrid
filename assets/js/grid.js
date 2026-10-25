@@ -313,7 +313,7 @@
         const btn = document.getElementById('scrollToggle');
         if (!btn) return;
         btn.textContent = scrollPaused ? t('Resume') : t('Pause');
-        btn.classList.toggle('paused', scrollPaused);
+        btn.setAttribute('aria-pressed', scrollPaused ? 'true' : 'false');
         btn.title = scrollPaused ? t('Resume auto-scroll') : t('Pause auto-scroll');
     }
     function onMotionChange() {
@@ -370,7 +370,7 @@
        across tag, country, genre and mood). Hidden until ☰ List is pressed. */
     let listOpen = false;
     const fold = s => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-    const isPhone = () => window.matchMedia('(max-width: 768px)').matches;
+    const isPhone = () => window.matchMedia('(max-width: 640px)').matches;
 
     function listMatches(album, words) {
         if (!words.length) return true;
