@@ -86,6 +86,7 @@ const I18N = {
         'Good afternoon.': 'Buenas tardes.',
         'Good evening.': 'Buenas noches.',
         'Burning the midnight oil.': 'Quemándose las pestañas.',
+        'Lists and filters': 'Listas y filtros',
     },
     'pt-BR': {
         'Status': 'Status',
@@ -161,6 +162,7 @@ const I18N = {
         'Good afternoon.': 'Boa tarde.',
         'Good evening.': 'Boa noite.',
         'Burning the midnight oil.': 'Virando a noite.',
+        'Lists and filters': 'Listas e filtros',
     },
     ja: {
         'Status': 'ステータス',
@@ -236,6 +238,7 @@ const I18N = {
         'Good afternoon.': 'こんにちは。',
         'Good evening.': 'こんばんは。',
         'Burning the midnight oil.': '夜ふかしですね。',
+        'Lists and filters': 'リストと絞り込み',
     },
     ru: {
         'Status': 'Статус',
@@ -311,6 +314,7 @@ const I18N = {
         'Good afternoon.': 'Добрый день.',
         'Good evening.': 'Добрый вечер.',
         'Burning the midnight oil.': 'Полуночничаем.',
+        'Lists and filters': 'Списки и фильтры',
     },
 };
 
@@ -363,6 +367,8 @@ const I18N_ATTRS = [
     ['#helpBtn',        'aria-label', 'Help'],
     ['#helpX',          'aria-label', 'Close'],
     ['#muteBtn',        'title', 'Sound (M)'],
+    ['#queueBar',       'title', 'Queue'],
+    ['#sectionFilters', 'aria-label', 'Lists and filters'],
 ];
 
 function applyAttrI18n() {
