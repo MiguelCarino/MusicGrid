@@ -26,6 +26,24 @@
     <script type="application/json" id="carino-head-i18n">{"es": {"title": "Carino Music Grid — música por país", "desc": "Un muro musical personal y una colección por país. Haz clic en una portada para reproducir, explora por país, arma una cola y sigue la letra sincronizada."}, "pt-BR": {"title": "Carino Music Grid — música por país", "desc": "Um mural musical pessoal e uma coleção por país. Clique em qualquer capa para tocar, navegue por país, monte uma fila e acompanhe a letra sincronizada."}, "ja": {"title": "Carino Music Grid — 国別の音楽", "desc": "個人の音楽ウォールと国別コレクション。ジャケットをクリックして再生、国別に閲覧、曲をキューに追加、同期歌詞も表示。"}, "ru": {"title": "Carino Music Grid — музыка по странам", "desc": "Личная музыкальная стена и коллекция по странам. Нажмите на обложку, чтобы слушать, выбирайте страну, ставьте песни в очередь и следите за синхронным текстом."}}</script>
     <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Music Wall", "url": "https://music.carino.systems/", "description": "A personal music wall and per-country collection. Click any cover to play, browse by country, queue songs and follow along with synced lyrics.", "operatingSystem": "Any (runs in a web browser)", "isAccessibleForFree": true, "author": {"@type": "Person", "name": "Miguel Cariño", "url": "https://carino.systems/"}}</script>
     <!-- /carino:head -->
+    <!-- Theme before first paint, so neither theme flashes the other:
+         ?theme=gold|color (review links; not stored) > carino-theme cookie
+         (shared across *.carino.systems) > localStorage > Gold & Black. -->
+    <meta name="theme-color" content="#050505" id="carinoThemeColor">
+    <script>
+    (function () {
+      var d = document.documentElement, t = null;
+      function pick(v) { return v === 'gold' ? 'gold' : (v === 'color' || v === 'colour') ? 'color' : null; }
+      try { t = pick(new URLSearchParams(location.search).get('theme')); } catch (e) {}
+      if (!t) { try { var m = document.cookie.match(/(?:^|;\s*)carino-theme=([^;]*)/); if (m) t = pick(decodeURIComponent(m[1])); } catch (e) {} }
+      if (!t) { try { t = pick(localStorage.getItem('carino-theme')); } catch (e) {} }
+      t = t || 'gold';
+      d.setAttribute('data-carino-theme', t);
+      var dark = d.getAttribute('data-theme') !== 'light' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
+      var meta = document.getElementById('carinoThemeColor');
+      if (meta) meta.content = t === 'gold' ? '#050505' : (dark ? '#0e1420' : '#eef3fc');
+    })();
+    </script>
     <link rel="stylesheet" href="fonts/carino-fonts.css">
     <link rel="stylesheet" href="carino-ui.css">
     <link rel="stylesheet" href="assets/css/grid.css">
@@ -34,11 +52,81 @@
     <!-- The shared navbar (it loads carino-clock.js itself) slides away in
          fullscreen or when idle; the filters and Status ride in it. -->
     <script src="carino-navbar.js" data-app="Music" data-repo="MusicGrid" data-immersive defer></script>
+    <script src="carino-theme.js" data-mark="assets/images/logo.svg" data-mark-color="assets/images/logo-color.svg" defer></script>
     <script src="carino-lang.js" defer></script>
     <script src="i18n.js" defer></script>
     <script src="assets/js/status.js" defer></script>
     <script src="assets/js/grid.js" defer></script>
     <meta property="twitter:title" content="Music Grid"/>
+    <!-- Colourful theme + the switch; nothing applies until data-carino-theme="color". -->
+    <link rel="stylesheet" href="carino-theme.css">
+    <style>
+        /* Colourful: carino-theme.css remaps the tokens, so everything that reads
+           one follows; these are grid.css's values that were written for black.
+           The cover wall itself is the content and is left as it is. */
+        :root[data-carino-theme="color"] {
+            --glass-bg:     var(--ct-glass);
+            --glass-edge:   var(--border);
+            --glass-line:   var(--border);
+            --glass-shadow: var(--ct-shadow-3);
+        }
+        :root[data-carino-theme="color"] .filter-btn.active,
+        :root[data-carino-theme="color"] .ctl-btn.active,
+        :root[data-carino-theme="color"] .filter-btn.filter-carino.active,
+        :root[data-carino-theme="color"] .ctl-btn.ctl-play { color: var(--ct-on-accent); }
+        :root[data-carino-theme="color"] .ctl-btn.ctl-play:hover { background: var(--ct-accent-strong); border-color: var(--ct-accent-strong); color: var(--ct-on-accent); box-shadow: var(--ct-shadow-1); }
+
+        /* dropdown menus and the song list: cards, not black glass */
+        :root[data-carino-theme="color"] .menu-panel,
+        :root[data-carino-theme="color"] #songList { background: var(--bg-card); border-color: var(--border); box-shadow: var(--ct-shadow-3); }
+        :root[data-carino-theme="color"] .menu-panel::-webkit-scrollbar-thumb { background: var(--ct-scroll); }
+        :root[data-carino-theme="color"] .menu-item { color: var(--text-sec); }
+        :root[data-carino-theme="color"] .menu-item:hover { background: var(--ct-hover); color: var(--text); }
+        :root[data-carino-theme="color"] .menu-item.chosen { background: var(--ct-tonal); color: var(--ct-on-tonal); }
+        :root[data-carino-theme="color"] .menu-count,
+        :root[data-carino-theme="color"] .menu-item.chosen .menu-count { color: var(--text-muted); }
+        :root[data-carino-theme="color"] #songSearch { background: var(--bg-elev); color: var(--text); }
+        :root[data-carino-theme="color"] #songSearch:focus { border-color: var(--accent); }
+        :root[data-carino-theme="color"] #songListClose { color: var(--text-sec); }
+        :root[data-carino-theme="color"] #songListClose:hover,
+        :root[data-carino-theme="color"] .queue-remove:hover { background: var(--err); color: var(--ct-on-accent); }
+        :root[data-carino-theme="color"] .sl-meta,
+        :root[data-carino-theme="color"] .sl-artist,
+        :root[data-carino-theme="color"] .sl-empty { color: var(--text-muted); }
+        :root[data-carino-theme="color"] .sl-items { scrollbar-color: var(--ct-scroll) transparent; }
+        :root[data-carino-theme="color"] .sl-row:hover,
+        :root[data-carino-theme="color"] .sl-row.kbd { background: var(--ct-hover); }
+        :root[data-carino-theme="color"] .sl-row.playing { background: var(--ct-tonal); }
+        :root[data-carino-theme="color"] .sl-row img { background: var(--bg-elev); }
+        :root[data-carino-theme="color"] .sl-title { color: var(--text); }
+        :root[data-carino-theme="color"] .sl-row.playing .sl-title { color: var(--ct-on-tonal); }
+        :root[data-carino-theme="color"] .sl-queue { color: var(--text-sec); }
+        :root[data-carino-theme="color"] .sl-queue:hover { background: var(--accent-faint); color: var(--accent); }
+        :root[data-carino-theme="color"] .sl-queue.done { border-color: color-mix(in srgb, var(--ok) 40%, transparent); }
+
+        /* the player card and its lyrics stage: light glass, dark ink */
+        :root[data-carino-theme="color"] #videoInfoBar { color: var(--text); }
+        :root[data-carino-theme="color"] #closeInfoBar { background: var(--bg-card); border-color: var(--border); color: var(--text-sec); box-shadow: var(--ct-shadow-1); }
+        :root[data-carino-theme="color"] #closeInfoBar:hover { background: var(--err); color: var(--ct-on-accent); }
+        :root[data-carino-theme="color"] #videoPlayer,
+        :root[data-carino-theme="color"] #albumImage { box-shadow: var(--ct-shadow-2); }
+        :root[data-carino-theme="color"] .meta-chip { text-shadow: none; }
+        :root[data-carino-theme="color"] #queueAddBtn:disabled { border-color: color-mix(in srgb, var(--ok) 40%, transparent); background: color-mix(in srgb, var(--ok) 8%, transparent); }
+        :root[data-carino-theme="color"] .queue-fly > div { box-shadow: var(--ct-shadow-3), 0 0 0 1px var(--accent-dim); }
+        :root[data-carino-theme="color"] #videoInfoBar.lyrics-on #lyricsSection { background: var(--bg-card); border-color: var(--border); box-shadow: none; }
+        :root[data-carino-theme="color"] .lyrics-ctl { background: var(--bg-elev); border-color: var(--border); color: var(--text-sec); }
+        :root[data-carino-theme="color"] .lyrics-ctl:hover,
+        :root[data-carino-theme="color"] .lyrics-ctl:focus-within { border-color: var(--accent); }
+        :root[data-carino-theme="color"] .lyrics-ctl button:hover:not(:disabled) { background: var(--accent-faint); color: var(--accent); }
+        :root[data-carino-theme="color"] #lyricsOffset.shifted { color: var(--accent); }
+        :root[data-carino-theme="color"] .lyric-notes span { color: var(--text-muted); filter: none; }
+        :root[data-carino-theme="color"] .lyric-notes span:nth-child(3) { color: var(--accent); }
+        :root[data-carino-theme="color"] .lyric-original { color: var(--text-muted); text-shadow: none; }
+        :root[data-carino-theme="color"] .lyric-line:hover .lyric-original { color: var(--text-sec); }
+        :root[data-carino-theme="color"] .lyric-line.current .lyric-original,
+        :root[data-carino-theme="color"] .lyric-line.current:hover .lyric-original { color: var(--text); text-shadow: none; }
+        :root[data-carino-theme="color"] .lyric-line.current .lyric-translation { color: var(--text-sec); }
+    </style>
 </head>
 <body class="play-body">
     <!-- App controls: carino-navbar.js moves this group into its right
