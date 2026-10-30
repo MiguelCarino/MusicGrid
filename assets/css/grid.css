@@ -883,9 +883,51 @@ html { height: 100%; overflow: hidden; }
     margin-top: 10px;
 }
 
-/* ── Tablet: half the screen is too narrow for the lyrics stage ── */
+/* ── Tablet and phone: half the screen is too narrow for the stage, so the
+   lyrics sit in the card itself, a strip above the player. It has a fixed
+   height so the card does not jump as lines change; the container padding
+   keeps the sung line in the middle of the strip, as on the stage. ── */
 @media (max-width: 900px) {
-    #lyricsSection { display: none !important; }
+    #videoInfoBar.lyrics-on #lyricsSection {
+        display: flex;
+        flex-direction: column;
+        flex: none;
+        height: clamp(150px, 30dvh, 280px);
+        position: relative;
+        container-type: size;
+        border-radius: 12px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.02) 100%);
+        border: 1px solid var(--glass-line);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+    }
+    #videoInfoBar.lyrics-on #lyricsContainer { padding: 40cqh 6%; }
+    #videoInfoBar.lyrics-on .lyric-line { padding: 5px 0; }
+    #videoInfoBar.lyrics-on .lyric-line.current { padding: 8px 0; }
+    #videoInfoBar.lyrics-on .lyric-original { font-size: clamp(0.92rem, 3.4vw, 1.08rem); }
+    #videoInfoBar.lyrics-on .lyric-line.current .lyric-original { font-size: clamp(1.2rem, 5.2vw, 1.55rem); }
+    #videoInfoBar.lyrics-on .lyric-line.current .lyric-translation { font-size: clamp(0.85rem, 3.4vw, 1rem); }
+    #videoInfoBar.lyrics-on #lyricsCtls { top: 6px; left: 8px; }
+}
+/* A phone: the lyrics are why the card is open, so they take the most room.
+   The video shrinks to a thumbnail beside the title (it keeps playing), and
+   the links and queue button sit in one row underneath. */
+@media (max-width: 640px) {
+    #videoInfoBar.lyrics-on { gap: 10px; padding: 10px; }
+    #videoInfoBar.lyrics-on #lyricsSection { height: clamp(190px, 40dvh, 360px); }
+    #videoInfoBar.lyrics-on .vib-info { display: grid; grid-template-columns: 42% minmax(0, 1fr); gap: 10px; align-items: center; }
+    #videoInfoBar.lyrics-on .vib-side { display: contents; }
+    #videoInfoBar.lyrics-on #videoPlayer { grid-column: 1; align-self: center; height: auto; aspect-ratio: 16 / 9; border-radius: 9px; }
+    #videoInfoBar.lyrics-on .vib-head { grid-column: 2; }
+    #videoInfoBar.lyrics-on #videoTitle { font-size: 0.86rem; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+    #videoInfoBar.lyrics-on #videoMeta { margin-top: 5px; }
+    #videoInfoBar.lyrics-on #videoMeta .meta-chip:nth-child(n+3) { display: none; }
+    #videoInfoBar.lyrics-on #videoLinks, #videoInfoBar.lyrics-on #videoActions { grid-column: 1 / -1; }
+    #videoInfoBar.lyrics-on #videoLinks a, #videoInfoBar.lyrics-on #queueAddBtn { height: 30px; }
+}
+/* touch has no hover: the timing control stays readable instead of faint */
+@media (hover: none) {
+    .lyrics-ctl { opacity: 0.8; }
+    .lyrics-ctl button { padding: 7px 10px; }
 }
 
 /* ── Phone ────────────────────────────────────────────────── */
