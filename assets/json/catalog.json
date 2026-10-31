@@ -872,4 +872,6 @@ const albums = [
   {"url":"-9Pp14ASe7s","image":"mu_519.webp","tag":"La Factoría — Todavía","country":"panama","genre":"latin","mood":"melancholic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":""},
   {"url":"F6haEym4zrY","image":"mu_520.webp","tag":"Emi Blue x Dani Flow — Dr. Doctor","country":"mexico","genre":"latin","mood":"energetic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"","lrclib":39966608},
   {"url":"CAq9AAIIvZs","image":"mu_521.webp","tag":"Cachirula & Loojan — 1DOSTRES4","country":"mexico","genre":"latin","mood":"energetic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":""},
+  {"url":"5CL2xcD0Wk8","image":"mu_522.webp","tag":"Amanda Miguel — Él Me Mintió","country":"argentina","genre":"latin","mood":"melancholic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/%C3%A9l-me-minti%C3%B3/1454725317?i=1454725319"},
+  {"url":"acl81DrzYP8","image":"mu_523.webp","tag":"Rocío Dúrcal — La Gata Bajo la Lluvia","country":"spain","genre":"latin","mood":"melancholic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":"us/album/la-gata-bajo-la-lluvia/153460619?i=153460739"},
 ];
