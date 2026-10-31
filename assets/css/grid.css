@@ -1956,6 +1956,390 @@ div.mg-set-row { cursor: default; }
 @keyframes dHulaR    { 0%, 100% { transform: rotate(40deg); } 50% { transform: rotate(-82deg); } }
 @keyframes dHulaHead { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
 
+/* ── Twerk variants (dancer.js VIEW: twerkdrop, twerkshake, twerkwave
+   from behind; twerkpop, twerkcircle looking back; twerkalt, twerkroll
+   from the side). They keep to what each sprite allows: a posed sprite
+   (.pose) only moves its hips, its head and the whole figure (a dip, a
+   drop); a standing back view (crt) holds twerk's squat; a side sprite
+   only moves its hips (over the seat in its chest) and its head. The crew
+   follows the dancer's hips (their heads keep their own nod). */
+.mv-twerkdrop   { --beat: 0.3s; }
+.mv-twerkshake  { --beat: 0.26s; }
+.mv-twerkwave   { --beat: 0.4s; }
+.mv-twerkpop    { --beat: 0.34s; }
+.mv-twerkcircle { --beat: 0.32s; }
+.mv-twerkalt    { --beat: 0.3s; }
+.mv-twerkroll   { --beat: 0.38s; }
+/* the squat (a standing back view; a posed sprite ignores it) */
+:is(.mv-twerkdrop, .mv-twerkshake, .mv-twerkwave, .mv-twerkpop, .mv-twerkcircle) .upper { transform: translateY(2px); animation: none; }
+:is(.mv-twerkdrop, .mv-twerkshake, .mv-twerkwave, .mv-twerkpop, .mv-twerkcircle) .leg-l { transform: scaleY(0.8) rotate(10deg); animation: none; }
+:is(.mv-twerkdrop, .mv-twerkshake, .mv-twerkwave, .mv-twerkpop, .mv-twerkcircle) .leg-r { transform: scaleY(0.8) rotate(-10deg); animation: none; }
+:is(.mv-twerkdrop, .mv-twerkshake, .mv-twerkwave, .mv-twerkpop, .mv-twerkcircle) .arm-l { transform: rotate(-25deg); animation: none; }
+:is(.mv-twerkdrop, .mv-twerkshake, .mv-twerkwave, .mv-twerkpop, .mv-twerkcircle) .arm-r { transform: rotate(25deg); animation: none; }
+:is(.mv-twerkdrop, .mv-twerkshake, .mv-twerkwave, .mv-twerkpop, .mv-twerkcircle) .chest { transform: none; animation: none; }
+.dancer:is(.mv-twerkdrop, .mv-twerkshake, .mv-twerkwave, .mv-twerkpop, .mv-twerkcircle) .fig { transform-origin: 50% 100%; }
+
+/* twerkdrop — down low over two beats, bouncing all the way, and back up */
+.dancer.mv-twerkdrop .fig  { animation: dTwDrop calc(var(--b) * 4) cubic-bezier(.45, 0, .55, 1) infinite; }
+.dancer.mv-twerkdrop .hips { animation: dTwerkPose var(--b) ease-out infinite; }
+.mv-twerkdrop .head { animation-name: dTwDropHead; animation-duration: calc(var(--b) * 4); }
+@keyframes dTwDrop     { 0%, 100% { transform: translateY(0) scaleY(1); } 35%, 62% { transform: translateY(1.2px) scaleY(0.93); }
+                         82% { transform: translateY(-0.4px) scaleY(1.01); } }
+@keyframes dTwDropHead { 0%, 100% { transform: rotate(-3deg); } 35% { transform: rotate(4deg) translateY(0.3px); } 62% { transform: rotate(-4deg) translateY(0.3px); } }
+
+/* twerkshake — a fast shake from side to side */
+.dancer.mv-twerkshake .fig  { animation: dPoseDip calc(var(--b) * 2) ease-in-out infinite; }
+.dancer.mv-twerkshake .hips { animation: dTwShake var(--b) ease-in-out infinite; }
+.mv-twerkshake .head { animation-name: dTwShakeHead; animation-duration: calc(var(--b) * 2); }
+@keyframes dTwShake     { 0%, 100% { transform: translateX(-0.6px) rotate(-4deg); } 50% { transform: translateX(0.6px) rotate(4deg); } }
+@keyframes dTwShakeHead { 0%, 100% { transform: rotate(2deg); } 50% { transform: rotate(-2deg); } }
+
+/* twerkwave — slow: the hips roll up and over while the knees give */
+.dancer.mv-twerkwave .fig  { animation: dTwWaveFig calc(var(--b) * 2) ease-in-out infinite; }
+.dancer.mv-twerkwave .hips { animation: dTwWave calc(var(--b) * 2) ease-in-out infinite; }
+.mv-twerkwave .head { animation-name: dTwerkHead; animation-duration: calc(var(--b) * 4); animation-delay: calc(var(--b) * -1); }
+@keyframes dTwWave    { 0%, 100% { transform: translateY(0) scaleY(1) rotate(-3deg); } 25% { transform: translateY(-1.5px) scaleY(1.06) rotate(0); }
+                        50% { transform: translateY(0) scaleY(1) rotate(3deg); } 75% { transform: translateY(0.2px) scaleY(0.98) rotate(0); } }
+@keyframes dTwWaveFig { 0%, 50%, 100% { transform: translateY(0); } 25% { transform: translateY(0.3px); } 75% { transform: translateY(1px); } }
+
+/* twerkpop — looking back: a sharp pop on the beat, then a hold */
+.dancer.mv-twerkpop .fig  { animation: dTwPopFig calc(var(--b) * 2) linear infinite; }
+.dancer.mv-twerkpop .hips { animation: dTwPop calc(var(--b) * 2) linear infinite; }
+.mv-twerkpop .head { animation-name: dTwPopHead; animation-duration: calc(var(--b) * 4); animation-timing-function: steps(1, end); }
+@keyframes dTwPop     { 0%, 16%, 50%, 66%, 100% { transform: translateY(0) scaleY(1) rotate(0); }
+                        6% { transform: translateY(-2px) scaleY(1.08) rotate(-3deg); } 56% { transform: translateY(-2px) scaleY(1.08) rotate(3deg); } }
+@keyframes dTwPopFig  { 0%, 14%, 50%, 64%, 100% { transform: translateY(0); } 6%, 56% { transform: translateY(0.7px); } }
+@keyframes dTwPopHead { 0% { transform: rotate(-6deg); } 25% { transform: rotate(3deg) translateY(-0.5px); } 50% { transform: rotate(-3deg); } 75% { transform: rotate(5deg) translateY(-0.5px); } }
+
+/* twerkcircle — looking back: the hips draw slow circles */
+.dancer.mv-twerkcircle .fig  { animation: dPoseDip var(--b) ease-in-out infinite; }
+.dancer.mv-twerkcircle .hips { animation: dTwCircle calc(var(--b) * 2) linear infinite; }
+.mv-twerkcircle .head { animation-name: dLookBack; animation-duration: calc(var(--b) * 4); }
+@keyframes dTwCircle { 0%, 100% { transform: translate(-0.6px, 0) rotate(-3deg); } 25% { transform: translate(0, -1.3px) scaleY(1.04); }
+                       50% { transform: translate(0.6px, 0) rotate(3deg); } 75% { transform: translate(0, 0.3px) scaleY(0.98); } }
+
+/* from the side: everything holds but the hips and the head (twerkside) */
+:is(.mv-twerkalt, .mv-twerkroll) :is(.fig, .upper, .chest, .arm, .leg) { transform: none; animation: none; }
+:is(.mv-twerkalt, .mv-twerkroll) .hips:not(.crew .hips) { transform-origin: 85% 15%; }
+.dancer:is(.mv-twerkalt, .mv-twerkroll) .crew .pose { animation: dPoseDip var(--b) ease-in-out infinite; }
+:is(.mv-twerkalt, .mv-twerkroll) .head { animation-name: dSideHead; animation-duration: calc(var(--b) * 4); }
+/* twerkalt — four quick bounces, then two slow ones */
+.mv-twerkalt .hips { animation-name: dTwAlt; animation-duration: calc(var(--b) * 4); }
+@keyframes dTwAlt { 0%, 12.5%, 25%, 37.5%, 50%, 75%, 100% { transform: rotate(0) translateY(0); }
+                    6.25%, 18.75%, 31.25%, 43.75% { transform: rotate(-8deg) translateY(-1px); }
+                    62.5%, 87.5% { transform: rotate(-11deg) translateY(-1.2px); } }
+/* twerkroll — a slow roll: up, back and round */
+.mv-twerkroll .hips { animation-name: dTwRoll; animation-duration: calc(var(--b) * 2); animation-timing-function: linear; }
+@keyframes dTwRoll { 0%, 100% { transform: rotate(0) translate(0, 0); } 25% { transform: rotate(-5deg) translate(0.4px, -0.6px); }
+                     50% { transform: rotate(-10deg) translate(0, -1px); } 75% { transform: rotate(-4deg) translate(-0.3px, 0.2px); } }
+
+/* ── More melancholic moves (dancer.js SAD_MOVES) ── */
+/* sadspin — a slow turn on the spot, arms wrapped round, head down */
+.mv-sadspin { --beat: 1.5s; }
+.mv-sadspin .fig   { animation-name: dSadSpin; animation-duration: calc(var(--b) * 4); }
+.mv-sadspin .head  { animation-name: dHeadDown; animation-duration: calc(var(--b) * 2); }
+.mv-sadspin .arm-l { animation-name: dHugL; }
+.mv-sadspin .arm-r { animation-name: dHugR; }
+@keyframes dSadSpin { 0%, 18%, 100% { transform: scaleX(1); } 34% { transform: scaleX(0.12); } 50%, 68% { transform: scaleX(-1); } 84% { transform: scaleX(0.12); } }
+/* slump — the knees give, sinking low, then slowly straightening */
+.mv-slump { --beat: 1.6s; }
+.mv-slump .fig   { animation-name: dSlump; animation-duration: calc(var(--b) * 4); }
+.mv-slump .upper { animation-name: dBreath; animation-duration: calc(var(--b) * 2); }
+.mv-slump .head  { animation-name: dSlumpHead; animation-duration: calc(var(--b) * 4); }
+.mv-slump .arm-l { animation-name: dSlumpL; animation-duration: calc(var(--b) * 4); }
+.mv-slump .arm-r { animation-name: dSlumpR; animation-duration: calc(var(--b) * 4); }
+.mv-slump .leg-l { animation-name: dSlumpLegL; animation-duration: calc(var(--b) * 4); }
+.mv-slump .leg-r { animation-name: dSlumpLegR; animation-duration: calc(var(--b) * 4); }
+@keyframes dSlump     { 0%, 100% { transform: translateY(0) scaleY(1); } 40%, 70% { transform: translateY(0.6px) scaleY(0.91); } }
+@keyframes dSlumpHead { 0%, 100% { transform: translateY(0.4px) rotate(3deg); } 40%, 70% { transform: translateY(1px) rotate(9deg); } }
+@keyframes dSlumpL    { 0%, 100% { transform: rotate(2deg); } 40%, 70% { transform: rotate(-8deg); } }
+@keyframes dSlumpR    { 0%, 100% { transform: rotate(-2deg); } 40%, 70% { transform: rotate(8deg); } }
+@keyframes dSlumpLegL { 0%, 100% { transform: rotate(0); } 40%, 70% { transform: rotate(5deg); } }
+@keyframes dSlumpLegR { 0%, 100% { transform: rotate(0); } 40%, 70% { transform: rotate(-5deg); } }
+/* reachout — an arm reaching out for someone, then drawn back to the heart */
+.mv-reachout { --beat: 1.4s; }
+.mv-reachout .arm-r { animation-name: dReachR; animation-duration: calc(var(--b) * 4); }
+.mv-reachout .arm-l { animation-name: dHangL; animation-duration: calc(var(--b) * 2); }
+.mv-reachout .head  { animation-name: dReachHead; animation-duration: calc(var(--b) * 4); }
+.mv-reachout .fig   { animation-name: dReachFig; animation-duration: calc(var(--b) * 4); }
+@keyframes dReachR    { 0%, 100% { transform: rotate(6deg); } 30%, 45% { transform: rotate(-95deg); } 68%, 86% { transform: rotate(76deg); } }
+@keyframes dReachHead { 0%, 100% { transform: translateY(0.8px) rotate(4deg); } 30%, 45% { transform: translateY(-0.2px) rotate(-5deg); } 68%, 86% { transform: translateY(0.9px) rotate(7deg); } }
+@keyframes dReachFig  { 0%, 100% { transform: translateX(0); } 30%, 45% { transform: translateX(-0.8px) rotate(-2deg); } 68%, 86% { transform: translateX(0.3px) rotate(1deg); } }
+/* eyesclosed — eyes shut (dancer.js), swaying slowly on her own */
+.mv-eyesclosed { --beat: 1.7s; }
+.mv-eyesclosed .fig   { animation-name: dEyesSway; animation-duration: calc(var(--b) * 2); }
+.mv-eyesclosed .hips  { animation-name: dHips; animation-duration: calc(var(--b) * 2); animation-delay: calc(var(--b) * -0.5); }
+.mv-eyesclosed .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 2); }
+.mv-eyesclosed .arm-l { animation-name: dEyesL; animation-duration: calc(var(--b) * 2); }
+.mv-eyesclosed .arm-r { animation-name: dEyesR; animation-duration: calc(var(--b) * 2); }
+@keyframes dEyesSway { 0%, 100% { transform: translateX(-0.6px) rotate(-5deg); } 50% { transform: translateX(0.6px) rotate(5deg); } }
+@keyframes dEyesL    { 0%, 100% { transform: rotate(14deg); } 50% { transform: rotate(4deg); } }
+@keyframes dEyesR    { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(-14deg); } }
+/* trudge — walking in place, head down, arms barely swinging */
+.mv-trudge { --beat: 0.9s; }
+.mv-trudge .leg-l { animation-name: dMarchL; animation-duration: calc(var(--b) * 2); }
+.mv-trudge .leg-r { animation-name: dMarchR; animation-duration: calc(var(--b) * 2); }
+.mv-trudge .arm-l { animation-name: dTrudgeL; animation-duration: calc(var(--b) * 2); }
+.mv-trudge .arm-r { animation-name: dTrudgeR; animation-duration: calc(var(--b) * 2); }
+.mv-trudge .upper { animation-name: dRunLean; animation-duration: calc(var(--b) * 2); }
+.mv-trudge .head  { animation-name: dTrudgeHead; animation-duration: calc(var(--b) * 2); }
+.mv-trudge .fig   { animation-name: dDip; }
+@keyframes dTrudgeL    { 0%, 100% { transform: rotate(7deg); } 50% { transform: rotate(-5deg); } }
+@keyframes dTrudgeR    { 0%, 100% { transform: rotate(5deg); } 50% { transform: rotate(-7deg); } }
+@keyframes dTrudgeHead { 0%, 100% { transform: translateY(0.9px) rotate(4deg); } 50% { transform: translateY(0.9px) rotate(1deg); } }
+/* lonelywaltz — a slow dance with nobody: arms round someone who isn't there, head resting
+   on a shoulder that isn't there, rocking and turning */
+.mv-lonelywaltz { --beat: 0.75s; }
+.mv-lonelywaltz .fig   { animation-name: dLonely; animation-duration: calc(var(--b) * 12); }
+.mv-lonelywaltz .arm-l { animation-name: dLonelyL; animation-duration: calc(var(--b) * 3); }
+.mv-lonelywaltz .arm-r { animation-name: dLonelyR; animation-duration: calc(var(--b) * 3); }
+.mv-lonelywaltz .leg-l { animation-name: dWaltzL; animation-duration: calc(var(--b) * 6); }
+.mv-lonelywaltz .leg-r { animation-name: dWaltzR; animation-duration: calc(var(--b) * 6); }
+.mv-lonelywaltz .head  { animation-name: dLonelyHead; animation-duration: calc(var(--b) * 6); }
+@keyframes dLonely     { 0%, 100% { transform: translateX(-1.5px) rotate(-2deg) scaleX(1); } 20% { transform: translateX(1.5px) rotate(2deg) scaleX(1); }
+                         38% { transform: translateX(0) rotate(0) scaleX(1); } 48% { transform: translateX(0) scaleX(0.12); }
+                         58% { transform: translateX(1.5px) rotate(2deg) scaleX(-1); } 78% { transform: translateX(-1.5px) rotate(-2deg) scaleX(-1); }
+                         88% { transform: translateX(-1.5px) scaleX(0.12); } }
+@keyframes dLonelyL    { 0%, 100% { transform: rotate(-34deg); } 50% { transform: rotate(-42deg); } }
+@keyframes dLonelyR    { 0%, 100% { transform: rotate(42deg); } 50% { transform: rotate(34deg); } }
+@keyframes dLonelyHead { 0%, 100% { transform: translateY(0.5px) rotate(8deg); } 50% { transform: translateY(0.5px) rotate(5deg); } }
+
+/* ── Still more steps (every genre's pool) ── */
+/* popping — a jolt through the chest on every beat, the arms hitting a
+   new angle each time and holding it */
+.mv-popping { --beat: 0.5s; }
+.mv-popping .chest { animation-name: dPopC; animation-timing-function: linear; }
+.mv-popping .fig   { animation-name: dPopFig; animation-timing-function: linear; }
+.mv-popping .head  { animation-name: dPopHead; animation-timing-function: linear; }
+.mv-popping .arm-l { animation-name: dPopL; animation-duration: calc(var(--b) * 4); animation-timing-function: linear; }
+.mv-popping .arm-r { animation-name: dPopR; animation-duration: calc(var(--b) * 4); animation-timing-function: linear; }
+.mv-popping .leg-l { animation-name: dPopKnee; animation-duration: calc(var(--b) * 2); animation-timing-function: linear; }
+@keyframes dPopC    { 0%, 20%, 100% { transform: scale(1); } 6% { transform: translateY(-0.3px) scale(1.04); } }
+@keyframes dPopFig  { 0%, 20%, 100% { transform: translateY(0); } 6% { transform: translateY(-0.6px); } }
+@keyframes dPopHead { 0%, 20%, 100% { transform: rotate(0); } 6% { transform: translateY(-0.3px) rotate(-4deg); } }
+@keyframes dPopL    { 0%, 22% { transform: rotate(80deg); } 25%, 47% { transform: rotate(140deg); } 50%, 72% { transform: rotate(30deg); } 75%, 97% { transform: rotate(-30deg); } 100% { transform: rotate(80deg); } }
+@keyframes dPopR    { 0%, 22% { transform: rotate(-30deg); } 25%, 47% { transform: rotate(-90deg); } 50%, 72% { transform: rotate(-150deg); } 75%, 97% { transform: rotate(-60deg); } 100% { transform: rotate(-30deg); } }
+@keyframes dPopKnee { 0%, 20%, 100% { transform: rotate(0); } 6% { transform: rotate(7deg); } }
+/* tutting — right angles: the arms snap between square shapes */
+.mv-tutting { --beat: 0.55s; }
+.mv-tutting .arm-l, .mv-tutting .arm-r { animation-duration: calc(var(--b) * 8); animation-timing-function: cubic-bezier(.85, 0, .15, 1); }
+.mv-tutting .arm-l { animation-name: dTutL; }
+.mv-tutting .arm-r { animation-name: dTutR; }
+.mv-tutting .head  { animation-name: dRobotH; animation-duration: calc(var(--b) * 4); animation-timing-function: steps(1, end); }
+.mv-tutting .fig   { animation-name: dDip; }
+.mv-tutting .hips  { animation-name: dHips; animation-duration: calc(var(--b) * 2); }
+@keyframes dTutL { 0%, 100% { transform: rotate(90deg); } 12.5% { transform: rotate(180deg); } 25% { transform: rotate(90deg); } 37.5% { transform: rotate(0); }
+                   50% { transform: rotate(-90deg); } 62.5% { transform: rotate(0); } 75% { transform: rotate(90deg); } 87.5% { transform: rotate(180deg); } }
+@keyframes dTutR { 0%, 100% { transform: rotate(-180deg); } 12.5% { transform: rotate(-90deg); } 25% { transform: rotate(0); } 37.5% { transform: rotate(-90deg); }
+                   50% { transform: rotate(-180deg); } 62.5% { transform: rotate(90deg); } 75% { transform: rotate(0); } 87.5% { transform: rotate(-90deg); } }
+/* voguehands — hands circling to frame the face, the head snapping */
+.mv-voguehands { --beat: 0.5s; }
+.mv-voguehands .arm-l, .mv-voguehands .arm-r { animation-duration: calc(var(--b) * 4); animation-timing-function: cubic-bezier(.7, 0, .3, 1); }
+.mv-voguehands .arm-l { animation-name: dVHandsL; }
+.mv-voguehands .arm-r { animation-name: dVHandsR; animation-delay: calc(var(--b) * -2); }
+.mv-voguehands .head  { animation-name: dVHandsHead; animation-duration: calc(var(--b) * 4); animation-timing-function: cubic-bezier(.8, 0, .2, 1); }
+.mv-voguehands .hips  { animation-name: dHips; }
+.mv-voguehands .fig   { animation-name: dStep; animation-duration: calc(var(--b) * 2); }
+@keyframes dVHandsL    { 0%, 100% { transform: rotate(160deg); } 25% { transform: rotate(122deg); } 50% { transform: rotate(176deg); } 75% { transform: rotate(140deg); } }
+@keyframes dVHandsR    { 0%, 100% { transform: rotate(-160deg); } 25% { transform: rotate(-122deg); } 50% { transform: rotate(-176deg); } 75% { transform: rotate(-140deg); } }
+@keyframes dVHandsHead { 0%, 100% { transform: rotate(-8deg); } 25% { transform: rotate(8deg); } 50% { transform: rotate(-4deg); } 75% { transform: rotate(6deg); } }
+/* swingstep — a rock step, a triple step and a kick, the arms swinging */
+.mv-swingstep { --beat: 0.42s; }
+.mv-swingstep .fig   { animation-name: dSwingFig; animation-duration: calc(var(--b) * 4); }
+.mv-swingstep .leg-l { animation-name: dMarchL; animation-duration: calc(var(--b) * 2); }
+.mv-swingstep .leg-r { animation-name: dSwingKick; animation-duration: calc(var(--b) * 4); }
+.mv-swingstep .arm-l { animation-name: dSwingAL; animation-duration: calc(var(--b) * 2); }
+.mv-swingstep .arm-r { animation-name: dSwingAR; animation-duration: calc(var(--b) * 2); }
+.mv-swingstep .upper { animation-name: dRunLean; animation-duration: calc(var(--b) * 2); }
+.mv-swingstep .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 2); }
+@keyframes dSwingFig  { 0%, 100% { transform: translate(-1.5px, 0); } 25% { transform: translate(1.5px, 0); } 37.5% { transform: translate(0.8px, -0.8px); }
+                        50% { transform: translate(0, 0); } 62.5% { transform: translate(-0.8px, -0.8px); } 75% { transform: translate(-1.5px, -1.2px); } }
+@keyframes dSwingKick { 0%, 62%, 88%, 100% { transform: rotate(0); } 75% { transform: translateY(-1px) rotate(-32deg); } }
+@keyframes dSwingAL   { 0%, 100% { transform: rotate(45deg); } 50% { transform: rotate(-12deg); } }
+@keyframes dSwingAR   { 0%, 100% { transform: rotate(12deg); } 50% { transform: rotate(-45deg); } }
+/* discoroll — fists rolling over each other, then a point to the sky
+   and down across, the other hand at the hip */
+.mv-discoroll { --beat: 0.45s; }
+.mv-discoroll .arm-l, .mv-discoroll .arm-r { animation-duration: calc(var(--b) * 8); }
+.mv-discoroll .arm-l { animation-name: dDRollL; }
+.mv-discoroll .arm-r { animation-name: dDRollR; }
+.mv-discoroll .hips  { animation-name: dHips; }
+.mv-discoroll .fig   { animation-name: dStep; animation-duration: calc(var(--b) * 2); }
+.mv-discoroll .head  { animation-name: dDiscoHead; animation-duration: calc(var(--b) * 2); }
+@keyframes dDRollL { 0%, 12.5%, 25%, 37.5% { transform: rotate(-32deg); } 6.25%, 18.75%, 31.25%, 43.75% { transform: rotate(-52deg); } 50%, 100% { transform: rotate(24deg); } }
+@keyframes dDRollR { 0%, 12.5%, 25%, 37.5%, 100% { transform: rotate(52deg); } 6.25%, 18.75%, 31.25%, 43.75% { transform: rotate(32deg); }
+                     55%, 72% { transform: rotate(-160deg); } 80%, 94% { transform: rotate(-28deg); } }
+/* boogaloo — rolling the hips and knees, the head rolling the other way */
+.mv-boogaloo { --beat: 0.5s; }
+.mv-boogaloo .hips  { animation-name: dBoogaH; animation-duration: calc(var(--b) * 2); animation-timing-function: linear; }
+.mv-boogaloo .leg-l { animation-name: dSuzyL; animation-duration: calc(var(--b) * 2); }
+.mv-boogaloo .leg-r { animation-name: dSuzyR; animation-duration: calc(var(--b) * 2); }
+.mv-boogaloo .upper { animation-name: dRollU; animation-duration: calc(var(--b) * 2); animation-delay: calc(var(--b) * -0.5); }
+.mv-boogaloo .head  { animation-name: dRollH; animation-duration: calc(var(--b) * 2); animation-delay: calc(var(--b) * -1); }
+.mv-boogaloo .arm-l { animation-name: dBoogaL; animation-duration: calc(var(--b) * 2); }
+.mv-boogaloo .arm-r { animation-name: dBoogaR; animation-duration: calc(var(--b) * 2); }
+.mv-boogaloo .fig   { animation-name: dDip; }
+@keyframes dBoogaH { 0%, 100% { transform: translate(-1.2px, 0) rotate(-3deg); } 25% { transform: translate(0, -0.6px); } 50% { transform: translate(1.2px, 0) rotate(3deg); } 75% { transform: translate(0, 0.4px); } }
+@keyframes dBoogaL { 0%, 100% { transform: rotate(28deg); } 50% { transform: rotate(58deg); } }
+@keyframes dBoogaR { 0%, 100% { transform: rotate(-58deg); } 50% { transform: rotate(-28deg); } }
+/* tstep — the shuffle's T-step: one foot kicks out and back while the
+   dancer slides along, the arms pumping */
+.mv-tstep { --beat: 0.32s; }
+.mv-tstep .fig   { animation-name: dSlide; animation-duration: calc(var(--b) * 8); }
+.mv-tstep .leg-l { animation-name: dTStepL; animation-duration: calc(var(--b) * 2); }
+.mv-tstep .leg-r { animation-name: dZapR; animation-duration: calc(var(--b) * 2); }
+.mv-tstep .arm-l { animation-name: dRunArmL; animation-duration: calc(var(--b) * 2); }
+.mv-tstep .arm-r { animation-name: dRunArmR; animation-duration: calc(var(--b) * 2); }
+.mv-tstep .upper { animation-name: dZapU; }
+.mv-tstep .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 4); }
+@keyframes dTStepL { 0%, 50%, 100% { transform: rotate(0); } 25% { transform: translateY(-1px) rotate(24deg); } }
+/* electroarms — wide sweeping arms snapping to each count */
+.mv-electroarms { --beat: 0.5s; }
+.mv-electroarms .arm-l, .mv-electroarms .arm-r { animation-duration: calc(var(--b) * 4); animation-timing-function: cubic-bezier(.8, 0, .2, 1); }
+.mv-electroarms .arm-l { animation-name: dElecL; }
+.mv-electroarms .arm-r { animation-name: dElecR; }
+.mv-electroarms .upper { animation-name: dTwistU; animation-duration: calc(var(--b) * 2); }
+.mv-electroarms .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 2); }
+.mv-electroarms .fig   { animation-name: dDip; }
+.mv-electroarms .leg-l { animation-name: dMarchL; animation-duration: calc(var(--b) * 2); }
+.mv-electroarms .leg-r { animation-name: dMarchR; animation-duration: calc(var(--b) * 2); }
+@keyframes dElecL { 0%, 100% { transform: rotate(90deg); } 25% { transform: rotate(172deg); } 50% { transform: rotate(90deg); } 75% { transform: rotate(-40deg); } }
+@keyframes dElecR { 0%, 100% { transform: rotate(-172deg); } 25% { transform: rotate(-90deg); } 50% { transform: rotate(40deg); } 75% { transform: rotate(-90deg); } }
+/* housejack — the house jack: the torso pulsing on every beat, heels
+   lifting in turn, the arms loose */
+.mv-housejack { --beat: 0.46s; }
+.mv-housejack .upper { animation-name: dJack; }
+.mv-housejack .fig   { animation-name: dBounce; }
+.mv-housejack .hips  { animation-name: dHips; animation-duration: calc(var(--b) * 2); }
+.mv-housejack .head  { animation-name: dJackHead; }
+.mv-housejack .leg-l { animation-name: dMarchL; animation-duration: calc(var(--b) * 2); }
+.mv-housejack .leg-r { animation-name: dMarchR; animation-duration: calc(var(--b) * 2); }
+.mv-housejack .arm-l { animation-name: dJackL; }
+.mv-housejack .arm-r { animation-name: dJackR; }
+@keyframes dJack     { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(0.8px) scaleY(0.97) rotate(2deg); } }
+@keyframes dJackHead { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(0.4px) rotate(5deg); } }
+@keyframes dJackL    { 0%, 100% { transform: rotate(22deg); } 50% { transform: rotate(44deg); } }
+@keyframes dJackR    { 0%, 100% { transform: rotate(-22deg); } 50% { transform: rotate(-44deg); } }
+/* heelstomp — two big stomps on one side, two on the other, fists down */
+.mv-heelstomp { --beat: 0.4s; }
+.mv-heelstomp .leg-l { animation-name: dHStompL; animation-duration: calc(var(--b) * 4); }
+.mv-heelstomp .leg-r { animation-name: dHStompR; animation-duration: calc(var(--b) * 4); }
+.mv-heelstomp .upper { animation-name: dHStompU; animation-duration: calc(var(--b) * 4); }
+.mv-heelstomp .arm-l { animation-name: dHStompAL; }
+.mv-heelstomp .arm-r { animation-name: dHStompAR; }
+.mv-heelstomp .head  { animation-name: dBang; }
+.mv-heelstomp .fig   { animation-name: dDip; }
+@keyframes dHStompL  { 0%, 16%, 33%, 50%, 100% { transform: translateY(0) rotate(0); } 8%, 25% { transform: translateY(-3.5px) rotate(9deg); } }
+@keyframes dHStompR  { 0%, 50%, 66%, 83%, 100% { transform: translateY(0) rotate(0); } 58%, 75% { transform: translateY(-3.5px) rotate(-9deg); } }
+@keyframes dHStompU  { 0%, 45% { transform: rotate(-3deg); } 50%, 95% { transform: rotate(3deg); } 100% { transform: rotate(-3deg); } }
+@keyframes dHStompAL { 0%, 100% { transform: rotate(18deg); } 50% { transform: rotate(46deg); } }
+@keyframes dHStompAR { 0%, 100% { transform: rotate(-18deg); } 50% { transform: rotate(-46deg); } }
+/* cumbiapaso — the cumbia basic, a step back with each foot, the hips
+   turning, a hand up, and every eight beats a slow turn */
+.mv-cumbiapaso { --beat: 0.5s; }
+.mv-cumbiapaso .fig   { animation-name: dCPasoFig; animation-duration: calc(var(--b) * 8); }
+.mv-cumbiapaso .leg-l { animation-name: dCPasoL; animation-duration: calc(var(--b) * 4); }
+.mv-cumbiapaso .leg-r { animation-name: dCPasoR; animation-duration: calc(var(--b) * 4); }
+.mv-cumbiapaso .hips  { animation-name: dHips; }
+.mv-cumbiapaso .upper { animation-name: dTwistU; animation-duration: calc(var(--b) * 2); }
+.mv-cumbiapaso .arm-l { animation-name: dCPasoAL; animation-duration: calc(var(--b) * 2); }
+.mv-cumbiapaso .arm-r { transform: rotate(-60deg); animation-name: dOutR; animation-duration: calc(var(--b) * 2); }
+.mv-cumbiapaso .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 4); }
+@keyframes dCPasoFig { 0%, 62%, 100% { transform: scaleX(1); } 72% { transform: scaleX(0.12); } 80%, 88% { transform: scaleX(-1); } 95% { transform: scaleX(0.12); } }
+@keyframes dCPasoL   { 0%, 50%, 100% { transform: translate(0, 0) rotate(0); } 25% { transform: translate(-1.5px, -1px) rotate(14deg); } }
+@keyframes dCPasoR   { 0%, 50%, 100% { transform: translate(0, 0) rotate(0); } 75% { transform: translate(1.5px, -1px) rotate(-14deg); } }
+@keyframes dCPasoAL  { 0%, 100% { transform: rotate(135deg); } 50% { transform: rotate(150deg); } }
+/* banda — banda zapateado: quick heel work, bouncing along in the hold */
+.mv-banda { --beat: 0.3s; }
+.mv-banda .fig   { animation-name: dBandaFig; animation-duration: calc(var(--b) * 8); animation-timing-function: linear; }
+.mv-banda .leg-l { animation-name: dZapL; animation-duration: calc(var(--b) * 2); animation-timing-function: ease-out; }
+.mv-banda .leg-r { animation-name: dZapR; animation-duration: calc(var(--b) * 2); animation-timing-function: ease-out; }
+.mv-banda .arm-l { transform: rotate(105deg); animation-name: dBandaL; animation-duration: calc(var(--b) * 2); }
+.mv-banda .arm-r { transform: rotate(-40deg); animation-name: dBandaR; animation-duration: calc(var(--b) * 2); }
+.mv-banda .hips  { animation-name: dHips; }
+.mv-banda .upper { animation-name: dZapU; }
+.mv-banda .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 8); }
+@keyframes dBandaFig { 0%, 100% { transform: translate(-2px, 0); } 6.25% { transform: translate(-1.5px, -1.2px); } 12.5% { transform: translate(-1px, 0); }
+                       18.75% { transform: translate(-0.5px, -1.2px); } 25% { transform: translate(0, 0); } 31.25% { transform: translate(0.5px, -1.2px); }
+                       37.5% { transform: translate(1px, 0); } 43.75% { transform: translate(1.5px, -1.2px); } 50% { transform: translate(2px, 0); }
+                       56.25% { transform: translate(1.5px, -1.2px); } 62.5% { transform: translate(1px, 0); } 68.75% { transform: translate(0.5px, -1.2px); }
+                       75% { transform: translate(0, 0); } 81.25% { transform: translate(-0.5px, -1.2px); } 87.5% { transform: translate(-1px, 0); }
+                       93.75% { transform: translate(-1.5px, -1.2px); } }
+@keyframes dBandaL { 0%, 100% { transform: rotate(105deg); } 50% { transform: rotate(112deg); } }
+@keyframes dBandaR { 0%, 100% { transform: rotate(-40deg); } 50% { transform: rotate(-48deg); } }
+/* kwave — K-pop: a ripple out through one arm and the other, then both
+   arms snap up and hold */
+.mv-kwave { --beat: 0.45s; }
+.mv-kwave .arm-l, .mv-kwave .arm-r { animation-duration: calc(var(--b) * 4); }
+.mv-kwave .arm-l { animation-name: dKWaveL; }
+.mv-kwave .arm-r { animation-name: dKWaveR; }
+.mv-kwave .upper { animation-name: dBodyWave; animation-duration: calc(var(--b) * 2); }
+.mv-kwave .head  { animation-name: dKpopHead; animation-duration: calc(var(--b) * 4); }
+.mv-kwave .fig   { animation-name: dKpopFig; animation-duration: calc(var(--b) * 4); }
+.mv-kwave .hips  { animation-name: dHips; }
+@keyframes dKWaveL { 0%, 100% { transform: rotate(90deg); } 10% { transform: rotate(106deg); } 20% { transform: rotate(80deg); } 30% { transform: rotate(100deg); }
+                     40% { transform: rotate(90deg); } 48%, 64% { transform: rotate(165deg); } 76% { transform: rotate(90deg); } }
+@keyframes dKWaveR { 0%, 100% { transform: rotate(-90deg); } 10% { transform: rotate(-80deg); } 20% { transform: rotate(-106deg); } 30% { transform: rotate(-80deg); }
+                     40% { transform: rotate(-100deg); } 48%, 64% { transform: rotate(-165deg); } 76% { transform: rotate(-90deg); } }
+/* lightwave — concert wave: both hands high, swaying together side to
+   side (no light stick, just the hands) */
+.mv-lightwave { --beat: 0.6s; }
+.mv-lightwave .arm-l { animation-name: dLightL; animation-duration: calc(var(--b) * 2); }
+.mv-lightwave .arm-r { animation-name: dLightR; animation-duration: calc(var(--b) * 2); }
+.mv-lightwave .fig   { animation-name: dLightFig; animation-duration: calc(var(--b) * 2); }
+.mv-lightwave .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 2); }
+.mv-lightwave .leg-l { animation-name: dMarchL; animation-duration: calc(var(--b) * 2); }
+.mv-lightwave .leg-r { animation-name: dMarchR; animation-duration: calc(var(--b) * 2); }
+@keyframes dLightL   { 0%, 100% { transform: rotate(146deg); } 50% { transform: rotate(178deg); } }
+@keyframes dLightR   { 0%, 100% { transform: rotate(-178deg); } 50% { transform: rotate(-146deg); } }
+@keyframes dLightFig { 0%, 100% { transform: translateX(-0.6px) rotate(-3deg); } 50% { transform: translateX(0.6px) rotate(3deg); } }
+/* circlestep — a folk ring: hands low holding the neighbours', stepping
+   round the circle (away and back, a heel kicked in on the turn) */
+.mv-circlestep { --beat: 0.45s; }
+.mv-circlestep .fig   { animation-name: dCircle; animation-duration: calc(var(--b) * 8); animation-timing-function: linear; }
+.mv-circlestep .leg-l { animation-name: dMarchL; animation-duration: calc(var(--b) * 2); }
+.mv-circlestep .leg-r { animation-name: dHoraKR; animation-duration: calc(var(--b) * 4); }
+.mv-circlestep .arm-l { animation-name: dCircleL; }
+.mv-circlestep .arm-r { animation-name: dCircleR; }
+.mv-circlestep .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 4); }
+@keyframes dCircle  { 0%, 100% { transform: translate(-3px, 0) scale(1); } 25% { transform: translate(0, -0.4px) scale(0.94); }
+                      50% { transform: translate(3px, 0) scale(1); } 75% { transform: translate(0, 0.4px) scale(1.04); } }
+@keyframes dCircleL { 0%, 100% { transform: rotate(48deg); } 50% { transform: rotate(56deg); } }
+@keyframes dCircleR { 0%, 100% { transform: rotate(-48deg); } 50% { transform: rotate(-56deg); } }
+
+/* ── Richer takes on the first moves (more of the body joins in) ── */
+.mv-bounce .head    { animation-name: dNod; }
+.mv-bounce .hips    { animation-name: dHips; animation-duration: calc(var(--b) * 2); }
+.mv-bounce .leg-l   { animation-name: dMarchL; animation-duration: calc(var(--b) * 2); }
+.mv-bounce .leg-r   { animation-name: dMarchR; animation-duration: calc(var(--b) * 2); }
+.mv-sway .hips      { animation-name: dHips; animation-duration: calc(var(--b) * 2); animation-delay: calc(var(--b) * -0.5); }
+.mv-armwave .head   { animation-name: dTilt; animation-duration: calc(var(--b) * 2); }
+.mv-armwave .hips   { animation-name: dHips; animation-duration: calc(var(--b) * 2); }
+.mv-spin .head      { animation-name: dTilt; }
+.mv-clap .head      { animation-name: dNod; }
+.mv-clap .leg-l     { animation-name: dMarchL; animation-duration: calc(var(--b) * 2); }
+.mv-clap .leg-r     { animation-name: dMarchR; animation-duration: calc(var(--b) * 2); }
+.mv-floss .head     { animation-name: dTilt; }
+.mv-wave .fig       { animation-name: dDip; }
+.mv-stomp .head     { animation-name: dBang; }
+.mv-stomp .upper    { animation-name: dTwistU; animation-duration: calc(var(--b) * 2); }
+.mv-kick .head      { animation-name: dTilt; animation-duration: calc(var(--b) * 2); }
+.mv-kick .upper     { animation-name: dZapU; }
+.mv-robot .leg-l    { animation-name: dRobotLegL; animation-timing-function: steps(1, end); }
+.mv-robot .leg-r    { animation-name: dRobotLegR; animation-timing-function: steps(1, end); }
+.mv-robot .upper    { animation-name: dRobotU; animation-timing-function: steps(1, end); }
+.mv-airguitar .leg-r { animation-name: dLiftR; animation-duration: 0.64s; }
+.mv-headbang .fig   { animation-name: dDip; }
+.mv-point .head     { animation-name: dDiscoHead; animation-duration: calc(var(--b) * 2); }
+.mv-vogue .fig      { animation-name: dStep; animation-duration: calc(var(--b) * 2); }
+.mv-vogue .hips     { animation-name: dHips; }
+.mv-pogo .leg-l     { animation-name: dKickL; }
+.mv-pogo .leg-r     { animation-name: dKickR; }
+@keyframes dNod       { 0%, 100% { transform: rotate(0) translateY(0); } 50% { transform: rotate(4deg) translateY(0.4px); } }
+@keyframes dRobotLegL { 0%, 50% { transform: translateY(0); } 25% { transform: translateY(-1.5px); } 75% { transform: translateY(0); } }
+@keyframes dRobotLegR { 0%, 25%, 50% { transform: translateY(0); } 75% { transform: translateY(-1.5px); } }
+@keyframes dRobotU    { 0%, 50% { transform: rotate(0); } 25% { transform: rotate(-3deg); } 75% { transform: rotate(3deg); } }
+
 @media (prefers-reduced-motion: reduce) {
     .dancer { animation: none; }
     .dancer * { animation: none !important; }

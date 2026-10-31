@@ -8,8 +8,13 @@
  * brown hair and now and then a dyed colour (ash brown, burgundy, pastel
  * pink, platinum), and her own wardrobe: lola's outfits plus a pleated
  * mini skirt with a crop top and platform boots, a qipao-inspired mini
- * dress with a gold trim, and an oversized tee over bike shorts. restyle()
- * swaps the outfit mid-dance, like lola's.
+ * dress with a gold trim, an oversized tee over bike shorts, a collared
+ * blouse with high-waisted shorts, an open cardigan over a camisole with an
+ * A-line mini, a slip dress, a sports jersey with a pleated skirt and knee
+ * socks, cargo pants with a crop top, a puffer vest set, an off-shoulder
+ * sweater dress and an idol-style stage outfit (tiered skirt, white
+ * boots). restyle() swaps the outfit mid-dance, like lola's. To a
+ * melancholic song she also sings sadly (sadsing, belt, hum, teary).
  *
  * She twerks like lola, on lola's posed bodies (kit.lolaBackRuns /
  * lolaSideRuns) in her own palette: from behind with her hair from
@@ -54,7 +59,11 @@
        flamenca dress (Spain), a carnival two-piece with feathers (Brazil),
        a pollera-inspired off-shoulder blouse and full skirt (Colombia,
        Panama, Venezuela) and a bomba skirt with a head wrap (Puerto Rico,
-       the Dominican Republic, Cuba). Long skirts cover the legs; the legs
+       the Dominican Republic, Cuba), a white blouse with a tartan sash and
+       long tartan skirt (UK), a laced bodice, striped apron and flower
+       crown (Sweden, Finland, Iceland), a flowered cueca dress with a white
+       apron and a handkerchief (Chile, Argentina, Uruguay) and a Breton
+       striped top with a neckerchief and a beret (France). Long skirts cover the legs; the legs
        under them are the skirt's colour (thigh / shin) or bare. */
     const OUTFITS = {
         tee:    { w: 1, top: ['#fafafc', '#f6cadb', '#c8dcf4', '#1c1c22'], upper: 1, sleeves: 1, mid: 0,
@@ -73,6 +82,25 @@
                   bottom: 'same', thigh: 0, shin: 0, shoes: ['heels'] },
         oversize: { w: 2, shape: 'oversize', top: ['#fafafc', '#ebe3d2', '#26262e', '#bcd2f2', '#f6cadb', '#c8e0b8'], upper: 1, sleeves: 1, mid: 1,
                   bottom: ['#1c1c22', '#3a3a52'], thigh: 1, shin: 0, shoes: ['sneakers'] },
+        /* everyday and party (see the shapes below); hiwaist = the bottoms
+           come up over the midriff, long = sleeves to the wrist, off = off
+           the shoulder (both in every view) */
+        blouse:   { w: 2, shape: 'blouse', hiwaist: 1, top: ['#fafafc', '#f6cadb', '#c8dcf4', '#e2d4f2', '#d4ecd8', '#f6ead0'], upper: 1, sleeves: 1, mid: 1,
+                    bottom: ['#3a5a98', '#26262e', '#ebe3d2', '#7a2a3e', '#5a6a8a'], thigh: 0, shin: 0, shoes: ['sneakers', 'boots', 'heels'] },
+        cardigan: { w: 2, shape: 'cardigan', long: 1, top: ['#f6cadb', '#ebe3d2', '#c8dcf4', '#d4ecd8', '#e2d4f2', '#f2e6a8', '#26262e'], upper: 1, sleeves: 1, mid: 1,
+                    bottom: ['#26262e', '#7a2a3e', '#4a5a8a', '#ebe3d2', '#5a4a3e'], thigh: 0, shin: 0, shoes: ['boots', 'sneakers', 'heels'] },
+        slip:     { w: 1, shape: 'slip', top: ['#e8d4b8', '#1c1c22', '#6e1e34', '#c8dcf4', '#2e4a3e', '#d8b4c8', '#f2ead8'], upper: 0, sleeves: 0, mid: 1,
+                    bottom: 'same', thigh: 0, shin: 0, shoes: ['heels'] },
+        jersey:   { w: 1, shape: 'jersey', top: ['#2e4ec0', '#c8203a', '#1e6a52', '#26262e', '#f2f2f6', '#8a4ad8', '#f2b820'], upper: 1, sleeves: 1, mid: 1,
+                    bottom: ['#26262e', '#ebe3d2', '#4a5a8a', '#7a2a3e', '#fafafc'], thigh: 0, shin: 1, shoes: ['sneakers', 'boots'] },
+        cargo:    { w: 2, shape: 'cargo', top: ['#fafafc', '#26262e', '#f6cadb', '#c8e0b8', '#f2c440', '#bcd2f2'], upper: 1, sleeves: 0, mid: 0,
+                    bottom: ['#5a6040', '#c8b48a', '#26262e', '#6a6a72', '#ebe3d2'], thigh: 1, shin: 1, shoes: ['sneakers', 'boots'] },
+        puffer:   { w: 1, shape: 'puffer', long: 1, top: ['#26262e', '#f2f2f6', '#c8dcf4', '#f2a8c4', '#e8d4b8', '#5a6040', '#e04a6a'], upper: 1, sleeves: 1, mid: 1,
+                    bottom: ['#1c1c22', '#3a3a52', '#6a6a72', '#ebe3d2'], thigh: 1, shin: 1, shoes: ['sneakers'] },
+        sweater:  { w: 1, shape: 'sweater', long: 1, off: 1, top: ['#ebe3d2', '#f6cadb', '#c8b4e0', '#8a2a3a', '#6a6a72', '#26262e', '#c8dcf4'], upper: 0, sleeves: 1, mid: 1,
+                    bottom: 'same', thigh: 0, shin: 0, shoes: ['boots', 'heels'] },
+        stage:    { w: 1, shape: 'stage', top: ['#c8203a', '#24346a', '#f2f2f6', '#f27aa8', '#26262e', '#8a4ad8', '#20b0c0'], upper: 1, sleeves: 1, mid: 1,
+                    bottom: 'same', thigh: 0, shin: 0, shoes: ['whiteboots', 'boots'] },
 
         /* national (see above) */
         yukata:   { w: 1, countries: ['japan'], shape: 'yukata',
@@ -108,6 +136,18 @@
         bomba:    { w: 1, countries: ['puertorico', 'dominicanrepublic', 'cuba'], shape: 'pollera',
                     top: ['#f6f4ee', '#f2b820', '#e04a6a'], upper: 0, sleeves: 1, mid: 1,
                     bottom: ['#f6f4ee', '#c8203a', '#f2b820', '#2a4ab0'], thigh: 0, shin: 0, shoes: ['sandals'] },
+        tartan:   { w: 1, countries: ['uk'], shape: 'tartan', long: 1,
+                    top: ['#f6f4ee'], upper: 1, sleeves: 1, mid: 1,
+                    bottom: ['#a81e2a', '#1e5a40', '#24346a', '#3a2a5a'], thigh: 1, shin: 1, shoes: ['brogues'] },
+        folkdrakt: { w: 1, countries: ['sweden', 'finland', 'iceland'], shape: 'folkdrakt', long: 1,
+                    top: ['#f6f4ee'], upper: 1, sleeves: 1, mid: 1,
+                    bottom: ['#24346a', '#1c1c22', '#1e5a40', '#7a1e2a'], thigh: 1, shin: 1, shoes: ['brogues'] },
+        cueca:    { w: 1, countries: ['chile', 'argentina', 'uruguay'], shape: 'cueca',
+                    top: ['#c8203a', '#2e4ec0', '#e04a9a', '#f2b820', '#1e8a5a', '#8a4ad8'], upper: 1, sleeves: 1, mid: 1,
+                    bottom: 'same', thigh: 0, shin: 0, shoes: ['heels'] },
+        mariniere: { w: 1, countries: ['france'], shape: 'mariniere',
+                    top: ['#f6f4ee'], upper: 1, sleeves: 1, mid: 1,
+                    bottom: ['#24346a', '#1c1c22', '#a81e2a', '#ebe3d2'], thigh: 0, shin: 0, shoes: ['heels', 'brogues'] },
     };
     /* her own shoes (the rest are lola's kit.SHOES); n 's' = bare skin */
     const SHOES = {
@@ -116,6 +156,8 @@
         zori:     { n: '#f4f2ee', g: '#c89a62' },            /* white tabi socks on zori */
         flats:    { n: '#d8487e', g: '#8a2a50' },            /* embroidered silk flats */
         redboots: { n: '#a81e2a', g: '#3a1a14', N: true },   /* red folk boots up the shin */
+        whiteboots: { n: '#f4f2ee', g: '#bcb8b0', N: true }, /* white stage boots up the shin */
+        brogues:  { n: '#2a1c16', g: '#140c08' },            /* dark leather lace-ups */
     };
     const PRINTS = ['#e04a6a', '#4ab0d8', '#f2c440', '#26262e', '#8a6ad8'];
     const BRIGHT = ['#c8203a', '#f2b820', '#1e8a5a', '#2e4ec0', '#d8287e', '#f6f4ee', '#7a2ab0', '#f27a3a'];
@@ -124,7 +166,7 @@
     const HEADWEAR = {
         yukata: 'pin', furisode: 'kanzashi', folklorico: 'flowers', sarafan: 'kokoshnik',
         folkblouse: 'vinok', aloha: 'hibiscus', flamenca: 'rose', carnival: 'feathers',
-        pollera: 'flowers', bomba: 'wrap',
+        pollera: 'flowers', bomba: 'wrap', folkdrakt: 'vinok', cueca: 'flowers', mariniere: 'beret',
     };
     const light = c => { const n = parseInt(c.slice(1), 16); return 0.3 * (n >> 16) + 0.59 * ((n >> 8) & 255) + 0.11 * (n & 255) > 150; };
     const other = (list, not) => { const l = list.filter(c => not.indexOf(c) < 0); return pick(l.length ? l : list); };
@@ -189,6 +231,54 @@
                 of.f1 = other(BRIGHT, [b, t]);
                 of.f2 = other(BRIGHT, [b, t, of.f1]);
                 break;
+            /* everyday */
+            case 'blouse':   /* a round collar (A), a ribbon tie (z), gold buttons on the shorts */
+                of.collar = t === '#fafafc' ? '#eceaf2' : '#fafafc';
+                of.trim = other(['#e04a6a', '#26262e', '#7a2a3e', '#4a5a8a', '#f2a8c4'], [t, b]);
+                break;
+            case 'cardigan':   /* the camisole (A) under the open cardigan */
+                of.collar = other(['#fafafc', '#26262e', '#ebe3d2', '#f6cadb'], [t, b]);
+                of.gold = '#f4f0ea';
+                break;
+            case 'slip':   /* lace (A) on the neckline and hem */
+                of.collar = light(t) ? K.shade(t, 0.8) : K.shade(t, 1.45);
+                break;
+            case 'jersey':   /* the number (q) and sleeve stripes (A), knee socks */
+                of.print = other(['#fafafc', '#f2c440', '#1c1c22'], [t]);
+                of.collar = of.print;
+                of.socks = light(b) ? '#1c1c22' : '#fafafc';
+                break;
+            case 'puffer':   /* a long-sleeved top under the vest */
+                of.sleeve = other(['#fafafc', '#26262e', '#ebe3d2', '#f6cadb', '#bcd2f2'], [t]);
+                break;
+            case 'stage':   /* white or gold trim (A), gold buttons */
+                of.collar = other(['#fafafc', '#f2d060'], [t]);
+                of.gold = '#f2d060';
+                break;
+            /* national */
+            case 'tartan':   /* a white blouse, a tartan sash and skirt, a silver brooch */
+                of.f1 = K.shade(b, 0.55);
+                of.f2 = Math.random() < 0.3 ? '#d8b048' : K.shade(b, 1.45);
+                of.collar = '#d8dce4';
+                break;
+            case 'folkdrakt':   /* a laced bodice (R), a striped apron (A F Q), a flower crown */
+                of.f3 = other(['#c8203a', '#1c1c22', '#24346a', '#1e5a40'], [b]);
+                of.collar = pick(['#f2c440', '#f6f4ee', '#e8d8a0']);
+                of.f1 = other(['#c8203a', '#2e4ec0', '#1e8a5a'], [of.f3]);
+                of.f2 = other(['#24346a', '#e8c050', '#f6f4ee', '#c8203a'], [of.collar, of.f1]);
+                of.gold = '#d8dce4';
+                break;
+            case 'cueca':   /* a flowered dress (E), a white apron (A), a handkerchief, flowers */
+                of.dot = light(t) ? other(['#c8203a', '#2e4ec0'], [t]) : t === '#c8203a' ? other(['#f2c440', '#f27aa8'], []) : other(['#f6f4ee', '#f2c440'], [t]);
+                of.collar = '#fbfaf6';
+                of.f1 = other(['#c8203a', '#f6f4ee', '#f27aa8', '#f2c440'], [t]);
+                of.f2 = other(['#f2c440', '#f6f4ee', '#f27aa8'], [of.f1]);
+                break;
+            case 'mariniere':   /* Breton stripes (F), a neckerchief (R), a beret (O) */
+                of.f1 = b === '#24346a' ? '#24346a' : pick(['#24346a', '#24346a', '#c8203a']);
+                of.f3 = of.f1 === '#c8203a' ? '#24346a' : '#c8203a';
+                of.sash = other(['#1c1c22', '#24346a', '#c8203a'], [of.f3]);
+                break;
         }
         return of;
     }
@@ -237,12 +327,19 @@
         P.q = of.print || P.W;
         P.A = of.collar || '#f6f4ee';
         P.O = of.sash || P.z;
+        /* a dark beret on dark hair would vanish: red (or a light navy) instead */
+        if (of.name === 'mariniere' && P.O !== '#c8203a' && !pale && !light(v.colour)) P.O = of.f3 === '#c8203a' ? '#7a8ab8' : '#c8203a';
         P.E = of.dot || P.W;
         P.F = of.f1 || '#e04a6a';
         P.Q = of.f2 || '#f2c440';
         P.R = of.f3 || P.F;
         P.Y = of.gold || '#e8c050';
         P.X = '#3e8a46';
+        P.I = '#8fd0f4';   /* a tear / raindrop */
+        const oe = OUTFITS[of.name] || {};
+        if (oe.hiwaist) { P.m = P.k; P.M = P.K; }                         /* high-waisted bottoms */
+        if (of.socks) { P.j = of.socks; P.J = K.shade(of.socks, of.socks === '#1c1c22' ? 1.3 : 0.85); }   /* knee socks */
+        if (of.sleeve) { P.v = of.sleeve; P.V = K.shade(of.sleeve, light(of.sleeve) ? 0.85 : 1.3); }    /* a top under a vest */
         const sh = SHOES[of.shoes];
         if (sh) { P.n = sh.n === 's' ? P.s : sh.n; P.g = sh.g; }
         P.N = sh && sh.N ? P.n : P.j;
@@ -277,13 +374,21 @@
         sing:  { 6: ".ossddsso.", 7: "..osllso.." },
         laugh: Object.assign({}, SHUT, { 5: "osbssSsbso", 6: ".osiiiiso.", 7: "..osddso.." }),
         blush: { 4: "osiessieso", 5: "oBBssSsBBo", 6: ".osllllso." },
-        /* sad faces (melancholic songs); q = a tear / raindrop */
+        /* sad faces (melancholic songs); I = a tear / raindrop */
         sad:         { 2: "ossrssrsso", 3: "osssssssso", 4: "osaassaaso", 5: "oseesSeeso", 6: ".osSllSso.", 7: "..olsslo.." },
-        heartbroken: { 2: "ossrssrsso", 3: "osssssssso", 4: "osaassaaso", 5: "osqssSsqso", 6: ".osSllSso.", 7: "..olsslo.." },
+        heartbroken: { 2: "ossrssrsso", 3: "osssssssso", 4: "osaassaaso", 5: "osIssSsIso", 6: ".osSllSso.", 7: "..olsslo.." },
         pensive:     { 4: "ossessseso", 6: ".osssllso." },
-        skyward:     { 3: "osiessieso", 4: "osssssssso", 5: "osbssSsqso", 6: ".ossddsso." },
+        skyward:     { 3: "osiessieso", 4: "osssssssso", 5: "osbssSsIso", 6: ".ossddsso." },
+        /* singing a sad song: sadsing (lids low, the mouth softly open),
+           belt (eyes shut, brows up, the mouth wide open), hum (eyes
+           shut, brows up, the lips closed small), teary (singing, eyes
+           glistening, a tear on her cheek) */
+        sadsing:     { 2: "ossrssrsso", 3: "osssssssso", 4: "osaassaaso", 5: "oseesSeeso", 6: ".ossddsso.", 7: "..osllso.." },
+        belt:        { 1: ".osrssrso.", 2: "osrssssrso", 3: "osssssssso", 4: "osaassaaso", 5: "osbssSsbso", 6: ".osddddso.", 7: "..osddso.." },
+        hum:         { 2: "ossrssrsso", 3: "osssssssso", 4: "osaassaaso", 5: "osbssSsbso", 6: ".osssssso.", 7: "..osllso.." },
+        teary:       { 2: "ossrssrsso", 5: "osbssSsIso", 6: ".ossddsso.", 7: "..osllso.." },
     };
-    const SAD_FACES = ['sad', 'heartbroken', 'pensive'];
+    const SAD_FACES = ['sad', 'heartbroken', 'pensive', 'sadsing', 'belt', 'hum', 'teary'];
     function faceRows(face) {
         const swap = FACE_ROWS[face] || FACE_ROWS.smile;
         return FACE.map((r, i) => swap[i] || r);
@@ -559,6 +664,128 @@
             "..ommmmmmo..",
             "..omMmmMmo..",
         ],
+        /* a blouse with a round collar (A) and a ribbon tie (z), tucked
+           into high-waisted shorts (m = the shorts) with two gold buttons */
+        blouse: [
+            "....oAAo....",
+            ".ouAAzzAAuo.",
+            "owwwwzzwwwwo",
+            "owwwzwwzwwwo",
+            "owwwwWWwwwwo",
+            ".oWWWWWWWWo.",
+            "..omYmmYmo..",
+            "..ommmmmmo..",
+        ],
+        /* an open cardigan over a camisole (A), pearl buttons (Y) */
+        cardigan: [
+            "....osso....",
+            ".ouuoAAouuo.",
+            "owwwAAAAwwwo",
+            "owwwAAAAwwwo",
+            "owwWAAAAWwwo",
+            ".oWYAAAAYWo.",
+            "..omAAAAmo..",
+            "..oYAAAAYo..",
+        ],
+        /* thin straps, lace (A) on the neckline */
+        slip: [
+            "....osso....",
+            ".oswsssswso.",
+            "oAwAwAAwAwAo",
+            "owwwwwwwwwwo",
+            "owwwwWWwwwwo",
+            ".oWWWWWWWWo.",
+            "..ommmmmmo..",
+            "..omMmmMmo..",
+        ],
+        /* a sports jersey: a V-neck trimmed in the stripe colour (A), a number (q) */
+        jersey: [
+            "....osso....",
+            ".ouuAssAuuo.",
+            "owwwwAAwwwwo",
+            "owwwqqqwwwwo",
+            "owwwwwqWwwwo",
+            ".oWWWqWWWWo.",
+            "..ommqmmmo..",
+            "..oAAAAAAo..",
+        ],
+        /* a puffer vest, quilted (W), a stand collar, a zip; sleeves (v) are the top under it */
+        puffer: [
+            "...oWwwWo...",
+            ".ouuuWWuuuo.",
+            "owwwwwWwwwwo",
+            "oWWWWWWWWWWo",
+            "owwwwwWwwwwo",
+            ".oWWWWWWWWo.",
+            "..owwwWwwo..",
+            "..oWWWWWWo..",
+        ],
+        /* off the shoulder, a rolled knit neckline (W), ribbing low down */
+        sweater: [
+            "....osso....",
+            ".osssssssso.",
+            "oWwWwWwWwWwo",
+            "owwwwwwwwwwo",
+            "owwwwWWwwwwo",
+            ".oWwwwwwwWo.",
+            "..owWwwWwo..",
+            "..owWwwWwo..",
+        ],
+        /* a stage jacket: epaulettes and a belt (A), two rows of gold buttons (Y) */
+        stage: [
+            "....oAAo....",
+            ".oAAuAAuAAo.",
+            "owwwYwwYwwwo",
+            "owwwwwwwwwwo",
+            "owwwYWWYwwwo",
+            ".oWWWWWWWWo.",
+            "..oAAAAAAo..",
+            "..omMmmMmo..",
+        ],
+        /* a white blouse, a tartan sash (k F) from her left shoulder, a silver brooch (A) */
+        tartan: [
+            "....osso....",
+            ".ouuuuukAko.",
+            "owwwwwkFkkwo",
+            "owwwwkFkkwwo",
+            "owwwkFkkWwwo",
+            ".oWkFkkWWWo.",
+            "..oFkkmmmo..",
+            "..okkmmMmo..",
+        ],
+        /* a white blouse, a laced bodice (R, Y lacing) */
+        folkdrakt: [
+            "....osso....",
+            ".ouuuuuuuuo.",
+            "owwwwwwwwwwo",
+            "oRRwwwwwwRRo",
+            "oRRRwYYwRRRo",
+            ".oRRRYYRRRo.",
+            "..oRYRRYRo..",
+            "..oRRYYRRo..",
+        ],
+        /* a flowered dress (E), the apron's ties (A) at the waist */
+        cueca: [
+            "....osso....",
+            ".ouuUuuUuuo.",
+            "owEwwwwwwEwo",
+            "owwwEwwEwwwo",
+            "owwWwwwwWwwo",
+            ".oWwEwwEwWo.",
+            "..oAAAAAAo..",
+            "..owEwwEwo..",
+        ],
+        /* Breton stripes (F), a knotted neckerchief (R) */
+        mariniere: [
+            "....oRRo....",
+            ".owwRRRRwwo.",
+            "oFFFFRRFFFFo",
+            "owwwwwwwwwwo",
+            "oFFFFFFFFFFo",
+            ".owwwwwwwwo.",
+            "..oFFFFFFo..",
+            "..owwwwwwo..",
+        ],
     };
     CHEST.furisode = CHEST.yukata;
     const CHEST_BACK = {
@@ -831,6 +1058,112 @@
             ".k.k.k.k.k..",
         ]],
     };
+    /* her everyday skirts and the like */
+    /* the cardigan's mini: an A-line to mid-thigh */
+    HIPS.cardigan = [4, [
+        ".oKkkkkkkKo.",
+        ".okkkkkkkko.",
+        "okkKkkkkKkko",
+        "okKkkkkkkKko",
+        "oKkkkkkkkkKo",
+        "oooooooooooo",
+    ]];
+    /* the slip dress to mid-thigh, a lace hem (A) */
+    HIPS.slip = [4, [
+        ".okkkkkkkko.",
+        ".okkkkkkkKo.",
+        ".okkkkkkkKo.",
+        "okkkkkkkkKko",
+        "oAkAkAAkAkAo",
+        "oooooooooooo",
+    ]];
+    HIPS.jersey = HIPS.pleats;
+    /* cargo pants: a belt (a) with a buckle (Y) */
+    HIPS.cargo = [5, [
+        "oaaaYYaaao",
+        "okkkkKkkko",
+        "okkkkKkkko",
+        "okkkkkkkko",
+    ]];
+    /* the puffer vest down over the hips, joggers under it */
+    HIPS.puffer = [4, [
+        "owwwwwwwwwwo",
+        "oWWWWWWWWWWo",
+        ".okkkkkkkko.",
+        ".okkkkkkkko.",
+    ]];
+    /* the knit dress to mid-thigh, a ribbed hem (K) */
+    HIPS.sweater = [4, [
+        ".okKkkkkKko.",
+        ".okKkkkkKko.",
+        "okkKkkkkKkko",
+        "okkKkkkkKkko",
+        "oKKKKKKKKKKo",
+        "oooooooooooo",
+    ]];
+    /* the stage skirt: tiered, a frill (A) between the tiers and at the hem */
+    HIPS.stage = [3, [
+        "..oKkkkkkkKo..",
+        "..okkkkkkkko..",
+        ".okkKkkkkKkko.",
+        ".oAAAAAAAAAAo.",
+        "okkKkkKKkkKkko",
+        "oAkAkAkAkAkAko",
+        "oooooooooooooo",
+    ]];
+    /* a long tartan skirt to the ankles: dark bands (F) and a fine line (Q) */
+    HIPS.tartan = [4, (function () {
+        const out = [];
+        for (let i = 0; i < 11; i++) {
+            let s = '';
+            for (let c = 0; c < 12; c++) {
+                const edge = i < 2 ? (c === 1 || c === 10) : (c === 0 || c === 11);
+                if (i < 2 && (c === 0 || c === 11)) s += '.';
+                else if (i === 10 || edge) s += 'o';
+                else {
+                    const vx = c % 4 === 1, hy = i % 4 === 2, fx = c % 4 === 3;
+                    s += vx && hy ? 'K' : vx || hy ? 'F' : fx ? 'Q' : 'k';
+                }
+            }
+            out.push(s);
+        }
+        return out;
+    })()];
+    /* a long skirt (k) to the ankles, a striped apron (A F Q) */
+    HIPS.folkdrakt = [4, [
+        ".okFAQAFAko.",
+        ".okFAQAFAko.",
+        ".okFAQAFAko.",
+        "okkFAQAFAkko",
+        "okkFAQAFAkko",
+        "okKFAQAFAKko",
+        "okKFAQAFAKko",
+        "okkFAQAFAkko",
+        "okkooooooKko",
+        "okKkkkkkkKko",
+        "oooooooooooo",
+    ]];
+    /* a full flowered skirt to mid-calf, the white apron (A) with a lace edge, a ruffle */
+    HIPS.cueca = [2, [
+        "...okAAAAAAko...",
+        "..okkAAAAAAkko..",
+        "..okEAAAAAAEko..",
+        ".okkkAAAAAAkkko.",
+        ".okEkAAAAAAkEko.",
+        "okkkkAAAAAAkkkko",
+        "okEkkAkAkAkAkEko",
+        "oKkKkKkKkKkKkKko",
+        "oooooooooooooooo",
+    ]];
+    /* a skirt to the knee */
+    HIPS.mariniere = [4, [
+        ".okkkkkkkko.",
+        ".okkkkkkkko.",
+        "okkKkkkkKkko",
+        "okKkkkkkkKko",
+        "okKkkkkkkKko",
+        "oooooooooooo",
+    ]];
     HIPS.furisode = HIPS.yukata;
     const HIPS_BACK = {
         base: [5, [
@@ -898,13 +1231,37 @@
         flamenca: [".ovv", "ovvv", "ovEv", "ovvv", "ozzz", "osso", "osso", "osSo", "osso", ".oo."],
         /* gold arm cuffs */
         carnival: [".ouu", "ouUu", "osso", "oYYo", "osso", "osSo", "osso", "oYYo", "osso", ".oo."],
+        /* puffed short sleeves */
+        blouse: [".ovv", "ovvv", "oVvV", "osso", "osso", "osSo", "osso", "osSo", "osso", ".oo."],
+        /* sleeves to the wrist */
+        cardigan: [".ovv", "ovvv", "ovVv", "ovvv", "ovvv", "ovVv", "ovvv", "oVVV", "osso", ".oo."],
+        /* short sleeves with a stripe (A) */
+        jersey: [".ovv", "ovvv", "oAAA", "osso", "osso", "osSo", "osso", "osSo", "osso", ".oo."],
+        /* the vest's armhole (u) over a long sleeve (v) */
+        puffer: [".ouu", "ouvv", "ovVv", "ovvv", "ovvv", "ovVv", "ovvv", "oVVV", "osso", ".oo."],
+        /* a bare shoulder, then a long slouchy sleeve */
+        sweater: [".oss", "ovvv", "ovVv", "ovvv", "ovVv", "ovvv", "ovVv", "oVVV", "osso", ".oo."],
+        /* puffed sleeves (A trim), white cuffs */
+        stage: [".oAv", "ovvv", "oAAA", "osso", "osso", "osSo", "osso", "oAAo", "osso", ".oo."],
+        /* Breton stripes to below the elbow */
+        mariniere: [".ovv", "oFFF", "ovvv", "oFFF", "ovvv", "oFFF", "osso", "osSo", "osso", ".oo."],
     };
+    ARMS.tartan = ARMS.folkdrakt = ARMS.cardigan;
+    ARMS.cueca = ARMS.folk;
     /* legs, 6 wide at x 4 (mirrored at x 10) from y 20 */
     const LEGS = [
         ".ottTo", ".ottTo", ".ottTo", "..otTo",
         "..ojjo", "..oNjo", "..oNNo", "..oNNo",
         "onnnno", "oggGgo",
     ];
+    /* per shape: cargo pants, a pocket (D) on the thigh, wide at the ankle */
+    const LEGS_BY = {
+        cargo: [
+            ".ottTo", ".oDDTo", ".oDDTo", "..otTo",
+            "..ojjo", "..ojJo", "..ojjo", ".oJJJo",
+            "onnnno", "oggGgo",
+        ],
+    };
 
     /* ── Head pieces for the national outfits: [y0, rows 18 wide at x 1],
        drawn over the hair (mirrored from behind). cover: true wears the
@@ -983,6 +1340,14 @@
             "..oQFFFFFFFFFFQo..",
             "..oFFFQFFFFQFFFo..",
         ], true],
+        /* a beret (O), worn tilted */
+        beret: [-4, [
+            "..........oo......",
+            "....oooooooOoo....",
+            "..ooOOOOOOOOOOoo..",
+            ".oOOOOOOOOOOOOOOo.",
+            "..ooOOOOOOOOOOooo.",
+        ], true],
     };
     const DOWN = { ponytail: 'long', buns: 'long', halfup: 'long' };
 
@@ -1002,6 +1367,9 @@
         /* the arms: a bangle on the wrist now and then */
         const arm = (ARMS[shape] || ARMS.base).slice();
         if (v.bangle && arm[7] === 'osSo') arm[7] = 'ozzo';
+        const legs = LEGS_BY[shape] || LEGS;
+        /* the cueca's white handkerchief, in her right hand (viewer's left) */
+        const hanky = shape === 'cueca' ? K.pix(["AA.", "AAA", ".AA"], 1, 18, col) : '';
 
         let head, chest, hips;
         if (back) {
@@ -1033,11 +1401,11 @@
             hips = K.pix(hp[1], hp[0], 17, col);
         }
         return {
-            legL: K.pix(LEGS, 4, 20, col),
-            legR: K.pix(K.mirror(LEGS), 10, 20, col),
+            legL: K.pix(legs, 4, 20, col),
+            legR: K.pix(K.mirror(legs), 10, 20, col),
             hips: hips,
             chest: chest,
-            armL: K.pix(arm, 2, 10, col),
+            armL: K.pix(arm, 2, 10, col) + hanky,
             armR: K.pix(K.mirror(arm), 14, 10, col),
             head: head,
         };
@@ -1049,7 +1417,30 @@
     const LONG = { hime: 1, long: 1, halfup: 1 };
     const boot = runs => runs.map(r => [r[0], r[1], r[2].replace(/j/g, 'N')]);   /* N: boot shafts, else shins */
     /* her mini skirts on the posed bodies: pleats, or the qipao's fitted one with its gold hem */
-    const MINI = { pleats: { skirt: 'pleat' }, qipao: { skirt: 'knee', hem: 'z' } };
+    const MINI = {
+        pleats: { skirt: 'pleat' }, qipao: { skirt: 'knee', hem: 'z' },
+        cardigan: { skirt: 'knee' }, slip: { skirt: 'knee', hem: 'A' }, jersey: { skirt: 'pleat' },
+        sweater: { skirt: 'knee', hem: 'K' }, stage: { skirt: 'pleat', hem: 'A' },
+    };
+    /* sleeves on the posed bodies' arms (rows from y `first`: 12 from
+       behind, 11 from the side): long ones to the wrist, off the
+       shoulder, a vest's armhole, a stripe or trim */
+    function sleeveRuns(arm, o, first) {
+        return arm.map(x => {
+            const y = x[0] - first;
+            let s = x[2];
+            if (o.long && y >= 2 && y <= 9) s = y === 9 ? 'oVVo' : 'ovvo';
+            if (o.off && y === 0) s = 'osso';
+            if (o.shape === 'puffer' && y === 0) s = 'ouuo';
+            if ((o.shape === 'jersey' || o.shape === 'stage') && y === 1) s = 'oAAo';
+            return [x[0], x[1], s];
+        });
+    }
+    /* expressions on the three-quarter peek (look): which shut the eye,
+       open the mouth, shed a tear */
+    const LOOK_SHUT = { joy: 1, laugh: 1, heartbroken: 1, belt: 1, hum: 1 };
+    const LOOK_OPEN = { sing: 1, laugh: 1, sadsing: 1, belt: 1, teary: 1, skyward: 1 };
+    const LOOK_TEAR = { heartbroken: 1, teary: 1, skyward: 1 };
 
     /* From behind, bent over (the posed twerk): her hair from behind;
        look = the three-quarter peek over her shoulder, a lashed eye, a
@@ -1065,11 +1456,11 @@
         if (look) {
             const at = (y, x) => head.find(h => h[0] === y && h[1] === x);
             const eye = at(7, 4), cheek = at(8, 4), lips = at(9, 5);
-            if (face === 'joy' || face === 'laugh') eye[2] = 'oa' + eye[2].slice(2);
+            if (LOOK_SHUT[face]) eye[2] = 'oa' + eye[2].slice(2);
             else eye[2] = 'ae' + eye[2].slice(2);
             head.push([6, 4, 'a']);
-            if (cheek) cheek[2] = 'osb' + cheek[2].slice(3);
-            if (lips && (face === 'sing' || face === 'laugh')) lips[2] = 'od' + lips[2].slice(2);
+            if (cheek) cheek[2] = (LOOK_TEAR[face] ? 'oIb' : 'osb') + cheek[2].slice(3);
+            if (lips && LOOK_OPEN[face]) lips[2] = 'od' + lips[2].slice(2);
             /* lola's earring → hers (only with her hair up) */
             head = head.filter(h => !(h[0] === 8 && h[1] === 14));
             if (v.earring !== 'none' && { ponytail: 1, buns: 1 }[v.hair]) head.push([8, 14, 'p']);
@@ -1104,12 +1495,21 @@
                 break;
         }
         const d = MINI[shape];
+        const oe = Object.assign({ shape: shape }, OUTFITS[of.name] || {});
+        let chest = r.chest;
+        const setRow = (y, x, str) => { chest = chest.filter(c => c[0] !== y).concat([[y, x, str]]); };
         if (d) hips = K.skirtRuns(d, 17, true);
-        if (shape === 'oversize') hips = hips.concat([[17, 4, 'owwwwwwwwwwo'], [18, 4, 'oWWWWWWWWWWo']]);
-        if (v.bangle) armL = armL.map(x => (x[0] === 20 ? [x[0], x[1], 'ozzo'] : x));
+        if (shape === 'oversize' || shape === 'puffer') hips = hips.concat([[17, 4, 'owwwwwwwwwwo'], [18, 4, 'oWWWWWWWWWWo']]);
+        armL = sleeveRuns(armL, oe, 12);
+        if (shape === 'slip') setRow(12, 5, 'oswsssswso');                     /* her straps */
+        if (shape === 'puffer') setRow(14, 4, 'oWWWWWWWWWWo');                 /* quilting */
+        if (shape === 'jersey') { setRow(13, 4, 'owwwqqqqwwwo'); setRow(14, 4, 'owwwwwqqwwwo'); setRow(15, 5, 'oWWWqqWWWo'); }   /* her number */
+        if (shape === 'cargo') legL = legL.map(x => (x[0] === 24 ? [x[0], x[1], 'oDDto'] : x));   /* a pocket */
+        if (shape === 'stage') armL = armL.map(x => (x[0] === 20 ? [x[0], x[1], 'oAAo'] : x));   /* white cuffs */
+        else if (v.bangle && !oe.long) armL = armL.map(x => (x[0] === 20 ? [x[0], x[1], 'ozzo'] : x));
         return {
             head: K.spec(head, col), hairBack: K.spec(behind, col),
-            chest: K.spec(r.chest, col), hips: K.spec(hips, col),
+            chest: K.spec(chest, col), hips: K.spec(hips, col),
             legL: K.spec(legL, col), legR: K.spec(K.mirrorRuns(legL), col),
             armL: K.spec(armL, col), armR: K.spec(K.mirrorRuns(armL), col),
         };
@@ -1133,12 +1533,22 @@
             leg = leg.filter(x => x[0] > end); far = far.filter(x => x[0] > end);
         }
         if (shape === 'qipao') chest.forEach(x => { if (x[0] === 11) x[2] = 'ozzzzo'; });   /* the mandarin collar */
-        if (shape === 'oversize') {
-            /* the boxy tee hangs over the top of her hips, a print on the chest */
+        if (shape === 'oversize' || shape === 'puffer') {
+            /* the boxy tee (the vest) hangs over the top of her hips */
             hips = hips.concat([[17, 4, 'owwwwwo'], [18, 3, 'oWWWWWo']]);
-            chest = chest.concat([[13, 15, 'qq'], [14, 15, 'qq']]);
         }
-        if (v.bangle) arm = arm.map(x => (x[0] === 21 ? [x[0], x[1], 'ozzo'] : x));
+        if (shape === 'oversize') chest = chest.concat([[13, 15, 'qq'], [14, 15, 'qq']]);   /* a print on the chest */
+        const oe = Object.assign({ shape: shape }, OUTFITS[of.name] || {});
+        arm = sleeveRuns(arm, oe, 11);
+        const setRow = (y, x, str) => chest.forEach(c => { if (c[0] === y && c[1] === x) c[2] = str; });
+        if (shape === 'slip') setRow(11, 13, 'oswsso');                 /* her strap */
+        if (shape === 'puffer') { setRow(10, 15, 'oWo'); setRow(14, 10, 'oWWWWWWWWWWo'); }   /* the collar, quilting */
+        if (shape === 'jersey') chest = chest.concat([[14, 16, 'q'], [15, 15, 'qq']]);
+        if (shape === 'stage') chest = chest.concat([[14, 17, 'Y'], [16, 14, 'AAAA']]);
+        if (shape === 'blouse') setRow(11, 13, 'ouzzuo');                /* the ribbon */
+        if (shape === 'cardigan') chest = chest.concat([[13, 18, 'A'], [14, 17, 'AA'], [15, 17, 'AA']]);   /* the camisole */
+        if (shape === 'cargo') leg = leg.map(x => (x[0] === 22 ? [x[0], x[1], 'otDDtTo'] : x));   /* a pocket */
+        if (v.bangle && !oe.long) arm = arm.map(x => (x[0] === 21 ? [x[0], x[1], 'ozzo'] : x));
 
         const acc = ACC[HEADWEAR[of.name]];
         const hair = hairLayers(acc && acc[2] && DOWN[v.hair] ? DOWN[v.hair] : v.hair);

@@ -7,9 +7,14 @@
  * bun, slick back, a cap or a beanie now and then), a hair colour, maybe
  * stubble, a goatee or a beard, and an outfit he swaps while he dances
  * (restyle): tee + jeans, tank + shorts, hoodie + joggers, button shirt +
- * chinos, a tracksuit, swim shorts (shirtless), or the "matrix" look — all
- * black, high collar, boots and dark shades (shades turn up now and then
- * with the other outfits too).
+ * chinos, a tracksuit, swim shorts (shirtless), a denim jacket over a tee,
+ * a varsity jacket, a bomber + cargo trousers, an open-collared suit,
+ * dungarees, a linen beach shirt + shorts, a basketball jersey set, a biker
+ * leather jacket, a flannel in a plaid, or the "matrix" look — all black,
+ * high collar, boots and dark shades (shades turn up now and then with the
+ * other outfits too). Patterns (plaid, buffalo check, pinstripe, poncho
+ * bands) go through remap() by figure position, so they line up across
+ * chest, arms and legs in every view.
  *
  * To a song from some countries he may dress for it (national outfits,
  * countries: [...], worn ~45% of the time there, never elsewhere): a
@@ -18,11 +23,18 @@
  * aloha shirt (+ lei), a traje corto (+ cordobés), a gaucho's vest and
  * rastra (+ boina), Colombian whites (+ sombrero vueltiao), a liqui liqui,
  * a guayabera (+ straw hat), a mod suit, a samba malandro's white suit,
- * a lopapeysa / Nordic knit, a marinière. Respectful, no costumes-as-jokes.
+ * a lopapeysa / Nordic knit, a marinière, the Australian stockman (+ a
+ * felt hat), a Canadian mackinaw (+ toque), the Polish krakowiak (+ the
+ * krakuska), the Chilean huaso's chamanto (+ chupalla), an Andean poncho
+ * (+ chullo) for Bolivia. Respectful, no costumes-as-jokes; national dress
+ * is never twerked in (dancer.js).
  *
  * Expressions (v.face, all positive): smile, grin, joy (^ ^ eyes), wink,
- * sing, laugh, cool (shades on, a smirk). Faces are row swaps of FACE; the
- * beard letters stay around an open mouth.
+ * sing, laugh, cool (shades on, a smirk). Sad ones (melancholic songs,
+ * sadFaces): sad, heartbroken, pensive, and singing sadly — sadsing, belt
+ * (eyes shut, wide open), hum (eyes closed), teary (tears, mouth open).
+ * Faces are row swaps of FACE; the beard letters stay around an open
+ * mouth; under shades a sad face keeps its raised brows.
  *
  * Views: front; back (the posed twerk from behind: wide squat, hands on
  * the knees, hips nearest us, a seat under the hips so nothing opens up
@@ -33,7 +45,7 @@
  *
  * His letters (his own palette, built in palette(v)):
  *   o outline   s S skin   e eyes   B brows   m mouth   z Z beard (jaw, chin)
- *   k teeth   O open mouth
+ *   k teeth   O open mouth   l a tear (sad faces)
  *   G Y shades (lens, glint)   h H hair   f fade (hair into skin)
  *   E the hair low at the back   q Q cap / beanie / hat   y hat band
  *   X a detail (button, zip, logo, hair tie)   u U shoulders   c C x torso
@@ -82,6 +94,31 @@
     /* the first letter inside the outline (the outer edge of a left limb) */
     const edge = (r, ch) => put(r, str(r).replace(/o[^o.]/, 'o' + ch));
     const mapRows = (rows, idx, fn) => rows.map((r, i) => idx.indexOf(i) >= 0 ? fn(r, i) : r);
+    /* every letter through fn(ch, x, y) at its place in the figure: rows
+       of letters start at (x0, y0); [y, x, 'run']s carry their own place.
+       Patterns (a plaid, a check, a pinstripe) line up across the parts. */
+    const remap = (rows, x0, y0, fn) => rows.map((r, j) => Array.isArray(r)
+        ? [r[0], r[1], r[2].split('').map((ch, i) => fn(ch, r[1] + i, r[0])).join('')]
+        : r.split('').map((ch, i) => fn(ch, x0 + i, y0 + j)).join(''));
+    const CLOTH = /[cCuUvVwW]/;
+    /* a flannel plaid: a line every 3rd row and column (2), darker where
+       they cross (1) */
+    const plaid = (ch, x, y) => {
+        if (!CLOTH.test(ch)) return ch;
+        const a = x % 3 === 0, b = y % 3 === 0;
+        return a && b ? '1' : a || b ? '2' : ch;
+    };
+    /* a buffalo check in 2×2 blocks: black where both bands cross */
+    const buffalo = (ch, x, y) => {
+        if (!CLOTH.test(ch)) return ch;
+        const a = (x >> 1) & 1, b = (y >> 1) & 1;
+        return a && b ? '1' : a || b ? '2' : ch;
+    };
+    /* the krakowiak's trousers: a red pinstripe on every other column */
+    /* the poncho's woven bands down both sides (x 5–6, 13–14) */
+    const ponchoBands = (ch, x, y) => !/[cCuU]/.test(ch) ? ch
+        : x === 5 || x === 14 ? (y % 2 ? '1' : '2') : x === 6 || x === 13 ? (y % 2 ? '2' : '1') : ch;
+    const pin = (ch, x) => /[patT]/.test(ch) && x % 3 === 0 ? '2' : ch;
 
     /* His outfits (w = weight). top/bottom: colours to pick from ('same' =
        the top's); accent: stripe / print / sneaker / trim colours. Regions:
@@ -121,6 +158,119 @@
                   thigh: 1, shoes: ['sandals', 'bare'] },
         matrix: { w: 1, body: 'agent', top: ['#16181c'], bottom: ['#16181c'], upper: 1, sleeve: 1, long: 1, thigh: 1, knee: 1,
                   shin: 1, belt: 1, shoes: ['boots'], shades: 1 },
+        /* a denim jacket open over a tee (flap pockets, copper buttons,
+           tan stitching), jeans or chinos */
+        denim:  { w: 2, body: 'denim', top: ['#4a6a9a', '#5a7ab0', '#2c3e5c', '#8aa4c8', '#26262c'],
+                  bottom: ['#2c3e5c', '#3b5b8c', '#2a2a30', '#c8b08a'], upper: 1, sleeve: 1, long: 1, thigh: 1, knee: 1, shin: 1,
+                  belt: 1, pockets: 1, shoes: ['sneakers', 'boots', 'hightops'], accent: ['#f4f4f8', '#1c1c22', '#c83a3a', '#8a8a94'],
+                  paint: (P, of, T) => {
+                      P[4] = of.accent === of.top ? '#f4f4f8' : of.accent; P[5] = T[0];
+                      P.d = mix(of.top, '#d8a860', 0.4); P.X = '#c8843a';
+                  },
+                  arm: rows => mapRows(rows, [8], r => put(r, 'o5d5o')),
+                  back: r => { r[3] = 'oddddddddddddo'; r[8] = '.oddddddddddo.'; return r; },
+                  pose: runs => mapRows(runs, [2, 5], (r, i) => put(r, i === 2 ? 'oddddddddddddo' : 'oddddddddo')),
+                  side: ch => ch.concat([[13, 10, 'dddddddddddd'], [17, 7, 'ddddddddd'], [12, 16, '44']]) },
+        /* a varsity jacket: wool body, cream leather sleeves, striped rib
+           knit at the collar, cuffs and hem, a plain chenille patch */
+        varsity: { w: 2, body: 'varsity', top: ['#7a1a2a', '#1c2a5a', '#2a5a3a', '#1c1c22', '#5a2a7a', '#c8302a'],
+                  bottom: ['#3b5b8c', '#2c3e5c', '#2a2a30', '#c8b08a'], upper: 1, sleeve: 1, long: 1, thigh: 1, knee: 1, shin: 1,
+                  belt: 1, pockets: 1, shoes: ['sneakers', 'hightops'], accent: ['#f0c040', '#ece4d0'],
+                  paint: (P, of, T) => {
+                      const cream = '#ece4d0', cs = shade(cream, 0.86);
+                      P.u = cream; P.U = cs; P.v = cream; P.V = cs; P.w = cream; P.W = cs;
+                      P.d = T[0]; P[1] = of.accent; P[2] = of.accent; P[4] = '#f4f4f8'; P.X = '#d8d8e0';
+                  },
+                  arm: rows => mapRows(rows, [8], r => put(r, 'od1do')),
+                  back: r => { r[0] = '....o1dd1o....'; r[7] = '.o1111111111o.'; r[8] = '.oddddddddddo.'; return r; },
+                  pose: runs => mapRows(runs, [0, 4, 5], (r, i) => put(r, i === 0 ? 'o1dddd1o' : i === 4 ? 'o1111111111o' : 'oddddddddo')),
+                  side: ch => ch.concat([[16, 7, '11111111111'], [17, 7, 'ddddddddd']]) },
+        /* a bomber (rib collar, cuffs and hem, a zip, the sleeve pocket)
+           over cargo trousers with thigh pockets */
+        bomber: { w: 2, body: 'bomber', top: ['#4a5a3a', '#1c1c22', '#1c2a44', '#6a1a22', '#8a8a7a', '#c8a070'],
+                  bottom: ['#5a6a3a', '#2a2a30', '#8a8a7a', '#c8b08a', '#3a3a42'], upper: 1, sleeve: 1, long: 1, thigh: 1, knee: 1, shin: 1,
+                  belt: 1, pockets: 1, shoes: ['boots', 'sneakers', 'hightops'],
+                  paint: (P, of) => {
+                      const dark = K.clothShades(of.top)[0] === shade(of.top, 1.12);
+                      P.d = shade(of.top, dark ? 1.35 : 0.78); P[5] = shade(of.top, dark ? 1.2 : 0.86); P.X = '#b8b8c4';
+                  },
+                  arm: (rows, pose) => mapRows(rows, pose ? [1, 2, 8] : [2, 3, 8], (r, i) => i === 8 ? put(r, 'odddo') : put(r, 'o55' + str(r).slice(3))),
+                  leg: (rows, pose) => mapRows(rows, [1, 2], r => put(r, 'oKK' + str(r).slice(3))),
+                  back: r => { r[0] = '....oddddo....'; r[7] = '.oddddddddddo.'; r[8] = '.oddddddddddo.'; return r; },
+                  pose: runs => mapRows(runs, [0, 4, 5], (r, i) => put(r, i === 0 ? 'oddddddo' : i === 4 ? 'oddddddddddo' : 'oddddddddo')),
+                  side: ch => ch.concat([[11, 13, 'oddddddo'], [16, 7, 'ddddddddddd'], [17, 7, 'ddddddddd'], [14, 19, 'X'], [15, 18, 'X']]),
+                  sideLeg: leg => mapRows(leg, [1, 2], r => put(r, str(r).slice(0, 2) + 'KKK' + str(r).slice(5))) },
+        /* a suit worn open-collared: no tie, the shirt open at the neck, a
+           pocket square */
+        opensuit: { w: 2, body: 'opensuit', top: ['#2a2a30', '#3a3e48', '#c8b08a', '#5a6a8a', '#7a3a3a', '#e8e4dc', '#2a4a3a'],
+                  bottom: 'same', upper: 1, sleeve: 1, long: 1, thigh: 1, knee: 1, shin: 1, shoes: ['loafers', 'loafers', 'sneakers'],
+                  accent: ['#f4f4f0', '#a8c8ec', '#1c1c22', '#e8d0d8'],
+                  paint: (P, of, T) => {
+                      P[4] = of.accent === of.top ? '#f4f4f0' : of.accent; P.d = T[1]; P.X = T[1]; P.K = of.top;
+                      P[1] = of.top === '#e8e4dc' || of.top === '#c8b08a' ? '#c8302a' : '#f4f4f0';
+                  },
+                  arm: rows => mapRows(rows, [8], r => put(r, 'o444o')),
+                  back: r => { r[0] = '....oC44Co....'; return r; },
+                  pose: runs => mapRows(runs, [0], r => put(r, 'oCC44CCo')),
+                  side: ch => ch.concat([[11, 14, '44'], [12, 16, '4d'], [13, 17, 'd']]) },
+        /* dungarees over a tee: straps, brass buttons, a bib pocket */
+        overalls: { w: 1, body: 'overalls', top: ['#f4f4f8', '#c83a3a', '#1c1c22', '#f0c030', '#8a8a94', '#2a6a9a'],
+                  bottom: ['#3b5b8c', '#5a7ab0', '#c8b08a', '#2a2a30', '#5a6a3a'], upper: 1, sleeve: 1, thigh: 1, knee: 1, shin: 1,
+                  cuff: 1, pockets: 1, shoes: ['sneakers', 'boots', 'hightops'],
+                  paint: (P, of, T, B) => { P[5] = B[0]; P.X = '#c8a850'; P.d = T[0]; },
+                  hipsF: ['oppppppppppo', 'opppppPppppo', 'opppppPpppPo', 'oppppppppppo'],
+                  hipsB: ['oppppppppppo', 'opKKKppKKKpo', 'opKKKDpKKKpo', 'oPpppDppppPo'],
+                  back: r => { r[2] = 'ouuu5uuuu5uuUo'; r[3] = 'occcc5cc5cccCo'; r[4] = 'occccc55ccccCo'; r[5] = 'occcc5cc5cccCo';
+                               r[6] = '.occpppppPcCo.'; r[7] = '.oXpppppppPXo.'; r[8] = '.oppppppppPPo.'; return r; },
+                  pose: runs => mapRows(runs, [1, 2, 3, 4, 5], (r, i) => put(r, ['', 'ouuu5uuuu5uuuo', 'occcc5CC5ccCCo', 'occcc55cccCo',
+                                                                                  'occppppppPPo', 'oppppppppo'][i])),
+                  poseHips: runs => mapRows(runs, [0], r => put(r, 'oppppppppo')),
+                  side: ch => ch.concat([[12, 15, '5'], [13, 14, '5'], [14, 13, '5'], [15, 12, '5'], [16, 7, 'ppppppppppp'], [17, 7, 'PPPPPPPPP'],
+                                         [15, 17, 'pp'], [14, 18, 'pp'], [13, 19, 'Xp']]) },
+        /* a loose linen beach shirt, open at the neck, sleeves rolled, over
+           shorts */
+        linen:  { w: 2, body: 'linen', top: ['#f4f0e6', '#e8dcc0', '#a8c8ec', '#c8dcb8', '#f0c8b0', '#f4f4f8'],
+                  bottom: ['#e8dcc0', '#2a3a5a', '#f4f4f0', '#8a9a6a', '#c8b08a'], upper: 1, sleeve: 1, thigh: 1,
+                  shoes: ['sandals', 'sandals', 'loafers', 'sneakers'],
+                  paint: (P, of, T) => { P.d = T[0]; P.X = T[1]; },
+                  arm: (rows, pose) => mapRows(rows, [pose ? 2 : 3], r => put(r, 'odddo')),
+                  side: ch => ch.concat([[12, 16, 'ds'], [13, 17, 'd'], [15, 17, 'X']]) },
+        /* a basketball jersey (trimmed neck and armholes, a number front
+           and back) with long shorts and high socks */
+        jersey: { w: 1, body: 'jersey', top: ['#c8302a', '#2a4a9a', '#f4f4f8', '#5a2a8a', '#1c7a4a', '#f0a020', '#1c1c22'],
+                  bottom: 'same', thigh: 1, knee: 1, shoes: ['hightops', 'sneakers'], accent: ['#f4f4f8', '#1c1c22', '#f0c040'],
+                  paint: (P, of) => { P.d = P[1] = of.accent === of.top ? (of.top === '#f4f4f8' ? '#c8302a' : '#f4f4f8') : of.accent; },
+                  leg: rows => mapRows(rows, [0, 1, 2], r => edge(r, '1')),
+                  back: r => { r[0] = '....osssso....'; r[1] = '.oudccccccduo.'; r[2] = 'ouudccccccduUo'; r[3] = 'ouudc1c111dcUo';
+                               r[4] = 'occcc1ccc1ccCo'; r[5] = 'occcc1cc1cccCo'; return r; },
+                  pose: runs => mapRows(runs, [1, 2, 3], (r, i) => put(r, ['', 'ouudccccccduuo', 'ouudc1c111duuo', 'occ1ccc1ccCo'][i])),
+                  side: ch => ch.concat([[11, 13, 'osdcdsso'], [12, 11, 'ossdcccdssso']]) },
+        /* a biker leather jacket: wide lapels, an off-centre zip, a belt at
+           the hem, a shine; a tee under, dark jeans, boots */
+        leather: { w: 2, body: 'leather', top: ['#1c1c22', '#1c1c22', '#4a2c1a', '#5a1a22', '#3a3a42'],
+                  bottom: ['#2a2a30', '#2c3e5c', '#1c1c22', '#5a5a64'], upper: 1, sleeve: 1, long: 1, thigh: 1, knee: 1, shin: 1,
+                  belt: 1, pockets: 1, shoes: ['boots'], accent: ['#f4f4f8', '#8a8a94', '#c83a3a', '#1c1c22'],
+                  paint: (P, of) => {
+                      P[4] = of.accent === of.top ? '#f4f4f8' : of.accent;
+                      P.d = mix(of.top, '#000000', 0.35); P[3] = mix(of.top, '#000000', 0.25);
+                      P[5] = mix(of.top, '#f4f4f8', 0.28); P.X = '#c8c8d0'; P[9] = '#c8c8d0';
+                  },
+                  arm: (rows, pose) => mapRows(rows, pose ? [3, 4, 8] : [4, 5, 8], (r, i) => put(r, i === 8 ? 'oWXWo' : 'o5wWo')),
+                  back: r => { r[2] = 'ou5uuuuuuuuuUo'; r[7] = '.o3333333333o.'; return r; },
+                  pose: runs => mapRows(runs, [1, 4], (r, i) => put(r, i === 1 ? 'ou5uuuuuuuuuuo' : 'o3333333333o')),
+                  side: ch => ch.concat([[12, 13, '55'], [16, 7, '33333333339'], [14, 18, 'X'], [15, 17, 'X']]) },
+        /* a flannel shirt in a plaid, open over a tee, jeans */
+        flannel: { w: 2, body: 'flannel', top: ['#c8302a', '#2a4a8a', '#2a5a3a', '#5a5a62', '#d8a830', '#7a1a22'],
+                  bottom: ['#3b5b8c', '#2c3e5c', '#2a2a30', '#c8b08a'], upper: 1, sleeve: 1, long: 1, thigh: 1, knee: 1, shin: 1,
+                  belt: 1, pockets: 1, shoes: ['boots', 'sneakers'], accent: ['#f4f4f8', '#1c1c22', '#8a8a94', '#e8dcc0'],
+                  paint: (P, of, T) => {
+                      P[4] = of.accent; P[1] = mix(of.top, '#0c0c10', 0.62); P[2] = mix(of.top, '#0c0c10', 0.32); P.d = T[0];
+                  },
+                  arm: (rows, pose) => remap(rows, 0, 10, plaid),
+                  back: r => remap(r, 3, 9, plaid),
+                  pose: runs => remap(runs, 0, 0, plaid),
+                  side: ch => remap(ch, 0, 0, plaid).concat([[12, 16, '44']]),
+                  sideArm: arm => remap(arm, 0, 0, plaid) },
 
         /* ── National outfits ── */
         /* Mexico: a mariachi charro suit — short jacket and trousers with
@@ -298,6 +448,71 @@
                   arm: rows => mapRows(rows, [1, 3, 5, 7], r => fill(r, '1')),
                   back: r => mapRows(r, [2, 4, 6, 8], s => fill(s, '1')),
                   pose: runs => mapRows(runs, [1, 3, 5], r => fill(r, '1')) },
+        /* Australia: the stockman — a work shirt with flap pockets tucked
+           into moleskins, elastic-sided boots, a wide-brimmed felt hat */
+        stockman: { w: 3, countries: ['australia'], body: 'stock', top: ['#8aa4c8', '#c8b08a', '#e8dcc0', '#5a6a7a', '#f4f0e6'],
+                  bottom: ['#e0d4b8', '#c8b08a', '#6a5a48'], upper: 1, sleeve: 1, long: 1, thigh: 1, knee: 1, shin: 1,
+                  belt: 1, tuck: 1, shoes: ['elastic'], hats: ['akubra'], hatOdds: 0.7,
+                  hatCol: ['#6a4a30', '#8a6a48', '#3a2a20', '#5a5048'],
+                  paint: (P, of, T) => { P[5] = T[0]; P.d = T[0]; P.X = T[1]; P.y = '#2a1e16'; P.b = '#5a3a22'; } },
+        /* Canada: a buffalo-check mackinaw jacket, jeans, boots, a toque */
+        mackinaw: { w: 3, countries: ['canada'], body: 'mack', top: ['#c8202a', '#c8202a', '#2a6a3a', '#2a4a8a', '#d8a020'],
+                  bottom: ['#3b5b8c', '#2c3e5c', '#2a2a30'], upper: 1, sleeve: 1, long: 1, thigh: 1, knee: 1, shin: 1,
+                  belt: 1, pockets: 1, shoes: ['boots', 'elastic'], hats: ['toque'], hatOdds: 0.6,
+                  hatCol: ['#c8202a', '#1c1c22', '#f4f0e6', '#2a4a8a'],
+                  paint: (P, of) => { P[1] = '#141418'; P[2] = mix(of.top, '#141418', 0.55); P.d = mix(of.top, '#141418', 0.3); P.X = '#c8a070'; },
+                  arm: rows => remap(rows, 0, 10, buffalo),
+                  back: r => remap(r, 3, 9, buffalo),
+                  pose: runs => remap(runs, 0, 0, buffalo),
+                  side: ch => remap(ch, 0, 0, buffalo),
+                  sideArm: arm => remap(arm, 0, 0, buffalo) },
+        /* Poland: the krakowiak — a white shirt with a red ribbon, a dark
+           vest trimmed in red with brass buttons, red-and-white striped
+           trousers, high boots, the red krakuska cap with a peacock feather */
+        krakowiak: { w: 3, countries: ['poland'], body: 'krak', top: ['#f6f4ec'], bottom: ['#f4f0ec'],
+                  upper: 1, sleeve: 1, long: 1, thigh: 1, knee: 1, shin: 1, belt: 1, tuck: 1, shoes: ['boots'], boots: 1,
+                  hats: ['krakuska'], hatOdds: 0.7, hatCol: ['#c8202a'], accent: ['#1c2a5a', '#1c2a5a', '#2a2a30'],
+                  paint: (P, of) => {
+                      P[9] = of.accent; P[1] = '#c8202a'; P[3] = '#d8b048'; P[2] = '#c8202a';
+                      P.b = '#5a3a22'; P.M = '#d8b048';
+                      P[6] = '#2a8a6a'; P[7] = '#2a4ac8'; P[8] = '#e0b030';
+                  },
+                  leg: (rows, pose) => remap(rows, 4, 20, pin),
+                  hipsF: remap(['obbbbbMbbbbo', 'opppppppppPo', 'opppppppppPo', 'oppppppppppo'], 4, 17, pin),
+                  hipsB: remap(['obbbbbbbbbbo', 'oppppDppppPo', 'oppppDppppPo', 'oPpppDppppPo'], 4, 17, pin),
+                  poseHips: runs => remap(runs, 0, 0, pin),
+                  back: r => r.map((s, i) => i === 0 ? '....occcco....' : i >= 3 && i <= 6 ? s.replace(/[cC]/g, '9') : i === 7 ? '.o1111111111o.' : s),
+                  pose: runs => remap(mapRows(runs, [2, 3, 4, 5], (r, i) => i === 5 ? put(r, 'o11111111o') : put(r, str(r).replace(/[cC]/g, '9'))), 0, 0,
+                                      (ch, x, y) => y >= 17 ? pin(ch, x) : ch) },
+        /* Chile: the huaso — a white shirt under a short chamanto woven
+           with bands, dark trousers, high boots, a straw chupalla */
+        huaso:  { w: 3, countries: ['chile'], body: 'chamanto', top: ['#7a1a22', '#1c1c22', '#2a3a5a', '#5a3a2a', '#c8b08a'],
+                  bottom: ['#1c1c22', '#2a2a30', '#3a3a42'], upper: 1, sleeve: 1, long: 1, thigh: 1, knee: 1, shin: 1,
+                  shoes: ['boots'], boots: 1, hats: ['chupalla'], hatOdds: 0.7,
+                  paint: (P, of) => {
+                      P[1] = of.top === '#c8b08a' ? '#5a1a22' : '#f0e0b0';
+                      P[2] = of.top === '#7a1a22' ? '#2a6a4a' : '#c8302a';
+                      P[4] = '#f4f4f0'; P.d = P[1]; P.w = '#f4f4f0'; P.W = '#d8d8e0';
+                  },
+                  arm: (rows, pose) => mapRows(rows, [pose ? 2 : 3], r => put(r, 'o121o')),
+                  back: r => { r[0] = '....o4444o....'; r[4] = 'o121212121212o'; r[7] = '.o2121212121o.'; r[8] = '.o1111111111o.'; return r; },
+                  pose: runs => mapRows(runs, [0, 3, 5], (r, i) => put(r, i === 0 ? 'o444444o' : i === 3 ? 'o1212121212o' : 'o11111111o')) },
+        /* Bolivia: an Andean poncho with woven stripes and a fringe over a
+           white shirt, dark trousers, a knitted chullo with ear flaps */
+        poncho: { w: 3, countries: ['bolivia'], body: 'poncho', top: ['#b8202a', '#8a2a1a', '#5a2a1a', '#2a3a5a', '#c8a050'],
+                  bottom: ['#26262c', '#3a3a42', '#5a4a3a'], upper: 1, sleeve: 1, long: 1, thigh: 1, knee: 1, shin: 1,
+                  shoes: ['sandals', 'boots'], hats: ['chullo'], hatOdds: 0.65,
+                  hatCol: ['#c8202a', '#2a6a3a', '#2a3a8a', '#f0a020', '#f4f0e6'],
+                  paint: (P, of) => {
+                      P[1] = of.top === '#c8a050' ? '#5a1a22' : '#f0c040';
+                      P[2] = of.top === '#2a3a5a' ? '#c8302a' : '#2a6a3a';
+                      P[4] = '#f4f4f0'; P[9] = mix(of.top, '#f4f0e0', 0.4); P.d = shade(of.top, 0.7);
+                      P.w = '#f4f4f0'; P.W = '#d8d8e0';
+                  },
+                  arm: (rows, pose) => mapRows(rows, [pose ? 2 : 3], r => put(r, 'o9C9o')),
+                  back: r => r.map((s, i) => i === 0 ? '....occcco....' : i === 8 ? '.o9C9C9C9C9Co.' : remap([s], 3, 9 + i, ponchoBands)[0]),
+                  pose: runs => mapRows(runs, [0, 1, 2, 3, 4, 5], (r, i) => i === 0 ? put(r, 'occcccco') : i === 5 ? put(r, 'o9C9C9C9Co')
+                                     : remap([r], 0, 0, ponchoBands)[0]) },
     };
     /* a national outfit's chest / back can also replace the head's hair with
        a hat: HATWEAR[kind] = { cols, from (the first hair row still drawn,
@@ -369,6 +584,66 @@
             [2, 3, 'oooooooooooooo'],
         ] },
         /* a hachimaki tied round the forehead, the knot at the side */
+        /* the stockman's felt hat: a pinched crown, a band, a wide brim */
+        akubra: { cols: null, from: 5, front: [
+            [-4, 7, 'oooooo'],
+            [-3, 6, 'oqqQqqqo'],
+            [-2, 6, 'oqqqqqQo'],
+            [-1, 6, 'oqqqqqQo'],
+            [0, 0, 'oo'], [0, 6, 'oyyyyyyo'], [0, 18, 'oo'],
+            [1, 0, 'oqqqqqqqqqqqqqqqqqqo'],
+            [2, 1, 'oooooooooooooooooo'],
+        ] },
+        /* a knitted toque with a pompom and a ribbed cuff */
+        toque: { cols: null, from: 6, front: [
+            [-4, 8, 'oQQo'],
+            [-3, 7, 'oqqqqo'],
+            [-2, 5, 'oqqqqqqqqo'],
+            [-1, 4, 'oqqqqqqqqqqo'],
+            [0, 4, 'oqqqqqqqqqqo'],
+            [1, 4, 'oqqqqqqqqqQo'],
+            [2, 4, 'oyQyQyQyQyQo'],
+            [3, 4, 'oyyyyyyyyyyo'],
+        ] },
+        /* the krakuska: a tall red cap, a black lambskin band, a peacock
+           feather tucked in at the side */
+        krakuska: { cols: null, from: 5, front: [
+            [-7, 16, '8'],
+            [-6, 15, '67'], [-6, 5, 'oooooooooo'],
+            [-5, 5, 'oqqqqqqqQo'], [-5, 15, '6'],
+            [-4, 6, 'oqqqqqQo'], [-4, 14, '6'],
+            [-3, 6, 'oqqqqqQo'], [-3, 14, '6'],
+            [-2, 6, 'oqqqqqQo'],
+            [-1, 5, 'oyyyyyyyyo'],
+            [0, 5, 'oyyyyyyyyo'],
+            [1, 5, 'oooooooooo'],
+        ] },
+        /* the huaso's chupalla: a flat straw crown and brim, a dark band */
+        chupalla: { cols: ['#e0cc90'], from: 5, front: [
+            [-3, 6, 'oooooooo'],
+            [-2, 6, 'oqqQqqQo'],
+            [-1, 6, 'oqqqqqqo'],
+            [0, 6, 'oyyyyyyo'],
+            [1, 0, 'oqqQqqQqqQqqQqqQqqqo'],
+            [2, 1, 'oooooooooooooooooo'],
+        ] },
+        /* an Andean chullo: knitted, pointed, patterned bands, ear flaps
+           with braided ties */
+        chullo: { cols: null, from: 6, front: [
+            [-5, 9, 'oo'],
+            [-4, 8, 'oqqo'],
+            [-3, 7, 'oqyqqo'],
+            [-2, 5, 'oqqqqqqqqo'],
+            [-1, 4, 'oyQyQyQyQyo'],
+            [0, 4, 'oqqqqqqqqqqo'],
+            [1, 4, 'oQyQQyQQyQQo'],
+            [2, 4, 'oqqqqqqqqqqo'],
+            [3, 3, 'oqqo'], [3, 13, 'oqqo'],
+            [4, 3, 'oyqo'], [4, 13, 'oqyo'],
+            [5, 3, 'oqqo'], [5, 13, 'oqqo'],
+            [6, 4, 'oo'], [6, 14, 'oo'],
+            [7, 4, 'y'], [7, 15, 'y'], [8, 4, 'y'], [8, 15, 'y'],
+        ] },
         hachimaki: { cols: null, from: 0, front: [
             [2, 16, 'qq'],
             [3, 4, 'qqqqqqqqqqqqqQq'],
@@ -383,6 +658,7 @@
         hightops: { n: '#1c1c22', N: '#f4f4f8', g: '#e8e8f0' },
         loafers:  { n: '#6a3a1e', N: '#4a2814', g: '#2a1810' },
         boots:    { n: '#1e1a18', N: '#34302c', g: '#0c0a0a' },
+        elastic:  { n: '#6a4a30', N: '#3a2a20', g: '#2a1810' },   /* brown elastic-sided boots */
         twotone:  { n: '#f4f4f0', N: '#1c1c22', g: '#2a2a30' },
         gomusin:  { n: '#f4f4f0', N: '#d8d8e0', g: '#b8b8c4' },
         tabi:     { n: '#26262c', N: '#3a3a42', g: '#141418' },
@@ -429,7 +705,7 @@
         const hair = v.colour || '#2a1a12';
         const P = { o: sk.o, s: sk.s, S: sk.S, e: v.eyes || '#3a2216', m: mix(sk.S, '#8a2a2a', 0.3),
                     h: hair, H: shade(hair, hair === '#141010' ? 1.35 : 0.72),
-                    k: '#f8f4ec', O: mix(sk.o, '#8a2a2a', 0.45), q: '#8fd0f4' };
+                    k: '#f8f4ec', O: mix(sk.o, '#8a2a2a', 0.45), l: '#8fd0f4' };
         /* dyed (matrix-green) hair: brows and beard stay a natural dark brown,
            or the beard rings his face like a neon helmet */
         const facial = hair === '#3ac060' ? '#3a2416' : hair;
@@ -441,7 +717,7 @@
         P.z = beard === 'beard' ? facial : beard === 'stubble' ? stub : sk.s;
         P.Z = beard === 'beard' || beard === 'goatee' ? facial : beard === 'stubble' ? stub : sk.s;
         P.G = '#0c0c10'; P.Y = '#5a6a7a';
-        P.q = v.hat || '#26262c'; P.Q = shade(P.q, P.q === '#26262c' ? 1.4 : 0.72);
+        P.q = v.hat || '#26262c';   /* (tears are l, not q: q is the cap) */ P.Q = shade(P.q, P.q === '#26262c' ? 1.4 : 0.72);
 
         const top = of.top, bot = of.bottom;
         const T = K.clothShades(top), B = K.clothShades(bot);
@@ -488,7 +764,11 @@
         if (of.hat) {
             P.q = of.hatCol || top;
             P.Q = of.hat === 'vueltiao' ? '#1c1a18' : shade(P.q, K.clothShades(P.q)[0] === shade(P.q, 1.12) ? 1.35 : 0.78);
-            if (of.hat === 'straw') { P.Q = '#c8b478'; P.y = '#2a2a30'; }
+            if (of.hat === 'straw' || of.hat === 'chupalla') { P.Q = '#c8b478'; P.y = '#2a2a30'; }
+            if (of.hat === 'toque') P.y = shade(P.q, P.q === '#1c1c22' ? 1.6 : 0.8);
+            if (of.hat === 'chullo') P.y = P.q === '#f4f0e6' ? '#c8202a' : '#f4f0e6';
+            if (of.hat === 'krakuska') P.y = '#2a2622';
+            if (of.hat === 'akubra') P.y = '#2a1e16';
             if (of.hat === 'hachimaki' && P.q === '#f4f4f0') P.Q = '#c8302a';
             if (of.hat === 'boina' || of.hat === 'cordobes') P.y = shade(P.q, 1.4);
             if (of.hat === 'ushanka') P.y = shade(P.q, 0.8);
@@ -525,18 +805,31 @@
         sing:  { 6: "ozmssSsmzo", 7: "ozzmOOmzzo", 8: ".ozzOOzzo." },
         laugh: { 3: "ossossosso", 4: "osossssoso", 6: "ozmkkkkmzo", 7: "ozzOOOOzzo" },
         cool:  { 6: "ozsssSsmzo", 7: "ozzsmmmzzo" },
-        /* sad faces (melancholic songs); q = a tear / raindrop */
+        /* sad faces (melancholic songs); l = a tear / raindrop */
         sad:         { 3: "ossBssBsso", 7: "ozzsmmszzo", 8: ".ozmZZmzo." },
-        heartbroken: { 3: "ossBssBsso", 4: "osoossooso", 5: "osqsssqsSo", 7: "ozzsmmszzo", 8: ".ozmZZmzo." },
+        heartbroken: { 3: "ossBssBsso", 4: "osoossooso", 5: "oslssslsSo", 7: "ozzsmmszzo", 8: ".ozmZZmzo." },
         pensive:     { 4: "ossessseso", 7: "ozzssmmzzo" },
-        skyward:     { 2: "osBBssBBso", 3: "osesssseso", 4: "osSsssSsso", 5: "osssssqsSo", 7: "ozzsOOszzo" },
+        skyward:     { 2: "osBBssBBso", 3: "osesssseso", 4: "osSsssSsso", 5: "ossssslsSo", 7: "ozzsOOszzo" },
+        /* sad singing: the brows up in the middle, the mouth open, its
+           corners down; the beard (z Z) still frames it */
+        sadsing:     { 3: "ossBssBsso", 6: "ozsssSsszo", 7: "ozzsOOszzo", 8: ".ozmOOmzo." },
+        /* belting it out: eyes shut tight, a big open mouth, top teeth */
+        belt:        { 3: "ossBssBsso", 4: "osoossooso", 6: "ozskkkkszo", 7: "ozzOOOOzzo", 8: ".ozOOOOzo." },
+        /* humming, eyes closed, lips together */
+        hum:         { 3: "ossBssBsso", 4: "osoossooso", 7: "ozzssmszzo" },
+        /* singing through tears: wet eyes, tear tracks, an open mouth */
+        teary:       { 3: "ossBssBsso", 5: "oslssslsSo", 6: "ozlssSslzo", 7: "ozzsOOszzo", 8: ".ozmZZmzo." },
     };
-    const SAD_FACES = ['sad', 'heartbroken', 'pensive'];
+    const SAD_FACES = ['sad', 'heartbroken', 'pensive', 'sadsing', 'belt', 'hum', 'teary'];
     function faceRows(face, shades) {
         const swap = FACE_ROWS[face] || FACE_ROWS.smile;
         const rows = FACE.map((r, i) => swap[i] || r);
         /* shades: the brows and eyes as usual, the lenses over them */
-        if (shades || face === 'cool') { rows[2] = FACE[2]; rows[3] = FACE[3]; rows[4] = SHADES_ROWS[0]; rows[5] = SHADES_ROWS[1]; }
+        /* (a sad face keeps its raised brows above the lenses) */
+        if (shades || face === 'cool') {
+            rows[2] = FACE[2]; rows[4] = SHADES_ROWS[0]; rows[5] = SHADES_ROWS[1];
+            if (SAD_FACES.indexOf(face) < 0) rows[3] = FACE[3];
+        }
         return rows;
     }
 
@@ -907,6 +1200,180 @@
             ".occcccccccCo.",
             ".o1111111111o.",
         ],
+        /* the denim jacket: open over the tee (4), flap pockets (5),
+           copper buttons, tan stitching (d) */
+        denim: [
+            "....oSssSo....",
+            ".occd4444dcco.",
+            "occcd4444dccCo",
+            "oc55d4444d55Co",
+            "occXd4444dXcCo",
+            "ocCCd4444dCCCo",
+            ".occd4444dcCo.",
+            ".occd4444dcCo.",
+            ".oddd4444dddo.",
+        ],
+        /* the varsity jacket: rib collar, cream shoulders, snaps, a patch,
+           the striped rib hem */
+        varsity: [
+            "....o1dd1o....",
+            ".ouucd44dcuuo.",
+            "ouuccd44dccuUo",
+            "oc22ccXcccccCo",
+            "oc22cccccccCCo",
+            "ocCCccXccCCcCo",
+            ".occccccccCCo.",
+            ".o1111111111o.",
+            ".oddddddddddo.",
+        ],
+        /* the bomber: rib collar, the zip, rib hem */
+        bomber: [
+            "....oddddo....",
+            ".occccXccccco.",
+            "occcccXcccccCo",
+            "occcccXcccccCo",
+            "occcccXcccccCo",
+            "ocCCccXccCCcCo",
+            ".occccXccccCo.",
+            ".oddddXdddddo.",
+            ".oddddddddddo.",
+        ],
+        /* the open-collared suit: lapels, the shirt open at the neck, a
+           pocket square, one button done */
+        opensuit: [
+            "....o4SS4o....",
+            ".occd4ss4dcco.",
+            "occcd4sS4dccCo",
+            "occccd44dc1cCo",
+            "occcccddccccCo",
+            "ocCCccXccCCcCo",
+            ".occccXccccCo.",
+            ".occcccccccCo.",
+            ".oCCCCCCCCCCo.",
+        ],
+        /* dungarees over a tee: straps (5), the bib with its pocket, brass
+           buttons, the side buttons at the waist */
+        overalls: [
+            "....oSssSo....",
+            ".oou5dddd5uoo.",
+            "ouuu5uddu5uuUo",
+            "occc5cccc5ccCo",
+            "occcXppppXccCo",
+            "ocCCpKKKKpCcCo",
+            ".occpppppPcCo.",
+            ".oXpppppppPXo.",
+            ".oppppppppPPo.",
+        ],
+        /* the linen beach shirt: open deep at the neck, loose */
+        linen: [
+            "....oSssSo....",
+            ".occdssssdcco.",
+            "occccdssdcccCo",
+            "occccdsSdcccCo",
+            "occcccdXccccCo",
+            "ocCCcccXcCCcCo",
+            ".occccccXccCo.",
+            ".occcccXcccCo.",
+            ".oCCCCCCdCCCo.",
+        ],
+        /* the basketball jersey: trimmed neck and armholes, a number */
+        jersey: [
+            "....oSssSo....",
+            ".oudcsssscduo.",
+            "ouudcdssdcduUo",
+            "ouudccddccduUo",
+            "ouudc1c111ccUo",
+            "occcc1ccc1ccCo",
+            ".occc1cc1ccCo.",
+            ".occcccccccCo.",
+            ".oCCCCCCCCCCo.",
+        ],
+        /* the biker jacket: wide lapels, the tee, an off-centre zip, a
+           shine on the leather, the belt at the hem */
+        leather: [
+            "....oSssSo....",
+            ".occdd444ddco.",
+            "o5ccd4444dccCo",
+            "o5cccd44XcccCo",
+            "o5ccccd4XcccCo",
+            "ocCCcccXcCCcCo",
+            ".occccXccccCo.",
+            ".o3333X39333o.",
+            ".oCCCCCCCCCCo.",
+        ],
+        /* the flannel, open over a tee (the plaid is drawn over it) */
+        flannel: remap([
+            "....oSssSo....",
+            ".occd4444dcco.",
+            "occcd4444dccCo",
+            "occcd4444dccCo",
+            "occcd4444dccCo",
+            "ocCCd4444dCCCo",
+            ".occd4444dcCo.",
+            ".occd4444dcCo.",
+            ".oCCd4444dCCo.",
+        ], 3, 9, plaid),
+        /* the stockman's work shirt: flap pockets, the placket, tucked in */
+        stock: [
+            "....oSssSo....",
+            ".occddssddcco.",
+            "occccdssdcccCo",
+            "o55cccdXcc55Co",
+            "ocXcccccdcXcCo",
+            "ocCCcccXcCCcCo",
+            ".occccccdccCo.",
+            ".occcccXcccCo.",
+            ".oCCCCCCdCCCo.",
+        ],
+        /* the mackinaw: a collar, horn buttons, the buffalo check */
+        mack: remap([
+            "....oSssSo....",
+            ".occddssddcco.",
+            "occccdssdcccCo",
+            "occccXccXcccCo",
+            "occcccccccccCo",
+            "occccXccXcccCo",
+            ".occcccccccCo.",
+            ".occcccccccCo.",
+            ".oCCCCCCCCCCo.",
+        ], 3, 9, buffalo),
+        /* the krakowiak: the shirt with its red ribbon, the trimmed vest
+           (9) with brass buttons */
+        krak: [
+            "....oc11co....",
+            ".o99cc11cc99o.",
+            "o9991cccc1999o",
+            "o9931cccc1399o",
+            "o9991cccc1999o",
+            "o9931cccc1399o",
+            ".o991cccc199o.",
+            ".o1111111111o.",
+            ".oCCCCCCCCCCo.",
+        ],
+        /* the chamanto: the neck slit over the shirt, woven bands */
+        chamanto: [
+            "....o4ss4o....",
+            ".occcd44dccco.",
+            "occcccddccccCo",
+            "occcccccccccCo",
+            "o121212121212o",
+            "occcccccccccCo",
+            ".occcccccccCo.",
+            ".o2121212121o.",
+            ".o1111111111o.",
+        ],
+        /* the poncho: the neck slit, warp stripes, a fringe */
+        poncho: remap([
+            "....o4ss4o....",
+            ".occccddcccco.",
+            "occccccccccCCo",
+            "occcccccccccCo",
+            "occcccccccccCo",
+            "oCccccCCcccCCo",
+            ".occcccccccco.",
+            ".occcccccccco.",
+            ".o9C9C9C9C9Co.",
+        ], 3, 9, ponchoBands),
     };
     /* from behind: a plain back, the spine in shade */
     const BACK = {
@@ -1048,8 +1515,8 @@
         const H = (s) => s.replace(/h/g, hh);
         /* the peek's one eye and mouth follow the face, simply */
         const face = v.face || 'smile';
-        const eye = face === 'joy' || face === 'laugh' ? 'o' : 'e';
-        const mouth = face === 'sing' || face === 'laugh' ? 'O' : face === 'grin' ? 'k' : 'm';
+        const eye = ['joy', 'laugh', 'belt', 'hum', 'heartbroken'].indexOf(face) >= 0 ? 'o' : 'e';
+        const mouth = ['sing', 'laugh', 'sadsing', 'belt', 'teary', 'skyward'].indexOf(face) >= 0 ? 'O' : face === 'grin' ? 'k' : 'm';
         let head = look ? [
             [4, 7, H('hhhhhh')],
             [5, 6, H('hhhhhhhh')],
@@ -1200,6 +1667,8 @@
         if (body === 'shirt') chest = chest.concat([[12, 16, 'dd'], [13, 18, 'X'], [15, 17, 'X']]);
         if (body === 'track') chest = chest.concat([[12, 17, 'X'], [13, 18, 'X'], [14, 19, 'X']]);
         if (body === 'agent') chest = chest.concat([[10, 14, 'oCCCo'], [11, 13, 'oCCCCCCo']]);
+        /* an outfit's own details on the leaning torso, near leg and arm */
+        if (o.side) chest = o.side(chest);
         /* the hips in his bottoms, a belt at the top, a back pocket, a shine */
         let hips = [
             [17, 4, 'obbbbbbbbo'],
@@ -1244,6 +1713,8 @@
             [23, 15, 'oooo'],
         ];
         if (o.stripe) arm = arm.map(r => (r[0] >= 12 && r[0] <= 19 ? [r[0], r[1], r[2][0] + 'r' + r[2].slice(2)] : r));
+        if (o.sideLeg) leg = o.sideLeg(leg);
+        if (o.sideArm) arm = o.sideArm(arm);
         const front = head('front', v, col);
         return {
             legL: K.spec(leg, col), legR: '',
@@ -1267,5 +1738,5 @@
     });
     /* for tests and contact sheets */
     M.matrixKit = { OUTFITS: OUTFITS, SKINS: SKINS, STYLES: ['crop', 'fade', 'buzz', 'curly', 'bun', 'slick', 'cap', 'beanie'],
-                    FACES: FACES, FACE_ROWS: FACE_ROWS, HATWEAR: HATWEAR, CHEST: CHEST, palette: palette };
+                    FACES: FACES, SAD_FACES: SAD_FACES, FACE_ROWS: FACE_ROWS, HATWEAR: HATWEAR, CHEST: CHEST, palette: palette };
 })();

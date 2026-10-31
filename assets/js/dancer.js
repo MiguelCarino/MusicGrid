@@ -25,59 +25,68 @@
        other moves instead). */
     const MOVES = {
         reggaeton:  ['twerk', 'twerklook', 'twerkside', 'twerk', 'twerklook', 'twerkside', 'twerkside', 'shimmy', 'bounce', 'cumbia',
+                     'twerkdrop', 'twerkshake', 'twerkwave', 'twerkpop', 'twerkcircle', 'twerkalt', 'twerkroll',
                      'macarena', 'cabbagepatch', 'bodyroll', 'merengue', 'samba',
-                     'bachatahip', 'bachatawave', 'bachatastyle', 'salsaon1', 'merenguewalk', 'sonidera'],
+                     'bachatahip', 'bachatawave', 'bachatastyle', 'salsaon1', 'merenguewalk', 'sonidera',
+                     'boogaloo', 'discoroll', 'cumbiapaso'],
         latin:      ['salsa', 'cumbia', 'salsa', 'sway', 'spin', 'twist', 'shimmy', 'tango', 'macarena', 'zapateado', 'hustle',
                      'samba', 'merengue', 'bachata', 'son', 'calena',
                      'salsaon1', 'salsaon1', 'crossbody', 'salsaspin', 'suzyq', 'salsaarms',
                      'bachatahip', 'bachatawave', 'bachataturn', 'bachatastyle',
-                     'merenguewalk', 'cumbiavela', 'sonidera'],
+                     'merenguewalk', 'cumbiavela', 'sonidera', 'cumbiapaso', 'banda', 'discoroll'],
         rock:       ['headbang', 'headbang', 'airguitar', 'jump', 'stomp', 'pogo', 'skank', 'runningman', 'charleston',
-                     'windmill', 'windmill', 'fistpump', 'swagger', 'pony'],
+                     'windmill', 'windmill', 'fistpump', 'swagger', 'pony', 'heelstomp', 'swingstep'],
         metal:      ['headbang', 'headbang', 'airguitar', 'stomp', 'pogo', 'skank', 'runningman',
-                     'windmill', 'windmill', 'fistpump', 'powerstomp', 'prisyadka'],
+                     'windmill', 'windmill', 'fistpump', 'powerstomp', 'prisyadka', 'heelstomp', 'heelstomp'],
         punkska:    ['pogo', 'pogo', 'jump', 'kick', 'stomp', 'headbang', 'skank', 'skank', 'runningman', 'polka',
-                     'fistpump', 'windmill', 'swagger', 'humppa', 'pony'],
+                     'fistpump', 'windmill', 'swagger', 'humppa', 'pony', 'heelstomp'],
         electronic: ['robot', 'shuffle', 'armwave', 'pogo', 'wave', 'point', 'runningman', 'glide', 'sprinkler', 'float',
-                     'parapara', 'fistpump', 'bodyroll', 'kpop', 'handsup', 'handsup'],
+                     'parapara', 'fistpump', 'bodyroll', 'kpop', 'handsup', 'handsup',
+                     'popping', 'tutting', 'electroarms', 'electroarms', 'housejack', 'housejack', 'tstep', 'tstep', 'voguehands'],
         hiphop:     ['bounce', 'armwave', 'shuffle', 'robot', 'floss', 'stomp', 'wave', 'runningman', 'cabbagepatch', 'glide', 'sprinkler',
-                     'bodyroll', 'bodyroll', 'fistpump', 'powerstomp', 'kpop', 'handsup'],
+                     'bodyroll', 'bodyroll', 'fistpump', 'powerstomp', 'kpop', 'handsup',
+                     'popping', 'popping', 'tutting', 'boogaloo', 'boogaloo', 'tstep'],
         pop:        ['bounce', 'spin', 'clap', 'point', 'floss', 'jump', 'kick', 'macarena', 'idol', 'hustle', 'sprinkler',
-                     'kpop', 'bodyroll', 'fistpump', 'linedance', 'handsup', 'pony', 'bachatahip'],
+                     'kpop', 'bodyroll', 'fistpump', 'linedance', 'handsup', 'pony', 'bachatahip',
+                     'kwave', 'kwave', 'voguehands', 'discoroll', 'lightwave', 'housejack'],
         citypop:    ['sway', 'point', 'spin', 'clap', 'twist', 'wave', 'idol', 'idol', 'hustle', 'snaps', 'glide',
-                     'parapara', 'bodyroll', 'swagger'],
+                     'parapara', 'bodyroll', 'swagger', 'discoroll', 'discoroll', 'lightwave', 'lightwave', 'swingstep'],
         funksoul:   ['point', 'shimmy', 'twist', 'shuffle', 'spin', 'bounce', 'hustle', 'glide', 'snaps', 'cabbagepatch',
-                     'bodyroll', 'bodyroll', 'son', 'samba', 'fistpump', 'lindy', 'pony', 'salsaon1'],
+                     'bodyroll', 'bodyroll', 'son', 'samba', 'fistpump', 'lindy', 'pony', 'salsaon1',
+                     'boogaloo', 'boogaloo', 'popping', 'discoroll', 'voguehands', 'swingstep'],
         jazz:       ['sway', 'shimmy', 'spin', 'conduct', 'clap', 'twist', 'charleston', 'charleston', 'snaps', 'snaps', 'glide',
-                     'waltz', 'son', 'bodyroll', 'swagger', 'lindy', 'lindy', 'salsaon1'],
+                     'waltz', 'son', 'bodyroll', 'swagger', 'lindy', 'lindy', 'salsaon1', 'swingstep', 'swingstep'],
         indie:      ['sway', 'bounce', 'armwave', 'clap', 'sidehop', 'wave', 'snaps', 'float', 'polka', 'runningman',
-                     'swagger', 'swagger', 'fistpump', 'waltz', 'pony', 'twostep'],
+                     'swagger', 'swagger', 'fistpump', 'waltz', 'pony', 'twostep', 'lightwave', 'circlestep'],
         folk:       ['sway', 'clap', 'stomp', 'sidehop', 'kick', 'polka', 'polka', 'zapateado', 'lasso',
-                     'hora', 'jarabe', 'humppa', 'prisyadka', 'linedance', 'twostep', 'hula'],
+                     'hora', 'jarabe', 'humppa', 'prisyadka', 'linedance', 'twostep', 'hula',
+                     'circlestep', 'circlestep', 'heelstomp', 'banda'],
         americana:  ['stomp', 'sway', 'clap', 'sidehop', 'kick', 'lasso', 'lasso', 'zapateado', 'polka', 'charleston',
-                     'linedance', 'linedance', 'waltz', 'swagger', 'twostep', 'twostep'],
+                     'linedance', 'linedance', 'waltz', 'swagger', 'twostep', 'twostep', 'heelstomp', 'circlestep', 'swingstep'],
         baroquepop: ['sway', 'conduct', 'spin', 'vogue', 'wave', 'plie', 'float', 'charleston',
-                     'waltz', 'waltz', 'taichi', 'flamenco'],
+                     'waltz', 'waltz', 'taichi', 'flamenco', 'voguehands', 'circlestep'],
         classical:  ['conduct', 'conduct', 'sway', 'vogue', 'plie', 'plie', 'float', 'tango',
-                     'waltz', 'waltz', 'taichi', 'bonodori'],
+                     'waltz', 'waltz', 'taichi', 'bonodori', 'circlestep'],
         ambient:    ['sway', 'sway', 'wave', 'conduct', 'float', 'float', 'plie', 'snaps',
-                     'taichi', 'taichi', 'bonodori', 'waltz', 'hula'],
+                     'taichi', 'taichi', 'bonodori', 'waltz', 'hula', 'lightwave'],
         soundtrack: ['conduct', 'sway', 'armwave', 'jump', 'vogue', 'wave', 'float', 'tango', 'plie', 'lasso',
-                     'taichi', 'waltz', 'powerstomp', 'flamenco', 'hula'],
+                     'taichi', 'waltz', 'powerstomp', 'flamenco', 'hula', 'electroarms', 'popping'],
     };
     const DEFAULT_MOVES = ['bounce', 'sway', 'clap', 'spin', 'point', 'armwave', 'hustle', 'snaps', 'runningman',
-                           'waltz', 'fistpump', 'bodyroll', 'salsaon1', 'handsup'];
+                           'waltz', 'fistpump', 'bodyroll', 'salsaon1', 'handsup', 'discoroll', 'swingstep', 'boogaloo'];
 
     /* Country → its own steps, mixed into the genre's pool in "Song's
        genre" mode (added, never replacing; a repeat weighs a step more).
        A country with no entry dances its genre's pool alone. */
     const MOVES_BY_COUNTRY = {
-        mexico:            ['quebradita', 'jarabe', 'zapateado', 'jarabe', 'sonidera', 'sonidera', 'cumbiavela'],
+        mexico:            ['quebradita', 'jarabe', 'zapateado', 'jarabe', 'sonidera', 'sonidera', 'cumbiavela',
+                            'banda', 'banda', 'cumbiapaso'],
         usa:               ['linedance', 'lasso', 'runningman', 'cabbagepatch', 'twostep', 'hula'],
         canada:            ['linedance', 'kick', 'polka', 'twostep'],
-        japan:             ['parapara', 'bonodori', 'idol'],
-        korea:             ['kpop', 'kpop', 'idol'],
-        colombia:          ['cumbia', 'calena', 'salsa', 'calena', 'cumbiavela', 'cumbiavela', 'salsaspin', 'salsaarms', 'crossbody'],
+        japan:             ['parapara', 'bonodori', 'idol', 'lightwave', 'lightwave'],
+        korea:             ['kpop', 'kpop', 'idol', 'kwave', 'kwave'],
+        colombia:          ['cumbia', 'calena', 'salsa', 'calena', 'cumbiavela', 'cumbiavela', 'salsaspin', 'salsaarms', 'crossbody',
+                            'cumbiapaso'],
         venezuela:         ['salsa', 'merengue', 'zapateado', 'salsaspin', 'merenguewalk', 'salsaarms'],
         panama:            ['cumbia', 'salsa', 'merengue', 'cumbiavela', 'salsaon1', 'merenguewalk'],
         honduras:          ['shimmy', 'samba', 'merengue', 'bachatahip', 'merenguewalk'],
@@ -123,10 +132,26 @@
                        'salsaon1', 'crossbody', 'salsaspin', 'suzyq', 'salsaarms',
                        'bachatahip', 'bachatawave', 'bachataturn', 'bachatastyle',
                        'merenguewalk', 'cumbiavela', 'sonidera',
-                       'twostep', 'pony', 'lindy', 'handsup', 'hula'];
+                       'twostep', 'pony', 'lindy', 'handsup', 'hula',
+                       /* twerk variants (dancer.js VIEW) */
+                       'twerkdrop', 'twerkshake', 'twerkwave', 'twerkpop', 'twerkcircle', 'twerkalt', 'twerkroll',
+                       /* more steps */
+                       'popping', 'tutting', 'voguehands', 'swingstep', 'discoroll', 'boogaloo', 'tstep',
+                       'electroarms', 'housejack', 'heelstomp', 'cumbiapaso', 'banda', 'kwave', 'lightwave',
+                       'circlestep'];
     /* the moves danced facing away: 'back' from behind, 'look' looking back
        'side' bent over, from the side (only mascots with a side view) */
-    const VIEW = { twerk: 'back', twerklook: 'look', twerkside: 'side' };
+    const VIEW = { twerk: 'back', twerklook: 'look', twerkside: 'side',
+                   /* the variants (grid.css: on a posed sprite only the
+                      hips, the head and the whole-figure dip move; from the
+                      side only the hips and the head) */
+                   twerkdrop: 'back',     /* down low over four beats and back up */
+                   twerkshake: 'back',    /* a fast side-to-side shake */
+                   twerkwave: 'back',     /* a slow rolling wave */
+                   twerkpop: 'look',      /* sharp pops on the beat, held */
+                   twerkcircle: 'look',   /* hip circles */
+                   twerkalt: 'side',      /* four quick, two slow */
+                   twerkroll: 'side' };   /* a slow roll */
     function tr(key) { return typeof t === 'function' ? t(key) : key; }
 
     /* ── Preferences (Mascots, in ⚙ Settings) ───────────────── */
@@ -150,7 +175,8 @@
        "Song's genre" mode, its country's own steps on top) */
     /* A melancholic song (its mood): sad, slow moves instead, a few gentle
        ones in between, and sad faces (see Dancer) */
-    const SAD_MOVES = ['mope', 'hugself', 'heartache', 'ponder', 'rainlook'];
+    const SAD_MOVES = ['mope', 'hugself', 'heartache', 'ponder', 'rainlook',
+                       'sadspin', 'slump', 'reachout', 'eyesclosed', 'trudge', 'lonelywaltz'];
     const SAD_POOL = SAD_MOVES.concat(SAD_MOVES, ['sway', 'float', 'waltz']);
     function isSad(mood) { return mood === 'melancholic' && prefs.dance === 'song'; }
     function movesFor(name, genre, country, mood) {
@@ -238,7 +264,7 @@
         const r = Math.random();
         if (view === 'side') {
             const partner = M.partnered && M.partnered[name];
-            if (partner && r < PARTNER_ODDS) return { partner: M.partnerVariant() };
+            if (partner && r < PARTNER_ODDS) return { partner: M.partnerVariant(name) };
             const from = partner ? PARTNER_ODDS : 0;
             return r < from + SIDE_CREW_ODDS && CREW.length ? crew() : null;
         }
@@ -259,7 +285,7 @@
             if (company && company.partner && view !== 'side') company = null;   /* a partner only from the side */
             /* turning to the side with a crew from behind: the partner may cut in */
             if (company && company.crew && view === 'side' && this.view !== 'side' && M.partnered && M.partnered[this.name] &&
-                Math.random() < PARTNER_ODDS) company = { partner: M.partnerVariant() };
+                Math.random() < PARTNER_ODDS) company = { partner: M.partnerVariant(this.name) };
         }
         const inst = move === 'play' && this.insts.length ? this.insts[Math.floor(Math.random() * this.insts.length)] : '';
         if (move === 'play' && !inst) move = 'bounce';
@@ -273,6 +299,13 @@
         /* and, on its own, its expression (M.faces: positive ones only) */
         if (!plain && this.move && M.express && (Math.random() < (this.sad ? 0.5 : 0.35) || this.move === 'rainlook')) {
             const nv = M.express(this.name, this.variant, this.sad ? 'sad' : null);
+            if (nv !== this.variant) { restyled = true; this.variant = nv; }
+        }
+        /* swaying on her own, eyes shut, humming along (heartbroken, eyes
+           shut with tears, for a mascot without the hum face) */
+        if (move === 'eyesclosed' && M.withFace) {
+            let nv = M.withFace(this.name, this.variant, 'hum');
+            if (nv === this.variant && this.variant && this.variant.face !== 'hum') nv = M.withFace(this.name, this.variant, 'heartbroken');
             if (nv !== this.variant) { restyled = true; this.variant = nv; }
         }
         /* in the rain she looks up at the sky */
