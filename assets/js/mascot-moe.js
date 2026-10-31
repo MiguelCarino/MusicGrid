@@ -11,8 +11,12 @@
  * dress with a gold trim, and an oversized tee over bike shorts. restyle()
  * swaps the outfit mid-dance, like lola's.
  *
- * moe never twerks (twerk: false): she has her front view and a plain
- * back view (standing, facing away) only.
+ * She twerks like lola, on lola's posed bodies (kit.lolaBackRuns /
+ * lolaSideRuns) in her own palette: from behind with her hair from
+ * behind, looking back in three-quarter (a lashed eye, a blush), and from
+ * the side with her front head turned to us; her pleated mini, qipao and
+ * oversized tee have their own shapes there. She may get the partner in
+ * the side twerk (partner: true), like lola. Never in national dress.
  * Loads after mascots.js and before dancer.js.
  */
 (function () {
@@ -1039,13 +1043,135 @@
         };
     }
 
+    /* ── Twerking: lola's posed bodies (kit.lolaBackRuns / lolaSideRuns,
+       plain: no national dress) in her palette, with her own head, hair
+       and outfit shapes. Nobody twerks in national dress (dancer.js). ── */
+    const LONG = { hime: 1, long: 1, halfup: 1 };
+    const boot = runs => runs.map(r => [r[0], r[1], r[2].replace(/j/g, 'N')]);   /* N: boot shafts, else shins */
+    /* her mini skirts on the posed bodies: pleats, or the qipao's fitted one with its gold hem */
+    const MINI = { pleats: { skirt: 'pleat' }, qipao: { skirt: 'knee', hem: 'z' } };
+
+    /* From behind, bent over (the posed twerk): her hair from behind;
+       look = the three-quarter peek over her shoulder, a lashed eye, a
+       blush, her lips (open when she sings or laughs) */
+    function pose(v, look) {
+        v = v || variant();
+        const P = palette(v), col = ch => P[ch];
+        const of = v.outfit || {};
+        const shape = (OUTFITS[of.name] || {}).shape || 'base';
+        const r = K.lolaBackRuns(Object.assign({}, v, { hair: 'pixie' }), look, true);
+        let head = r.head.map(x => x.slice()), behind = [], hips = r.hips, legL = boot(r.legL), armL = r.armL;
+        const face = v.face || 'smile';
+        if (look) {
+            const at = (y, x) => head.find(h => h[0] === y && h[1] === x);
+            const eye = at(7, 4), cheek = at(8, 4), lips = at(9, 5);
+            if (face === 'joy' || face === 'laugh') eye[2] = 'oa' + eye[2].slice(2);
+            else eye[2] = 'ae' + eye[2].slice(2);
+            head.push([6, 4, 'a']);
+            if (cheek) cheek[2] = 'osb' + cheek[2].slice(3);
+            if (lips && (face === 'sing' || face === 'laugh')) lips[2] = 'od' + lips[2].slice(2);
+            /* lola's earring → hers (only with her hair up) */
+            head = head.filter(h => !(h[0] === 8 && h[1] === 14));
+            if (v.earring !== 'none' && { ponytail: 1, buns: 1 }[v.hair]) head.push([8, 14, 'p']);
+        }
+        const nape = n => head.push([11, 8, n]);
+        switch (v.hair) {
+            case 'hime':
+                nape('hhhh');
+                behind = [[10, 6, 'hhhhhhhh'], [11, 6, 'hhhhhhhh'], [12, 6, 'hhhHhhhh'], [13, 6, 'hhhhhhhh'], [14, 6, 'HHHHHHHH']];
+                break;
+            case 'long': case 'halfup':
+                nape('hhhh');
+                behind = [[10, 6, 'hhhhhhhh'], [11, 6, 'hhhhhhhh'], [12, 6, 'hhhHhhhh'], [13, 6, 'hHhhhhHh'], [14, 7, 'hhhhhh'], [15, 8, 'hHhh']];
+                if (v.hair === 'halfup') head.push([4, 8, 'cc'], [5, 7, 'zzz'], [5, 10, 'zzz'], [6, 9, 'zz']);
+                break;
+            case 'bob':
+                nape('hhhh');
+                head.push([6, 5, 'h'], [6, 14, 'h']);
+                behind = [[10, 6, 'hhhhhhhh'], [11, 6, 'hHhhhhHh']];
+                break;
+            case 'ponytail':
+                nape('ohHo');
+                head.push([3, 9, 'zz'], [4, 9, 'hH'], [5, 9, 'hH'], [6, 9, 'hH'], [7, 9, 'hH'], [8, 9, 'hH'], [9, 9, 'hH'],
+                          [10, 9, 'hH'], [12, 9, 'hH'], [13, 9, 'h']);
+                break;
+            case 'buns':
+                head.push([2, 6, 'hh'], [3, 5, 'hhch'], [4, 6, 'zz'], [2, 12, 'hh'], [3, 11, 'hchh'], [4, 12, 'zz']);
+                break;
+            case 'wolf':
+                head.push([6, 5, 'h'], [6, 14, 'h'], [7, 5, 'h'], [7, 14, 'h']);
+                behind = [[10, 6, 'hhHhhHhh'], [11, 6, 'hh.hh.hh'], [12, 7, 'h..h']];
+                break;
+        }
+        const d = MINI[shape];
+        if (d) hips = K.skirtRuns(d, 17, true);
+        if (shape === 'oversize') hips = hips.concat([[17, 4, 'owwwwwwwwwwo'], [18, 4, 'oWWWWWWWWWWo']]);
+        if (v.bangle) armL = armL.map(x => (x[0] === 20 ? [x[0], x[1], 'ozzo'] : x));
+        return {
+            head: K.spec(head, col), hairBack: K.spec(behind, col),
+            chest: K.spec(r.chest, col), hips: K.spec(hips, col),
+            legL: K.spec(legL, col), legR: K.spec(K.mirrorRuns(legL), col),
+            armL: K.spec(armL, col), armR: K.spec(K.mirrorRuns(armL), col),
+        };
+    }
+
+    /* From the side, bent over (the side twerk), on lola's side body: her
+       front head turned to us (every expression), the hair flipped so a
+       ponytail swings behind, long hair hanging down her back */
+    function side(v) {
+        v = v || variant();
+        const P = palette(v), col = ch => P[ch];
+        const of = v.outfit || {};
+        const shape = (OUTFITS[of.name] || {}).shape || 'base';
+        const r = K.lolaSideRuns(v, true);
+        let far = boot(r.far), chest = r.chest.map(x => x.slice()), hips = r.hips, leg = boot(r.leg), arm = r.arm, seat = r.seat;
+        const d = MINI[shape];
+        if (d) {
+            const end = 23;
+            hips = K.sideSkirt(d, end);
+            seat = K.seatOf(hips);
+            leg = leg.filter(x => x[0] > end); far = far.filter(x => x[0] > end);
+        }
+        if (shape === 'qipao') chest.forEach(x => { if (x[0] === 11) x[2] = 'ozzzzo'; });   /* the mandarin collar */
+        if (shape === 'oversize') {
+            /* the boxy tee hangs over the top of her hips, a print on the chest */
+            hips = hips.concat([[17, 4, 'owwwwwo'], [18, 3, 'oWWWWWo']]);
+            chest = chest.concat([[13, 15, 'qq'], [14, 15, 'qq']]);
+        }
+        if (v.bangle) arm = arm.map(x => (x[0] === 21 ? [x[0], x[1], 'ozzo'] : x));
+
+        const acc = ACC[HEADWEAR[of.name]];
+        const hair = hairLayers(acc && acc[2] && DOWN[v.hair] ? DOWN[v.hair] : v.hair);
+        const ear = v.earring === 'none' || !{ ponytail: 1, buns: 1 }[v.hair] ? '' :
+            '<rect x="4" y="7" width="1" height="1" fill="' + P.p + '"/><rect x="15" y="7" width="1" height="1" fill="' + P.p + '"/>';
+        let hang = [];
+        if (LONG[v.hair]) {
+            hang = [[4, 8, 'hh'], [5, 7, 'hhH'], [6, 7, 'hhH'], [7, 6, 'hhH'], [8, 6, 'hhH'], [9, 5, 'hhH'], [10, 5, 'hhH'],
+                    [11, 4, 'hhH'], [12, 4, 'hhH'], [13, 4, 'hHh'], [14, 4, 'hh']];
+            if (v.hair === 'hime') hang.push([15, 4, 'HH']);
+        }
+        if (v.hair === 'wolf') hang = [[8, 7, 'hh'], [9, 6, 'hhH'], [10, 6, 'hH'], [11, 6, 'h']];
+        const front = K.pix(faceRows(v.face), 5, 1, col) + K.pix(K.mirror(hair.F), 1, Y0, col) +
+                      (acc ? K.pix(K.mirror(acc[1]), 1, acc[0], col) : '') + ear;
+        return {
+            legL: K.spec(leg, col), legR: '',
+            hips: K.spec(hips, col),
+            chest: K.spec(far, col) + K.spec(chest, col) + K.spec(seat, col),
+            armL: '', armR: K.spec(arm, col),
+            head: K.spec(hang, col) + K.shiftRects(front, 6, 0),
+        };
+    }
+
     M.register('moe', {
         variant: variant,
         restyle: restyle,
         parts: parts,
         faces: FACES, sadFaces: SAD_FACES, extraFaces: ['skyward'],
         outfits: OUTFITS,
-        views: { back: true, look: false, side: false },
-        twerk: false,
+        pose: pose,
+        side: side,
+        views: { back: true, look: true, side: true },
+        twerk: true,
+        partner: true,
     });
 })();

@@ -113,8 +113,9 @@ One screen, four parts: **search** at the top, the **cover wall** to browse, **N
   the kit and registry in `assets/js/mascots.js`); and crt, a monitor buddy. Each body
   part is baked into one pixelated image in the browser, so no hairlines show between
   pixel rows when the parts turn. Reggaeton twerks facing away, looking back over the
-  shoulder or from the side (Moe never twerks); 40-odd moves in all, each with a random
-  tempo and sometimes mirrored. **Settings → Mascots** shows them all dancing: pick one (or
+  shoulder or from the side (the whole cast; Lola and Moe often with a partner behind
+  them, hands on the waist); 40-odd moves in all, each with a random tempo and sometimes
+  mirrored. **Settings → Mascots** shows them all dancing: pick one (or
   Random, or Everyone: the whole cast at once on a song with no lyrics) and how they dance
   (the song's genre, random moves, or one genre's moves). A melancholic song gets sad, slow
   moves instead (moping, hugging themselves, a hand on the heart, a hand to the chin,

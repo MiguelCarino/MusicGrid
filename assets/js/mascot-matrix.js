@@ -27,7 +27,9 @@
  * Views: front; back (the posed twerk from behind: wide squat, hands on
  * the knees, hips nearest us, a seat under the hips so nothing opens up
  * when they bounce); look (the same, peeking back over his shoulder in
- * three-quarter). No side view (side: false).
+ * three-quarter); side (bent over in profile, hips pushed back, a hand on
+ * the near knee, his front head turned to us; a seat under the hips). He
+ * may get a crew in the side twerk, never the partner.
  *
  * His letters (his own palette, built in palette(v)):
  *   o outline   s S skin   e eyes   B brows   m mouth   z Z beard (jaw, chin)
@@ -1163,12 +1165,102 @@
             armL: K.spec(armL, col), armR: K.spec(K.mirrorRuns(armL), col),
         };
     }
+    /* ── From the side, bent over (the side twerk) ──────────────── */
+    /* facing right: the torso leaning forward, the hips pushed back (left),
+       the near knee bent forward, his hand on it, the far leg behind; his
+       front head (every face, hair, hat and shades) turned to us. The seat
+       (the hips' shape in cloth, in the chest group) fills in under the
+       hips when they bounce. */
+    function side(v) {
+        v = v || variant();
+        const P = palette(v), col = ch => P[ch];
+        const of = v.outfit || {};
+        const o = OUTFITS[of.name] || OUTFITS.tee;
+        const body = o.body;
+        /* the far leg, behind the hips */
+        let far = [
+            [22, 5, 'oaaAo'], [23, 5, 'oaaAo'], [24, 5, 'otTo'], [25, 5, 'otTo'], [26, 5, 'ojJo'], [27, 5, 'ojJo'],
+            [28, 5, 'oiIo'], [29, 4, 'onnnno'], [30, 4, 'oggggo'],
+        ];
+        /* the torso, leaning forward: shoulders up front, the back sloping
+           down to the waist, the chest's underside facing the floor */
+        let chest = [
+            [11, 13, 'ouuuuuuo'],
+            [12, 11, 'ouuuuuuuuuo'],
+            [13, 9, 'occcccccccccCo'],
+            [14, 8, 'occcccccccccCo'],
+            [15, 7, 'occcccccccccCo'],
+            [16, 6, 'occcccccccCCo'],
+            [17, 6, 'oCCCCCCCCCo'],
+        ];
+        if (body === 'tee' && of.print) chest.push([14, 13, 'XX'], [15, 13, 'XX']);
+        if (body === 'tank') chest = chest.concat([[11, 13, 'oscccsso'], [12, 11, 'osscccssssso']]);
+        if (body === 'bare') chest = chest.concat([[11, 13, 'osssssso'], [12, 11, 'osssssssSso'], [14, 15, 'SS'], [15, 12, 'S'], [15, 15, 'S']]);
+        if (body === 'hoodie') chest = chest.concat([[10, 12, 'oCCCo'], [11, 11, 'oCCCCuuuo'], [12, 10, 'oCccCuuuuuuo'], [15, 14, 'ddd']]);
+        if (body === 'shirt') chest = chest.concat([[12, 16, 'dd'], [13, 18, 'X'], [15, 17, 'X']]);
+        if (body === 'track') chest = chest.concat([[12, 17, 'X'], [13, 18, 'X'], [14, 19, 'X']]);
+        if (body === 'agent') chest = chest.concat([[10, 14, 'oCCCo'], [11, 13, 'oCCCCCCo']]);
+        /* the hips in his bottoms, a belt at the top, a back pocket, a shine */
+        let hips = [
+            [17, 4, 'obbbbbbbbo'],
+            [18, 3, 'oppKKKppppppo'],
+            [19, 2, 'opKLKKpppppppo'],
+            [20, 1, 'oppKKKKppppppPo'],
+            [21, 1, 'opppppppppppPo'],
+            [22, 1, 'oPpppppppppPo'],
+            [23, 2, 'oPPpppppPPo'],
+            [24, 4, 'ooooooo'],
+        ];
+        if (!o.belt) hips[0] = [17, 4, 'oppppppppo'];
+        else hips.push([17, 10, 'M']);
+        /* the near leg: thigh forward to the knee, shin back down, the shoe */
+        let leg = [
+            [21, 9, 'oaaaao'],
+            [22, 9, 'oaaaaaAo'],
+            [23, 10, 'oaaaaaAo'],
+            [24, 12, 'otttTo'],
+            [25, 13, 'otttTo'],
+            [26, 13, 'ojjJo'],
+            [27, 12, 'ojjJo'],
+            [28, 12, 'oiiIo'],
+            [29, 11, 'onNnnnno'],
+            [30, 11, 'ogggggggo'],
+        ];
+        if (o.stripe) leg = leg.map(r => (r[0] <= 27 ? [r[0], r[1], 'o' + 'R' + r[2].slice(2)] : r));
+        /* the near arm: from the shoulder down to the hand on the knee */
+        let arm = [
+            [11, 16, 'ouuo'],
+            [12, 16, 'ovvVo'],
+            [13, 16, 'ovVVo'],
+            [14, 16, 'owwWo'],
+            [15, 15, 'owwWo'],
+            [16, 15, 'owwWo'],
+            [17, 14, 'owwWo'],
+            [18, 14, 'owwWo'],
+            [19, 14, 'oWWWo'],
+            [20, 14, 'ossSo'],
+            [21, 14, 'ossSo'],
+            [22, 14, 'osssSo'],
+            [23, 15, 'oooo'],
+        ];
+        if (o.stripe) arm = arm.map(r => (r[0] >= 12 && r[0] <= 19 ? [r[0], r[1], r[2][0] + 'r' + r[2].slice(2)] : r));
+        const front = head('front', v, col);
+        return {
+            legL: K.spec(leg, col), legR: '',
+            hips: K.spec(hips, col),
+            chest: K.spec(far, col) + K.spec(chest, col) + K.spec(K.seatOf(hips, 'p'), col),
+            armL: '', armR: K.spec(arm, col),
+            head: K.shiftRects(front, 6, 0),
+        };
+    }
+
     M.register('matrix', {
         variant: variant,
         restyle: restyle,
         parts: parts,
         pose: pose,
-        views: { back: true, look: true, side: false },
+        side: side,
+        views: { back: true, look: true, side: true },
         twerk: true,
         faces: FACES, sadFaces: SAD_FACES, extraFaces: ['skyward'],
         outfits: OUTFITS,

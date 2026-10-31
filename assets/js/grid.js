@@ -196,7 +196,10 @@
             setTimeout(function () { qBtn.innerHTML = svgIcon(ICON.plus); qBtn.classList.remove('done'); }, 1100);
             return;
         }
-        if (locked() && currentAlbum && isPlaying) { enqueue(cell._album, { from: 'wall', el: cell }); return; }
+        /* the first click plays; once music is on, a click adds the song to
+           Up next instead of cutting the one that's playing (its + button
+           and search still offer Play next) */
+        if (currentAlbum && isPlaying) { enqueue(cell._album, { from: 'wall', el: cell }); return; }
         setActiveCell(cell);
         play(cell._album, { from: 'wall' });
     }
@@ -1786,8 +1789,8 @@
 
         /* wall */
         grid.addEventListener('click', onGridClick);
-        grid.addEventListener('pointerenter', function (e) { if (e.pointerType === 'mouse') hoverWall = true; });
-        grid.addEventListener('pointerleave', function () { hoverWall = false; });
+        /* the wall keeps scrolling under the pointer (only Settings → Moving
+           wall, reduced motion or an open dialog stop it) */
         grid.addEventListener('scroll', function () {
             if (grid.scrollTop + grid.clientHeight >= grid.scrollHeight - grid.clientHeight * 0.5) {
                 populateGrid(grid); ensureScrollable(grid); trimGrid(grid);

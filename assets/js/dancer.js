@@ -20,9 +20,11 @@
     const NAMES = M.names;
 
     /* Genre → the moves it picks from (weighted by repeats). Reggaeton
-       twerks; moe never twerks and dances it with other moves instead. */
+       twerks: from behind, looking back, and from the side (the whole
+       cast twerks; a mascot registered twerk: false would dance it with
+       other moves instead). */
     const MOVES = {
-        reggaeton:  ['twerk', 'twerklook', 'twerkside', 'twerk', 'twerklook', 'twerkside', 'shimmy', 'bounce', 'cumbia',
+        reggaeton:  ['twerk', 'twerklook', 'twerkside', 'twerk', 'twerklook', 'twerkside', 'twerkside', 'shimmy', 'bounce', 'cumbia',
                      'macarena', 'cabbagepatch', 'bodyroll', 'merengue', 'samba',
                      'bachatahip', 'bachatawave', 'bachatastyle', 'salsaon1', 'merenguewalk', 'sonidera'],
         latin:      ['salsa', 'cumbia', 'salsa', 'sway', 'spin', 'twist', 'shimmy', 'tango', 'macarena', 'zapateado', 'hustle',
@@ -213,24 +215,34 @@
        0.85× and 1.2×, and sometimes the dancer mirrored. A twerk is either
        quick (about as written) or slow (about half speed), and sometimes the
        dancer has company: one or two others twerking from behind beside
-       them (any mascot that twerks), or, for lola from the side, a
-       partner behind her. Company stays for back-to-back twerks, and nobody
-       is mirrored while it's there, so the group holds its places. */
-    function rollCompany(name, view, solo, ctx) {
+       them (any mascot that twerks), or, for a partnered mascot (lola, moe)
+       twerking from the side, the partner behind her, hands on her waist.
+       From the side: PARTNER_ODDS the partner (partnered mascots only),
+       then SIDE_CREW_ODDS a crew, else solo; from behind: CREW_ODDS a crew.
+       Company stays for back-to-back twerks (the partner only while she
+       keeps twerking from the side), and nobody is mirrored while it's
+       there, so the group holds its places. */
+    const PARTNER_ODDS = 0.45, SIDE_CREW_ODDS = 0.2, CREW_ODDS = 0.3;
+    function rollCompany(name, view, solo) {
         if (NO_TWERK[name] || solo) return null;   /* solo: the whole cast is on stage already */
         const CREW = NAMES.filter(function (n) { return !NO_TWERK[n]; });   /* only those who twerk */
-        const r = Math.random();
-        if (r < 0.3 && CREW.length) {
-            const n = Math.random() < 0.6 ? 1 : 2, crew = [];
+        function crew() {
+            const n = Math.random() < 0.6 ? 1 : 2, list = [];
             for (let i = 0; i < n; i++) {
                 const who = CREW[Math.floor(Math.random() * CREW.length)];
                 /* no country for the company: nobody twerks in national dress */
-                crew.push({ name: who, v: M.variant(who, null) });
+                list.push({ name: who, v: M.variant(who, null) });
             }
-            return { crew: crew };
+            return { crew: list };
         }
-        if (M.partnered && M.partnered[name] && view === 'side' && r < 0.6) return { partner: M.partnerVariant() };
-        return null;
+        const r = Math.random();
+        if (view === 'side') {
+            const partner = M.partnered && M.partnered[name];
+            if (partner && r < PARTNER_ODDS) return { partner: M.partnerVariant() };
+            const from = partner ? PARTNER_ODDS : 0;
+            return r < from + SIDE_CREW_ODDS && CREW.length ? crew() : null;
+        }
+        return r < CREW_ODDS && CREW.length ? crew() : null;
     }
     /* 'play': the special move where the dancer plays one of this.insts
        (MGInstruments), class "mv-play inst-<id>" (assets/css/instruments.css) */
@@ -243,8 +255,11 @@
         const view = VIEW[move] || 'front';
         let company = null;
         if (!plain && view !== 'front') {
-            company = (this.company && VIEW[this.move]) ? this.company : rollCompany(this.name, view, this.solo, this.ctx);
+            company = (this.company && VIEW[this.move]) ? this.company : rollCompany(this.name, view, this.solo);
             if (company && company.partner && view !== 'side') company = null;   /* a partner only from the side */
+            /* turning to the side with a crew from behind: the partner may cut in */
+            if (company && company.crew && view === 'side' && this.view !== 'side' && M.partnered && M.partnered[this.name] &&
+                Math.random() < PARTNER_ODDS) company = { partner: M.partnerVariant() };
         }
         const inst = move === 'play' && this.insts.length ? this.insts[Math.floor(Math.random() * this.insts.length)] : '';
         if (move === 'play' && !inst) move = 'bounce';

@@ -22,6 +22,7 @@
  *   MGMascots.faces(name) / express(name, v)  its expressions / v with another one
  *        figure opts: crew, partner, instrument (window.MGInstruments id)
  *   MGMascots.noTwerk / side / look        who never twerks / has a side / a look-back view
+ *                                          (today the whole cast twerks, and from the side)
  *
  * Every figure is the same skeleton, so the CSS moves (grid.css, .mv-*) fit
  * them all: .fig > .leg-l .leg-r .upper > .hips .chest .arm-l .arm-r .head,
@@ -82,6 +83,11 @@
         return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + o + '"/>' +
                '<rect x="' + (x + 1) + '" y="' + (y + 1) + '" width="' + (w - 2) + '" height="' + (h - 2) + '" fill="' + fill + '"/>';
     }
+    /* move rect markup by (dx, dy) pixels (it stays rects-only, so it
+       still bakes): e.g. a front head set on a side-twerk body */
+    function shiftRects(markup, dx, dy) {
+        return markup.replace(/<rect x="(-?\d+)" y="(-?\d+)"/g, (m, x, y) => '<rect x="' + (+x + dx) + '" y="' + (+y + (dy || 0)) + '"');
+    }
     function mirror(rows) { return rows.map(r => r.split('').reverse().join('')); }
     function shade(hex, k) {   /* darken (k < 1) or lighten (k > 1) a #rrggbb */
         const n = parseInt(hex.slice(1), 16);
@@ -110,6 +116,66 @@
             armL: block(2, 15, 4, 8, b.arm, b.o),
             armR: block(14, 15, 4, 8, b.arm, b.o),
             head: headRects(name, view === 'back'),
+        };
+    }
+
+    /* crt bent over from the side (the side twerk): the beige body
+       leaning forward, the grey seat pushed back, the near knee bent with
+       a hand on it, the monitor still facing us, smiling. The seat (the
+       hips' shape, in the chest group) fills in under the bouncing hips. */
+    function crtSide() {
+        const b = BODIES.crt;
+        const P = { o: b.o, c: b.torso, C: shade(b.torso, 0.86), t: b.trim, a: b.leg, A: shade(b.leg, 0.82) };
+        const col = ch => P[ch];
+        const far = [[23, 5, 'oaAo'], [24, 5, 'oaAo'], [25, 5, 'oaAo'], [26, 5, 'oaAo'], [27, 5, 'oaAo'], [28, 4, 'oaaAo'], [29, 4, 'ooooo']];
+        /* the beige body, tilted forward under the monitor's stand */
+        const torso = [
+            [14, 9, 'oooooooooooooo'],
+            [15, 7, 'occcccccccccCCo'],
+            [16, 6, 'occccccccccCCo'],
+            [17, 5, 'occcccccctcCo'],
+            [18, 4, 'occcccccctCo'],
+            [19, 4, 'occcccccCo'],
+            [20, 4, 'oCCCCCCo'],
+        ];
+        const hips = [
+            [18, 1, 'oooooo'],
+            [19, 0, 'oaaaaaao'],
+            [20, 0, 'oaaaaaaaao'],
+            [21, 0, 'oaaaaaaaAo'],
+            [22, 0, 'oaaaaaaaAo'],
+            [23, 0, 'oAaaaaaAAo'],
+            [24, 1, 'oAAAAAAo'],
+            [25, 2, 'oooooo'],
+        ];
+        const leg = [
+            [21, 7, 'oaaaao'],
+            [22, 7, 'oaaaaaao'],
+            [23, 8, 'oaaaaaAo'],
+            [24, 11, 'oaaaAo'],
+            [25, 12, 'oaaAo'],
+            [26, 12, 'oaaAo'],
+            [27, 12, 'oaaAo'],
+            [28, 11, 'oaaaaAo'],
+            [29, 11, 'ooooooo'],
+        ];
+        const arm = [
+            [15, 17, 'oooo'],
+            [16, 17, 'oaAo'],
+            [17, 17, 'oaAo'],
+            [18, 16, 'oaAo'],
+            [19, 16, 'oaAo'],
+            [20, 15, 'oaAo'],
+            [21, 15, 'oaAo'],
+            [22, 14, 'oaaAo'],
+            [23, 14, 'ooooo'],
+        ];
+        return {
+            legL: spec(leg, col), legR: '',
+            hips: spec(hips, col),
+            chest: spec(far, col) + spec(torso, col) + spec(seatOf(hips, 'a'), col),
+            armL: '', armR: spec(arm, col),
+            head: shiftRects(headRects('crt', false), 6, -1),
         };
     }
 
@@ -668,10 +734,29 @@
         });
         return out;
     }
+    /* lolaSideRuns(v, plain): the side twerk as runs { far chest seat hips
+       leg arm head } (plain = no national dress: another character's
+       outfits on lola's body, see mascot-moe.js); lolaSide(v) draws them */
     function lolaSide(v) {
         v = v || lolaVariant();
         const P = lolaPalette(v);
         const col = ch => P[ch];
+        const r = lolaSideRuns(v);
+        return {
+            legL: spec(r.leg, col), legR: '',
+            hips: spec(r.hips, col),
+            chest: spec(r.far, col) + spec(r.chest, col) + spec(r.seat, col),
+            armL: '', armR: spec(r.arm, col),
+            head: spec(r.head, col),
+        };
+    }
+    /* the seat under bouncing hips: the hips' own shape all in cloth (no
+       outline), drawn in the chest group, so when the hips dip or rock
+       cloth shows where they were, never a hole */
+    function seatOf(runs, ch) {
+        return runs.map(r => [r[0], r[1], r[2].replace(/[^.]/g, ch || 'k')]);
+    }
+    function lolaSideRuns(v, plain) {
         /* the far leg, tucked behind the hips */
         const far = [
             [23, 6, 'otto'], [24, 6, 'otto'], [25, 6, 'otto'], [26, 6, 'ojjo'], [27, 6, 'ojjo'], [28, 6, 'ojjo'],
@@ -752,7 +837,7 @@
         if (v.hair === 'buns') head.unshift([1, 13, 'hH'], [1, 17, 'Hh']);
         if (v.hair === 'curly') head.unshift([2, 12, 'h'], [3, 11, 'hH'], [4, 11, 'h'], [5, 11, 'H'], [6, 11, 'h'], [7, 11, 'h']);
         if (v.hair === 'bob') head.push([7, 11, 'h'], [8, 11, 'hH'], [9, 11, 'h']);
-        const d = dressOf(v);
+        const d = plain ? null : dressOf(v);
         let farRuns = far, chestRuns = chest, hipRuns = hips, legRuns = leg, armRuns = arm;
         if (d) {
             const o = outfitEntry(v);
@@ -781,13 +866,7 @@
             const top = printer(v, 'top');
             if (top) { chestRuns = paintRuns(chestRuns, top); armRuns = paintRuns(armRuns, top); }
         }
-        return {
-            legL: spec(legRuns, col), legR: '',
-            hips: spec(hipRuns, col),
-            chest: spec(farRuns, col) + spec(chestRuns, col),
-            armL: '', armR: spec(armRuns, col),
-            head: spec(head, col),
-        };
+        return { far: farRuns, chest: chestRuns, seat: seatOf(hipRuns), hips: hipRuns, leg: legRuns, arm: armRuns, head: head };
     }
     /* the side view's skirt, y 17 down to `end`, flaring toward the knee */
     function sideSkirt(d, end) {
@@ -823,6 +902,18 @@
         v = v || lolaVariant();
         const P = lolaPalette(v);
         const col = ch => P[ch];
+        const r = lolaBackRuns(v, look);
+        return {
+            head: spec(r.head, col), hairBack: spec(r.behindHead, col),
+            chest: spec(r.chest, col), hips: spec(r.hips, col),
+            legL: spec(r.legL, col), legR: spec(mirrorRuns(r.legL), col),
+            armL: spec(r.armL, col), armR: spec(mirrorRuns(r.armL), col),
+        };
+    }
+    /* lolaBackRuns(v, look, plain): the same as runs { head behindHead
+       chest hips legL armL } (legR / armR = mirrorRuns of legL / armL);
+       plain = no national dress */
+    function lolaBackRuns(v, look, plain) {
         /* from behind, long hair (and a ponytail) hangs over the nape */
         const neck = { long: 'hhhh', bob: 'hhhh', ponytail: 'ohHo' }[v.hair] || 'osso';
         /* look: a three-quarter peek — mostly the back of her head, her
@@ -892,7 +983,7 @@
         let armL = [[12, 3, 'ovvo'], [13, 3, 'ovVo'], [14, 2, 'osso'], [15, 2, 'osso'], [16, 1, 'osso'], [17, 1, 'osso'], [18, 1, 'osso'],
                       [19, 1, 'osso'], [20, 1, 'osso'], [21, 1, 'osSo'], [22, 1, 'osso'], [23, 1, 'osso'], [24, 2, 'oo']];
         let hipRuns = hips;
-        const d = dressOf(v);
+        const d = plain ? null : dressOf(v);
         if (d) {
             const o = outfitEntry(v);
             const set = (runs, y, str) => { runs.forEach(r => { if (r[0] === y) r[2] = str; }); };
@@ -916,15 +1007,10 @@
             const top = printer(v, 'top');
             if (top) { chest = paintRuns(chest, top); armL = paintRuns(armL, top); }
         }
-        return {
-            head: spec(head, col), hairBack: spec(behindHead, col),
-            chest: spec(chest, col), hips: spec(hipRuns, col),
-            legL: spec(legL, col), legR: spec(mirrorRuns(legL), col),
-            armL: spec(armL, col), armR: spec(mirrorRuns(armL), col),
-        };
+        return { head: head, behindHead: behindHead, chest: chest, hips: hipRuns, legL: legL, armL: armL };
     }
 
-    /* The partner: an original adult man who sometimes dances behind lola
+    /* The partner: an original adult man who often dances behind lola (or moe)
        in the side twerk, hands on her waist. Random skin, hair, shirt, cap. */
     function partnerVariant() {
         const pick = arr => arr[Math.floor(Math.random() * arr.length)];
@@ -1107,13 +1193,21 @@
                               peeking back) { head hairBack chest hips legL
                               legR armL armR }; used for 'back' / 'look'
          def.side(v)          optional: the side twerk { chest hips legL armR
-                              head } (legR / armL may be '')
+                              head } (legR / armL may be ''): facing right,
+                              hips pushed back, the hips' joint at their
+                              top right (grid.css bounces them about 85%
+                              15%); put a seat (kit.seatOf(hipRuns)) in the
+                              chest so no hole opens when they move
          def.single(view, v)  optional, overrides the three above: a markup
                               string ('<g class="fig ...">' with the skeleton)
                               or a parts object (layout: 'stand'|'pose'|'side')
          def.views            { back, look, side }: which twerk views it has
          def.twerk            false = never twerks (and never joins a crew)
          def.partner          true = may get the partner in the side twerk
+                              (a woman on lola's side body: lola, moe)
+         def.partnerX         optional: how far right the dancer stands
+                              from the partner (default 3: his hands on
+                              lola's side body's waist)
        Every part is markup made of <rect>s only (kit.pix / kit.spec /
        kit.block); figure() bakes each one into a seam-free image. A front
        chest may wrap its bust rows in kit.bustGroup(rects) (<g class="bust">)
@@ -1156,7 +1250,8 @@
             if (view === 'look') p.head = headRects('crt', false);
             return p;
         },
-        views: { back: true, look: false, side: false },
+        side: crtSide,
+        views: { back: true, look: false, side: true },
         twerk: true,
         hold: { x: 0, y: 5 },
     });
@@ -1198,7 +1293,7 @@
         if (opts.partner && view === 'side') {
             const pp = partnerSprite(opts.partner);
             out = '<g class="partner" shape-rendering="crispEdges">' + pp.body + '</g>' +
-                  '<g transform="translate(3 0)">' + single(name, view, v) + '</g>' +
+                  '<g transform="translate(' + ((REG[name] && REG[name].partnerX) || 3) + ' 0)">' + single(name, view, v) + '</g>' +
                   '<g class="partner" shape-rendering="crispEdges">' + pp.arm + '</g>';
         } else if (opts.crew && opts.crew.length) {
             const crew = opts.crew;
@@ -1251,6 +1346,8 @@
         pix: pix, spec: spec, block: block, shade: shade, mirror: mirror, mirrorRuns: mirrorRuns,
         rowsAt: rowsAt, clothShades: clothShades, pick: arr => arr[Math.floor(Math.random() * arr.length)],
         lolaParts: lolaParts, lolaBack: lolaBack, lolaSide: lolaSide, lolaPalette: lolaPalette,
+        lolaBackRuns: lolaBackRuns, lolaSideRuns: lolaSideRuns, seatOf: seatOf, sideSkirt: sideSkirt, skirtRuns: skirtRuns,
+        hatRuns: hatRuns, shiftRects: shiftRects, toRuns: toRuns,
         lolaVariant: lolaVariant, lolaRestyle: restyle, lolaHairLayers: lolaHairLayers,
         pickOutfit: pickOutfit, OUTFITS: OUTFITS, SHOES: SHOES, SKINS: SKINS, FAIR_HAIR: FAIR_HAIR,
         HAIR_STYLES: HAIR_STYLES, HAIR_COLOURS: HAIR_COLOURS, LOLA: LOLA, LOLA_FACE: LOLA_FACE, CAP: CAP,

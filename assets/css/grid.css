@@ -1036,9 +1036,9 @@ div.mg-set-row { cursor: default; }
 .mv-twerklook .head { animation-name: dLookBack; animation-duration: calc(var(--b) * 4); }
 @keyframes dLookBack { 0%, 100% { transform: rotate(-6deg) translateY(0); } 50% { transform: rotate(4deg) translateY(-0.6px); } }
 
-/* twerkside — lola's own side sprite (bent over, hips back, hand on the
-   knee, face to us): everything holds still but the hips, which bounce,
-   and the head, which nods along */
+/* twerkside — each mascot's own side sprite (bent over, hips back, hand on
+   the knee, face to us): everything holds still but the hips, which bounce
+   over a seat drawn in the chest, and the head, which nods along */
 .mv-twerkside { --beat: 0.28s; }
 .mv-twerkside .fig, .mv-twerkside .upper, .mv-twerkside .chest,
 .mv-twerkside .arm, .mv-twerkside .leg { transform: none; animation: none; }
