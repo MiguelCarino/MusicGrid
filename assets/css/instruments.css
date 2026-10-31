@@ -1,0 +1,272 @@
+/* MusicGrid — playing an instrument (assets/js/instruments.js).
+   dancer.js gives the dancer "mv-play inst-<id>" and draws the instrument
+   in the skeleton as .instrument groups (.inst-back / .inst-front held with
+   the torso in .upper, .inst-stage on the floor in .fig). The base .mv-play
+   keeps the body nodding along; each instrument poses and moves the arms.
+   Paused with the song and still under reduced motion like every move
+   (grid.css): the arms then rest in the playing pose (--a0).
+
+   How the arms move: every arm turns about its shoulder through a few
+   angles set as variables on it (--a0 … --a3) by one of the shared
+   keyframes below (iSwing a0 ⇄ a1, iStep4 a0 a1 a2 a3 held in turn, iHit
+   a1 up → a0 down, iHold a0 still). The angles were set by eye on lola
+   (and moe, the same body); crt and matrix have other shoulders and
+   longer or shorter arms, so their angles are worked out to put their
+   hands on the same spots of the instrument.
+
+   Things held in a hand (.held-l / .held-r: drumsticks, the bow, the
+   bachi, maracas, the mic, the güira brush) are drawn as lola's arm stands
+   at --k; they turn with the arm by the same keyframes, less --k, about
+   her shoulder (--ho, in the instrument's coordinates); crt and matrix move
+   that point (--ho / --ht) so the thing stays in their own hand. */
+.mv-play { --beat: 0.42s; }
+.mv-play .fig   { animation-name: iBob; animation-duration: calc(var(--b) * 2); }
+.mv-play .head  { animation-name: iNod; animation-duration: calc(var(--b) * 2); }
+.mv-play .leg-r { animation-name: iTap; animation-duration: calc(var(--b) * 2); }
+.dancer .instrument { transform-box: fill-box; transform-origin: 50% 50%; }
+/* crt: its def.hold (mascots.js) moves what it holds 5 px down to its
+   torso; its short arms want it 2 px higher, and its drum kit back on the
+   floor */
+.mv-play[data-mascot="crt"] .inst-back, .mv-play[data-mascot="crt"] .inst-front { translate: 0 -2px; }
+.mv-play[data-mascot="crt"] .inst-stage { translate: 0 -5px; }
+
+/* the arms rest in the pose, the held things turn with them */
+.mv-play .arm { transform: rotate(calc(var(--a0, 0deg) - var(--k, 0deg))); }
+.dancer .held {
+    transform-box: view-box;
+    transform-origin: var(--ho);
+    translate: var(--ht);
+    transform: rotate(calc(var(--a0, 0deg) - var(--k, 0deg)));
+    animation-duration: var(--b);
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+}
+.dancer .held-l { --ho: 4px 11px; --ht: 0px 0px; }
+.dancer .held-r { --ho: 16px 11px; --ht: 0px 0px; }
+
+@keyframes iBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(0.8px) scaleY(0.99); } }
+@keyframes iNod { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(5deg) translateY(0.4px); } }
+@keyframes iTap { 0%, 60%, 100% { transform: rotate(0); } 30% { transform: rotate(-7deg); } }
+@keyframes iSway { 0%, 100% { transform: rotate(-2.5deg); } 50% { transform: rotate(2.5deg); } }
+
+/* the shared arm keyframes (each arm sets its own --a0 … --a3; held
+   things also --k) */
+@keyframes iHold  { 0%, 100% { transform: rotate(calc(var(--a0) - var(--k, 0deg))); } }
+@keyframes iSwing { 0%, 100% { transform: rotate(calc(var(--a0) - var(--k, 0deg))); }
+                    50%      { transform: rotate(calc(var(--a1) - var(--k, 0deg))); } }
+@keyframes iStep4 { 0%, 100% { transform: rotate(calc(var(--a0) - var(--k, 0deg))); }
+                    25%      { transform: rotate(calc(var(--a1) - var(--k, 0deg))); }
+                    50%      { transform: rotate(calc(var(--a2) - var(--k, 0deg))); }
+                    75%      { transform: rotate(calc(var(--a3) - var(--k, 0deg))); } }
+/* up, a quick strike down, a bounce back up */
+@keyframes iHit   { 0%, 100% { transform: rotate(calc(var(--a1) - var(--k, 0deg))); animation-timing-function: ease-in; }
+                    35%      { transform: rotate(calc(var(--a0) - var(--k, 0deg))); animation-timing-function: ease-out; } }
+/* the drummer's right hand: the floor tom three times, then up to the crash */
+@keyframes iDrumR { 0%, 100% { transform: rotate(calc(var(--a1) - var(--k, 0deg))); animation-timing-function: ease-in; }
+                    9%       { transform: rotate(calc(var(--a0) - var(--k, 0deg))); animation-timing-function: ease-out; }
+                    25%      { transform: rotate(calc(var(--a1) - var(--k, 0deg))); animation-timing-function: ease-in; }
+                    34%      { transform: rotate(calc(var(--a0) - var(--k, 0deg))); animation-timing-function: ease-out; }
+                    50%      { transform: rotate(calc(var(--a1) - var(--k, 0deg))); animation-timing-function: ease-in; }
+                    59%      { transform: rotate(calc(var(--a0) - var(--k, 0deg))); animation-timing-function: ease-out; }
+                    72%      { transform: rotate(calc(var(--a1) - var(--k, 0deg))); animation-timing-function: ease-in; }
+                    82%      { transform: rotate(calc(var(--a2) - var(--k, 0deg))); animation-timing-function: ease-out; } }
+
+/* ── timing per instrument ───────────────────────────────────── */
+/* the fretting hands move between chords, two beats each */
+.mv-play:is(.inst-guitar, .inst-acoustic, .inst-bass, .inst-banjo, .inst-ukulele, .inst-cuatro, .inst-guitarron,
+            .inst-balalaika, .inst-shamisen, .inst-keytar) .arm-l { animation-duration: calc(var(--b) * 8); animation-timing-function: steps(1, end); }
+/* quick hands: banjo rolls, balalaika and cuatro tremolo, maracas */
+.mv-play:is(.inst-banjo, .inst-balalaika, .inst-cuatro) .arm-r { animation-duration: calc(var(--b) / 2); }
+.mv-play.inst-guitarron .arm-r { animation-duration: calc(var(--b) * 2); }
+.mv-play.inst-keytar .arm-r { animation-duration: calc(var(--b) * 4); animation-timing-function: steps(1, end); }
+.mv-play.inst-trumpet .arm-r { animation-duration: calc(var(--b) * 2); animation-timing-function: steps(1, end); }
+.mv-play.inst-violin .arm-l { animation-duration: calc(var(--b) * 4); }
+.mv-play.inst-violin :is(.arm-r, .held-r) { animation-duration: calc(var(--b) * 2); }
+.mv-play.inst-maracas :is(.arm-l, .held-l, .arm-r, .held-r) { animation-duration: calc(var(--b) / 2); }
+.mv-play.inst-maracas :is(.arm-r, .held-r) { animation-delay: calc(var(--b) / -4); }
+.mv-play.inst-guira :is(.arm-r, .held-r) { animation-duration: calc(var(--b) / 2); }
+.mv-play.inst-mic :is(.arm-l) { animation-duration: calc(var(--b) * 2); }
+.mv-play.inst-accordion :is(.arm-l, .arm-r) { animation-duration: calc(var(--b) * 2); }
+.mv-play.inst-sax :is(.arm-l, .arm-r) { animation-duration: calc(var(--b) / 2); animation-timing-function: steps(1, end); }
+.mv-play.inst-drums :is(.arm-r, .held-r) { animation-duration: calc(var(--b) * 4); }
+.mv-play.inst-drums :is(.arm-l, .held-l) { animation-delay: calc(var(--b) / -2); }
+
+/* ── the instruments' own moves ──────────────────────────────── */
+/* the accordion's bellows open and close with the arms */
+.mv-play.inst-accordion .inst-back { animation: iBellows calc(var(--b) * 2) ease-in-out infinite; }
+@keyframes iBellows { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(0.86); } }
+/* the horn lifts on the long notes; the sax player sways */
+.mv-play.inst-trumpet .upper { animation-name: iLift; animation-duration: calc(var(--b) * 4); }
+@keyframes iLift { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-3deg) translateY(-0.4px); } }
+.mv-play.inst-sax .upper { animation-name: iSway; animation-duration: calc(var(--b) * 4); }
+/* behind the drums: the kit stays on the floor, only the drummer bobs */
+.mv-play.inst-drums .fig { animation: none; }
+.mv-play.inst-drums .upper { animation-name: iBob; }
+
+/* guitar */
+.mv-play.inst-guitar .arm-l { --a0: 38deg; --a1: 34deg; --a2: 41deg; --a3: 36deg; animation-name: iStep4; }
+.mv-play.inst-guitar[data-mascot="crt"] .arm-l { --a0: 48.3deg; --a1: 43.5deg; --a2: 51.9deg; --a3: 45.9deg; }
+.mv-play.inst-guitar[data-mascot="matrix"] .arm-l { --a0: 28.2deg; --a1: 23.8deg; --a2: 31.6deg; --a3: 26deg; }
+.mv-play.inst-guitar .arm-r { --a0: 14deg; --a1: 30deg; animation-name: iSwing; }
+.mv-play.inst-guitar[data-mascot="crt"] .arm-r { --a0: 18.3deg; --a1: 38.6deg; }
+.mv-play.inst-guitar[data-mascot="matrix"] .arm-r { --a0: 24.8deg; --a1: 39.4deg; }
+
+/* acoustic */
+.mv-play.inst-acoustic .arm-l { --a0: 33deg; --a1: 30deg; --a2: 36deg; --a3: 32deg; animation-name: iStep4; }
+.mv-play.inst-acoustic[data-mascot="crt"] .arm-l { --a0: 42.3deg; --a1: 38.6deg; --a2: 45.9deg; --a3: 41.1deg; }
+.mv-play.inst-acoustic[data-mascot="matrix"] .arm-l { --a0: 22.7deg; --a1: 19.4deg; --a2: 26deg; --a3: 21.6deg; }
+.mv-play.inst-acoustic .arm-r { --a0: 18deg; --a1: 32deg; animation-name: iSwing; }
+.mv-play.inst-acoustic[data-mascot="crt"] .arm-r { --a0: 23.5deg; --a1: 41.1deg; }
+.mv-play.inst-acoustic[data-mascot="matrix"] .arm-r { --a0: 28.5deg; --a1: 41.2deg; }
+
+/* bass */
+.mv-play.inst-bass .arm-l { --a0: 41deg; --a1: 38deg; --a2: 45deg; --a3: 40deg; animation-name: iStep4; }
+.mv-play.inst-bass[data-mascot="crt"] .arm-l { --a0: 51.9deg; --a1: 48.3deg; --a2: 56.6deg; --a3: 50.7deg; }
+.mv-play.inst-bass[data-mascot="matrix"] .arm-l { --a0: 31.6deg; --a1: 28.2deg; --a2: 36.2deg; --a3: 30.5deg; }
+.mv-play.inst-bass .arm-r { --a0: 16deg; --a1: 25deg; animation-name: iSwing; }
+.mv-play.inst-bass[data-mascot="crt"] .arm-r { --a0: 20.9deg; --a1: 32.4deg; }
+.mv-play.inst-bass[data-mascot="matrix"] .arm-r { --a0: 26.6deg; --a1: 34.9deg; }
+
+/* banjo */
+.mv-play.inst-banjo .arm-l { --a0: 36deg; --a1: 33deg; --a2: 39deg; --a3: 35deg; animation-name: iStep4; }
+.mv-play.inst-banjo[data-mascot="crt"] .arm-l { --a0: 45.9deg; --a1: 42.3deg; --a2: 49.5deg; --a3: 44.7deg; }
+.mv-play.inst-banjo[data-mascot="matrix"] .arm-l { --a0: 26deg; --a1: 22.7deg; --a2: 29.3deg; --a3: 24.9deg; }
+.mv-play.inst-banjo .arm-r { --a0: 18deg; --a1: 30deg; animation-name: iSwing; }
+.mv-play.inst-banjo[data-mascot="crt"] .arm-r { --a0: 23.5deg; --a1: 38.6deg; }
+.mv-play.inst-banjo[data-mascot="matrix"] .arm-r { --a0: 28.5deg; --a1: 39.4deg; }
+
+/* ukulele */
+.mv-play.inst-ukulele .arm-l { --a0: 24deg; --a1: 21deg; --a2: 27deg; --a3: 23deg; animation-name: iStep4; }
+.mv-play.inst-ukulele[data-mascot="crt"] .arm-l { --a0: 31.1deg; --a1: 27.3deg; --a2: 34.9deg; --a3: 29.9deg; }
+.mv-play.inst-ukulele[data-mascot="matrix"] .arm-l { --a0: 12.9deg; --a1: 9.8deg; --a2: 16.1deg; --a3: 11.9deg; }
+.mv-play.inst-ukulele .arm-r { --a0: 24deg; --a1: 36deg; animation-name: iSwing; }
+.mv-play.inst-ukulele[data-mascot="crt"] .arm-r { --a0: 31.1deg; --a1: 45.9deg; }
+.mv-play.inst-ukulele[data-mascot="matrix"] .arm-r { --a0: 34deg; --a1: 44.7deg; }
+
+/* cuatro */
+.mv-play.inst-cuatro .arm-l { --a0: 28deg; --a1: 25deg; --a2: 31deg; --a3: 27deg; animation-name: iStep4; }
+.mv-play.inst-cuatro[data-mascot="crt"] .arm-l { --a0: 36.1deg; --a1: 32.4deg; --a2: 39.8deg; --a3: 34.9deg; }
+.mv-play.inst-cuatro[data-mascot="matrix"] .arm-l { --a0: 17.2deg; --a1: 14deg; --a2: 20.5deg; --a3: 16.1deg; }
+.mv-play.inst-cuatro .arm-r { --a0: 20deg; --a1: 32deg; animation-name: iSwing; }
+.mv-play.inst-cuatro[data-mascot="crt"] .arm-r { --a0: 26.1deg; --a1: 41.1deg; }
+.mv-play.inst-cuatro[data-mascot="matrix"] .arm-r { --a0: 30.3deg; --a1: 41.2deg; }
+
+/* guitarron */
+.mv-play.inst-guitarron .arm-l { --a0: 30deg; --a1: 27deg; --a2: 33deg; --a3: 29deg; animation-name: iStep4; }
+.mv-play.inst-guitarron[data-mascot="crt"] .arm-l { --a0: 38.6deg; --a1: 34.9deg; --a2: 42.3deg; --a3: 37.4deg; }
+.mv-play.inst-guitarron[data-mascot="matrix"] .arm-l { --a0: 19.4deg; --a1: 16.1deg; --a2: 22.7deg; --a3: 18.3deg; }
+.mv-play.inst-guitarron .arm-r { --a0: 2deg; --a1: 14deg; animation-name: iSwing; }
+.mv-play.inst-guitarron[data-mascot="crt"] .arm-r { --a0: 2.6deg; --a1: 18.3deg; }
+.mv-play.inst-guitarron[data-mascot="matrix"] .arm-r { --a0: 13.4deg; --a1: 24.8deg; }
+
+/* balalaika */
+.mv-play.inst-balalaika .arm-l { --a0: 39deg; --a1: 36deg; --a2: 42deg; --a3: 38deg; animation-name: iStep4; }
+.mv-play.inst-balalaika[data-mascot="crt"] .arm-l { --a0: 49.5deg; --a1: 45.9deg; --a2: 53.1deg; --a3: 48.3deg; }
+.mv-play.inst-balalaika[data-mascot="matrix"] .arm-l { --a0: 29.3deg; --a1: 26deg; --a2: 32.7deg; --a3: 28.2deg; }
+.mv-play.inst-balalaika .arm-r { --a0: 18deg; --a1: 30deg; animation-name: iSwing; }
+.mv-play.inst-balalaika[data-mascot="crt"] .arm-r { --a0: 23.5deg; --a1: 38.6deg; }
+.mv-play.inst-balalaika[data-mascot="matrix"] .arm-r { --a0: 28.5deg; --a1: 39.4deg; }
+
+/* shamisen */
+.mv-play.inst-shamisen .arm-l { --a0: 84deg; --a1: 80deg; --a2: 86deg; --a3: 82deg; animation-name: iStep4; }
+.mv-play.inst-shamisen[data-mascot="crt"] .arm-l { --a0: 97.8deg; --a1: 93.9deg; --a2: 99.7deg; --a3: 95.8deg; }
+.mv-play.inst-shamisen[data-mascot="matrix"] .arm-l { --a0: 83.5deg; --a1: 78.5deg; --a2: 86deg; --a3: 81deg; }
+.mv-play.inst-shamisen .arm-r { --a0: 22deg; --a1: 40deg; animation-name: iHit; }
+.mv-play.inst-shamisen .held-r { --a0: 22deg; --a1: 40deg; --k: 25deg; animation-name: iHit; }
+.mv-play.inst-shamisen[data-mascot="crt"] .arm-r, .mv-play.inst-shamisen[data-mascot="crt"] .held-r { --a0: 28.6deg; --a1: 50.7deg; }
+.mv-play.inst-shamisen[data-mascot="crt"] .held-r { --ho: 15.45px 12.18px; --ht: 0.55px 0.62px; }
+.mv-play.inst-shamisen[data-mascot="matrix"] .arm-r, .mv-play.inst-shamisen[data-mascot="matrix"] .held-r { --a0: 32.2deg; --a1: 48.2deg; }
+.mv-play.inst-shamisen[data-mascot="matrix"] .held-r { --ho: 16.38px 10.18px; --ht: 1.12px 0.92px; }
+
+/* violin */
+.mv-play.inst-violin .arm-l { --a0: 92deg; --a1: 89deg; --a2: 95deg; --a3: 90deg; animation-name: iStep4; }
+.mv-play.inst-violin[data-mascot="crt"] .arm-l { --a0: 105.4deg; --a1: 102.5deg; --a2: 108.2deg; --a3: 103.5deg; }
+.mv-play.inst-violin[data-mascot="matrix"] .arm-l { --a0: 93.5deg; --a1: 89.7deg; --a2: 97.2deg; --a3: 91deg; }
+.mv-play.inst-violin .arm-r { --a0: 60deg; --a1: 82deg; animation-name: iSwing; }
+.mv-play.inst-violin .held-r { --a0: 60deg; --a1: 82deg; --k: 70deg; animation-name: iSwing; }
+.mv-play.inst-violin[data-mascot="crt"] .arm-r, .mv-play.inst-violin[data-mascot="crt"] .held-r { --a0: 73.3deg; --a1: 95.8deg; }
+.mv-play.inst-violin[data-mascot="crt"] .held-r { --ho: 14.78px 11.44px; --ht: 1.22px 1.36px; }
+.mv-play.inst-violin[data-mascot="matrix"] .arm-r, .mv-play.inst-violin[data-mascot="matrix"] .held-r { --a0: 65.5deg; --a1: 84deg; }
+.mv-play.inst-violin[data-mascot="matrix"] .held-r { --ho: 16.85px 10.69px; --ht: 0.65px 0.41px; }
+
+/* trumpet */
+.mv-play.inst-trumpet .arm-l { --a0: -125deg; animation-name: iHold; }
+.mv-play.inst-trumpet[data-mascot="crt"] .arm-l { --a0: -134.8deg; }
+.mv-play.inst-trumpet[data-mascot="matrix"] .arm-l { --a0: -119.9deg; }
+.mv-play.inst-trumpet .arm-r { --a0: -153deg; --a1: -150deg; --a2: -155deg; --a3: -151deg; animation-name: iStep4; }
+.mv-play.inst-trumpet[data-mascot="crt"] .arm-r { --a0: -158.1deg; --a1: -155.7deg; --a2: -159.8deg; --a3: -156.5deg; }
+.mv-play.inst-trumpet[data-mascot="matrix"] .arm-r { --a0: -164.3deg; --a1: -161.2deg; --a2: -166.4deg; --a3: -162.2deg; }
+
+/* sax */
+.mv-play.inst-sax .arm-l { --a0: -70deg; --a1: -75deg; animation-name: iSwing; }
+.mv-play.inst-sax[data-mascot="crt"] .arm-l { --a0: -83.8deg; --a1: -88.9deg; }
+.mv-play.inst-sax[data-mascot="matrix"] .arm-l { --a0: -73.9deg; --a1: -78.1deg; }
+.mv-play.inst-sax .arm-r { --a0: 24deg; --a1: 19deg; animation-name: iSwing; }
+.mv-play.inst-sax[data-mascot="crt"] .arm-r { --a0: 31.1deg; --a1: 24.8deg; }
+.mv-play.inst-sax[data-mascot="matrix"] .arm-r { --a0: 34deg; --a1: 29.4deg; }
+
+/* accordion */
+.mv-play.inst-accordion .arm-l { --a0: 17deg; --a1: 5deg; animation-name: iSwing; }
+.mv-play.inst-accordion[data-mascot="crt"] .arm-l { --a0: 22.2deg; --a1: 6.6deg; }
+.mv-play.inst-accordion[data-mascot="matrix"] .arm-l { --a0: 5.6deg; --a1: -6.5deg; }
+.mv-play.inst-accordion .arm-r { --a0: -21deg; --a1: -10deg; animation-name: iSwing; }
+.mv-play.inst-accordion[data-mascot="crt"] .arm-r { --a0: -27.3deg; --a1: -13.1deg; }
+.mv-play.inst-accordion[data-mascot="matrix"] .arm-r { --a0: -9.8deg; --a1: 1.6deg; }
+
+/* maracas */
+.mv-play.inst-maracas .arm-l { --a0: 120deg; --a1: 140deg; animation-name: iSwing; }
+.mv-play.inst-maracas .held-l { --a0: 120deg; --a1: 140deg; --k: 130deg; animation-name: iSwing; }
+.mv-play.inst-maracas[data-mascot="crt"] .arm-l, .mv-play.inst-maracas[data-mascot="crt"] .held-l { --a0: 130.5deg; --a1: 147.4deg; }
+.mv-play.inst-maracas[data-mascot="crt"] .held-l { --ho: 3px 10.16px; --ht: 1px 2.64px; }
+.mv-play.inst-maracas[data-mascot="matrix"] .arm-l, .mv-play.inst-maracas[data-mascot="matrix"] .held-l { --a0: 127.6deg; --a1: 150.4deg; }
+.mv-play.inst-maracas[data-mascot="matrix"] .held-l { --ho: 4.69px 11.58px; --ht: -2.19px -0.48px; }
+.mv-play.inst-maracas .arm-r { --a0: -120deg; --a1: -140deg; animation-name: iSwing; }
+.mv-play.inst-maracas .held-r { --a0: -120deg; --a1: -140deg; --k: -130deg; animation-name: iSwing; }
+.mv-play.inst-maracas[data-mascot="crt"] .arm-r, .mv-play.inst-maracas[data-mascot="crt"] .held-r { --a0: -130.5deg; --a1: -147.4deg; }
+.mv-play.inst-maracas[data-mascot="crt"] .held-r { --ho: 17px 10.16px; --ht: -1px 2.64px; }
+.mv-play.inst-maracas[data-mascot="matrix"] .arm-r, .mv-play.inst-maracas[data-mascot="matrix"] .held-r { --a0: -127.6deg; --a1: -150.4deg; }
+.mv-play.inst-maracas[data-mascot="matrix"] .held-r { --ho: 15.31px 11.58px; --ht: 2.19px -0.48px; }
+
+/* keytar */
+.mv-play.inst-keytar .arm-l { --a0: 39deg; --a1: 36deg; --a2: 41deg; --a3: 38deg; animation-name: iStep4; }
+.mv-play.inst-keytar[data-mascot="crt"] .arm-l { --a0: 49.5deg; --a1: 45.9deg; --a2: 51.9deg; --a3: 48.3deg; }
+.mv-play.inst-keytar[data-mascot="matrix"] .arm-l { --a0: 29.3deg; --a1: 26deg; --a2: 31.6deg; --a3: 28.2deg; }
+.mv-play.inst-keytar .arm-r { --a0: 22deg; --a1: 32deg; --a2: 26deg; --a3: 34deg; animation-name: iStep4; }
+.mv-play.inst-keytar[data-mascot="crt"] .arm-r { --a0: 28.6deg; --a1: 41.1deg; --a2: 33.6deg; --a3: 43.5deg; }
+.mv-play.inst-keytar[data-mascot="matrix"] .arm-r { --a0: 32.2deg; --a1: 41.2deg; --a2: 35.8deg; --a3: 42.9deg; }
+
+/* mic */
+.mv-play.inst-mic .arm-l { --a0: 15deg; --a1: 70deg; animation-name: iSwing; }
+.mv-play.inst-mic[data-mascot="crt"] .arm-l { --a0: 19.6deg; --a1: 83.8deg; }
+.mv-play.inst-mic[data-mascot="matrix"] .arm-l { --a0: 3.5deg; --a1: 66deg; }
+.mv-play.inst-mic .arm-r { --a0: 70deg; --a1: 74deg; animation-name: iSwing; }
+.mv-play.inst-mic .held-r { --a0: 70deg; --a1: 74deg; --k: 70deg; animation-name: iSwing; }
+.mv-play.inst-mic[data-mascot="crt"] .arm-r, .mv-play.inst-mic[data-mascot="crt"] .held-r { --a0: 83.8deg; --a1: 87.9deg; }
+.mv-play.inst-mic[data-mascot="crt"] .held-r { --ho: 14.78px 11.44px; --ht: 1.22px 1.36px; }
+.mv-play.inst-mic[data-mascot="matrix"] .arm-r, .mv-play.inst-mic[data-mascot="matrix"] .held-r { --a0: 73.9deg; --a1: 77.3deg; }
+.mv-play.inst-mic[data-mascot="matrix"] .held-r { --ho: 16.85px 10.69px; --ht: 0.65px 0.41px; }
+
+/* guira */
+.mv-play.inst-guira .arm-l { --a0: 28deg; animation-name: iHold; }
+.mv-play.inst-guira[data-mascot="crt"] .arm-l { --a0: 36.1deg; }
+.mv-play.inst-guira[data-mascot="matrix"] .arm-l { --a0: 17.2deg; }
+.mv-play.inst-guira .arm-r { --a0: 30deg; --a1: 50deg; animation-name: iSwing; }
+.mv-play.inst-guira .held-r { --a0: 30deg; --a1: 50deg; --k: 40deg; animation-name: iSwing; }
+.mv-play.inst-guira[data-mascot="crt"] .arm-r, .mv-play.inst-guira[data-mascot="crt"] .held-r { --a0: 38.6deg; --a1: 62.3deg; }
+.mv-play.inst-guira[data-mascot="crt"] .held-r { --ho: 15.16px 12px; --ht: 0.84px 0.8px; }
+.mv-play.inst-guira[data-mascot="matrix"] .arm-r, .mv-play.inst-guira[data-mascot="matrix"] .held-r { --a0: 39.4deg; --a1: 56.9deg; }
+.mv-play.inst-guira[data-mascot="matrix"] .held-r { --ho: 16.58px 10.31px; --ht: 0.92px 0.79px; }
+
+/* drums */
+.mv-play.inst-drums .arm-l { --a0: 20deg; --a1: 42deg; animation-name: iHit; }
+.mv-play.inst-drums .held-l { --a0: 20deg; --a1: 42deg; --k: 20deg; animation-name: iHit; }
+.mv-play.inst-drums[data-mascot="crt"] .arm-l, .mv-play.inst-drums[data-mascot="crt"] .held-l { --a0: 48.8deg; --a1: 81.2deg; }
+.mv-play.inst-drums[data-mascot="crt"] .held-l { --ho: 3.56px 12.22px; --ht: 0.44px 0.58px; }
+.mv-play.inst-drums[data-mascot="matrix"] .arm-l, .mv-play.inst-drums[data-mascot="matrix"] .held-l { --a0: 8.7deg; --a1: 32.7deg; }
+.mv-play.inst-drums[data-mascot="matrix"] .held-l { --ho: 4.31px 10.15px; --ht: -1.81px 0.95px; }
+.mv-play.inst-drums .arm-r { --a0: -20deg; --a1: -42deg; --a2: -100deg; animation-name: iDrumR; }
+.mv-play.inst-drums .held-r { --a0: -20deg; --a1: -42deg; --a2: -100deg; --k: -20deg; animation-name: iDrumR; }
+.mv-play.inst-drums[data-mascot="crt"] .arm-r, .mv-play.inst-drums[data-mascot="crt"] .held-r { --a0: -48.8deg; --a1: -81.2deg; --a2: -129.6deg; }
+.mv-play.inst-drums[data-mascot="crt"] .held-r { --ho: 16.44px 12.22px; --ht: -0.44px 0.58px; }
+.mv-play.inst-drums[data-mascot="matrix"] .arm-r, .mv-play.inst-drums[data-mascot="matrix"] .held-r { --a0: -8.7deg; --a1: -32.7deg; --a2: -103.4deg; }
+.mv-play.inst-drums[data-mascot="matrix"] .held-r { --ho: 15.69px 10.15px; --ht: 1.81px 0.95px; }

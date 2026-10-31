@@ -18,6 +18,13 @@
     let autoplayOn = false;
     try { autoplayOn = localStorage.getItem('mg_autoplay') === '1'; } catch (e) {}
 
+    /* Shuffle (on by default): Next, Autoplay and the List walk a shuffled
+       playlist of the current section, so no song repeats until every one
+       has played. Off: Next picks any random song (repeats possible). */
+    let shuffleOn = true;
+    try { shuffleOn = localStorage.getItem('mg_shuffle') !== '0'; } catch (e) {}
+    let playlist = { key: '', order: [], played: new Set() };
+
     /* ── Queue ──────────────────────────────────────────────── */
     let queue = [];
 
@@ -25,7 +32,8 @@
     let lyricsData   = [];
     let lyricsCueIdx = -1;
     let lyricsTimer  = null;
-    let lyricsHidden = false; /* user-toggled preference */
+    let lyricsHidden = true;  /* user-toggled preference; off until turned on */
+    try { lyricsHidden = localStorage.getItem('mg_lyrics') !== '1'; } catch (e) {}
     let lyricsAnim   = null;  /* running card resize animation */
     let lyricsOffset = 0;     /* seconds, per song; + shows lines sooner */
     let lyricsNotes  = false; /* no lyrics (missing or instrumental): music notes instead */
@@ -361,7 +369,6 @@
         refreshGrid(grid);
         updateURL();
         syncFilterUI(container);
-        if (window.CarinoNav) window.CarinoNav.filter(filterLabel(filter));
         renderSongList();
     }
 
@@ -383,10 +390,21 @@
         if (!listOpen) return;
         const items = document.getElementById('songListItems');
         const words = fold(document.getElementById('songSearch').value).split(/\s+/).filter(Boolean);
-        const pool  = visibleAlbums().slice().sort((a, b) => (a.tag || '').localeCompare(b.tag || ''));
+        /* Shuffle on: the playlist, songs still to come first (in playing
+           order), then this pass's played ones; off: A–Z */
+        let pool;
+        if (shuffleOn) {
+            const pl = ensurePlaylist();
+            const byUrl = new Map(visibleAlbums().map(a => [a.url, a]));
+            const ordered = pl.order.map(u => byUrl.get(u)).filter(Boolean);
+            pool = ordered.filter(a => !pl.played.has(a.url)).concat(ordered.filter(a => pl.played.has(a.url)));
+        } else {
+            pool = visibleAlbums().slice().sort((a, b) => (a.tag || '').localeCompare(b.tag || ''));
+        }
         const shown = pool.filter(a => listMatches(a, words));
 
-        document.getElementById('songListMeta').textContent = filterLabel(filter) + ' · ' +
+        document.getElementById('songListMeta').textContent = filterLabel(filter) +
+            (shuffleOn ? ' · 🔀 ' + t('Shuffle') : '') + ' · ' +
             (shown.length === pool.length ? pool.length : shown.length + ' / ' + pool.length) + ' ' + t('songs');
 
         items.innerHTML = '';
@@ -469,21 +487,13 @@
     /* Keep the list clear of the compact player card (bottom right): it ends
        just above it, or sits beside it when there's no room above for a useful
        list. The lyrics stage lives on the left, so it needs no room. */
-    const LIST_MIN_H = 220;
+    /* The list sits on the left (the player card, compact or the lyrics
+       stage, is always on the right), clear of the dock at the bottom */
     function syncListBottom() {
-        const bar  = document.getElementById('videoInfoBar');
         const list = document.getElementById('songList');
-        /* the floating dock keeps --dock-space clear at the bottom */
         const dock = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--dock-space')) || 0;
-        let bottom = 18 + dock, right = 18;
-        if (!isPhone() && bar.classList.contains('show') && !bar.classList.contains('lyrics-on')) {
-            const aboveCard = 18 + dock + bar.offsetHeight + 12;
-            if (window.innerHeight - aboveCard - list.offsetTop >= LIST_MIN_H) bottom = aboveCard;
-            else right = 18 + bar.offsetWidth + 12;
-        }
-        const root = document.documentElement.style;
-        root.setProperty('--list-bottom', bottom + 'px');
-        root.setProperty('--list-right', right + 'px');
+        list.classList.add('sl-left');
+        document.documentElement.style.setProperty('--list-bottom', (18 + dock) + 'px');
     }
 
     /* Arrow keys pick a row, Enter plays it (or the first match), Escape closes */
@@ -509,6 +519,7 @@
     /* Close every open dropdown */
     function closeAllMenus() {
         filterMenus.forEach(function (m) {
+            if (m.scrim) m.scrim.classList.remove('open');
             m.panel.classList.remove('open');
             m.btn.classList.remove('menu-open');
             m.btn.setAttribute('aria-expanded', 'false');
@@ -523,11 +534,12 @@
             el.classList.toggle('active', on);
         });
         filterMenus.forEach(function (m) {
-            const picked = filter.type === m.type;
-            m.btn.textContent = (picked ? m.labelFor(filter.value) : m.defLabel) + ' ▾';
+            const picked = m.types ? m.types.includes(filter.type) : filter.type === m.type;
+            m.btn.textContent = (m.types ? '📚 ' : '') + (picked ? m.labelFor(filter.value) : m.defLabel) + ' ▾';
             m.btn.classList.toggle('active', picked);
             m.panel.querySelectorAll('.menu-item').forEach(function (it) {
-                it.classList.toggle('chosen', picked && it.dataset.fvalue === filter.value);
+                it.classList.toggle('chosen', picked && (it.dataset.ftype || m.type) === filter.type &&
+                                              (it.dataset.fvalue || '') === (filter.value || ''));
             });
         });
     }
@@ -535,7 +547,10 @@
     function buildFilters(container, grid) {
         container.innerHTML = '';
         /* Drop any panels a previous build left in <body> */
-        filterMenus.forEach(function (m) { if (m.panel.parentNode) m.panel.parentNode.removeChild(m.panel); });
+        filterMenus.forEach(function (m) {
+            if (m.panel.parentNode) m.panel.parentNode.removeChild(m.panel);
+            if (m.scrim && m.scrim.parentNode) m.scrim.parentNode.removeChild(m.scrim);
+        });
         filterMenus = [];
 
         function quickPill(label, type, value, extraClass, title) {
@@ -549,52 +564,158 @@
             return btn;
         }
 
-        /* Dropdown menu — button stays in the bar, panel lives in <body> so it
-           is never clipped by the controls bar (which is a fixed-pos containing
-           block thanks to its backdrop-filter). */
-        function buildMenu(type, defLabel, data, labelFor, itemLabelFor) {
+        /* The 📚 Lists popup: tabs + search over every specific list */
+        function buildListsMenu(tabs) {
             const btn = document.createElement('button');
             btn.className = 'cs-btn filter-btn filter-menu-btn';
-            btn.textContent = defLabel + ' ▾';
-            btn.dataset.menu = type;
+            btn.dataset.menu = 'lists';
             btn.setAttribute('aria-haspopup', 'true');
             btn.setAttribute('aria-expanded', 'false');
 
+            /* A centred dialog over a dim scrim (clicking the scrim closes it) */
+            const scrim = document.createElement('div');
+            scrim.className = 'lists-scrim';
+            scrim.addEventListener('click', closeAllMenus);
+            document.body.appendChild(scrim);
+
             const panel = document.createElement('div');
-            panel.className = 'menu-panel';
-            data.ids.forEach(function (id) {
-                const item = document.createElement('button');
-                item.className = 'menu-item';
-                item.dataset.ftype = type;
-                item.dataset.fvalue = id;
-                item.innerHTML = '<span class="menu-item-label">' + (itemLabelFor || labelFor)(id) +
-                                 '</span><span class="menu-count">' + data.counts[id] + '</span>';
-                item.addEventListener('click', function () {
-                    applyFilter(container, grid, type, id);
+            panel.className = 'menu-panel lists-panel';
+            panel.setAttribute('role', 'dialog');
+            panel.setAttribute('aria-modal', 'true');
+            panel.setAttribute('aria-label', t('Lists'));
+
+            const head = document.createElement('div');
+            head.className = 'lists-head';
+            head.innerHTML = '<span class="lists-title"></span><button class="lists-close" aria-label="Close">✕</button>';
+            head.firstChild.textContent = '📚 ' + t('Lists');
+            head.lastChild.setAttribute('aria-label', t('Close'));
+            head.lastChild.addEventListener('click', closeAllMenus);
+            panel.appendChild(head);
+
+            const search = document.createElement('input');
+            search.type = 'search';
+            search.className = 'lists-search';
+            search.placeholder = t('Search lists…');
+            search.autocomplete = 'off';
+            search.spellcheck = false;
+            panel.appendChild(search);
+
+            const tabBar = document.createElement('div');
+            tabBar.className = 'lists-tabs';
+            tabBar.setAttribute('role', 'tablist');
+            panel.appendChild(tabBar);
+            const body = document.createElement('div');
+            body.className = 'lists-body';
+            panel.appendChild(body);
+
+            let tab = tabs[0].id;
+            /* A tile: a 2×2 mosaic of the list's covers, its name, its count */
+            function coversOf(it) {
+                const hits = [];
+                for (let i = 0; i < albums.length && hits.length < 4; i++) {
+                    const a = albums[i];
+                    const v = a[it.type];
+                    if ((it.type === 'meme' ? a.meme : [].concat(v || []).includes(it.value)) &&
+                        !hits.includes(a.image)) hits.push(a.image);   /* one per album */
+                }
+                return hits;
+            }
+            function itemBtn(it) {
+                const b = document.createElement('button');
+                b.className = 'menu-item lists-tile';
+                b.dataset.ftype = it.type;
+                b.dataset.fvalue = it.value;
+                const mosaic = document.createElement('span');
+                mosaic.className = 'lists-mosaic';
+                mosaic.setAttribute('aria-hidden', 'true');
+                coversOf(it).forEach(function (img) {
+                    const im = document.createElement('img');
+                    im.src = 'assets/covers/' + img;
+                    im.alt = '';
+                    im.loading = 'lazy';
+                    mosaic.appendChild(im);
+                });
+                const name = document.createElement('span');
+                name.className = 'menu-item-label';
+                name.textContent = it.label;
+                const count = document.createElement('span');
+                count.className = 'menu-count';
+                count.textContent = it.count + ' ' + t('songs');
+                b.append(mosaic, name, count);
+                b.classList.toggle('chosen', filter.type === it.type && (filter.value || '') === it.value);
+                b.addEventListener('click', function () {
+                    applyFilter(container, grid, it.type, it.value);
                     closeAllMenus();
                 });
-                panel.appendChild(item);
+                return b;
+            }
+            function render() {
+                const q = fold(search.value.trim());
+                tabBar.style.display = q ? 'none' : '';
+                tabBar.innerHTML = '';
+                tabs.forEach(function (tb) {
+                    const b = document.createElement('button');
+                    b.className = 'lists-tab' + (tb.id === tab ? ' active' : '');
+                    b.setAttribute('role', 'tab');
+                    b.setAttribute('aria-selected', tb.id === tab ? 'true' : 'false');
+                    b.textContent = tb.label;
+                    b.addEventListener('click', function () { tab = tb.id; render(); });
+                    tabBar.appendChild(b);
+                });
+                body.innerHTML = '';
+                if (!q) {
+                    tabs.find(tb => tb.id === tab).items.forEach(it => body.appendChild(itemBtn(it)));
+                    return;
+                }
+                /* searching: matches from every tab, under their tab's name */
+                let any = false;
+                tabs.forEach(function (tb) {
+                    const hits = tb.items.filter(it => fold(it.label).includes(q));
+                    if (!hits.length) return;
+                    any = true;
+                    const h = document.createElement('div');
+                    h.className = 'lists-group';
+                    h.textContent = tb.label;
+                    body.appendChild(h);
+                    hits.forEach(it => body.appendChild(itemBtn(it)));
+                });
+                if (!any) {
+                    const e = document.createElement('div');
+                    e.className = 'lists-empty';
+                    e.textContent = t('No lists match');
+                    body.appendChild(e);
+                }
+            }
+            /* a tab re-renders the panel, detaching the clicked node: keep that
+               click from reading as an outside click (items close it themselves) */
+            panel.addEventListener('click', function (e) { e.stopPropagation(); });
+            search.addEventListener('input', render);
+            search.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') { const first = body.querySelector('.menu-item'); if (first) first.click(); }
             });
             document.body.appendChild(panel);
 
-            const rec = { type: type, btn: btn, panel: panel, defLabel: defLabel, labelFor: labelFor };
+            const rec = { type: 'lists', types: ['party', 'meme', 'country', 'genre', 'mood'],
+                          scrim: scrim, btn: btn, panel: panel, defLabel: t('Lists'), labelFor: function () { return filterLabel(filter); } };
             filterMenus.push(rec);
 
             function open() {
                 const wasOpen = panel.classList.contains('open');
                 closeAllMenus();
                 if (wasOpen) return;
-                const r = btn.getBoundingClientRect();
-                panel.style.top  = (r.bottom + 6) + 'px';
-                panel.style.left = r.left + 'px';
+                /* open on the tab of the list playing now */
+                const cur = tabs.find(tb => tb.items.some(it => it.type === filter.type));
+                if (cur) tab = cur.id;
+                search.value = '';
+                render();
+                scrim.classList.add('open');
                 panel.classList.add('open');
                 btn.classList.add('menu-open');
                 btn.setAttribute('aria-expanded', 'true');
                 requestAnimationFrame(function () {
-                    const pr = panel.getBoundingClientRect();
-                    if (pr.right > window.innerWidth - 8) {
-                        panel.style.left = Math.max(8, window.innerWidth - pr.width - 8) + 'px';
-                    }
+                    const chosen = body.querySelector('.menu-item.chosen');
+                    if (chosen) chosen.scrollIntoView({ block: 'nearest' });
+                    if (!window.matchMedia('(pointer: coarse)').matches) search.focus();
                 });
             }
             btn.addEventListener('click', function (e) { e.stopPropagation(); open(); });
@@ -618,23 +739,27 @@
         }
         container.appendChild(quickPill(t('All'), 'all', ''));
 
-        /* Dropdown menus — only built when that dimension exists in the data.
-           🎉 Party (the songs every party plays, per country) and 😂 Meme come
-           first: they are lists, the rest describe the songs. */
+        /* 📚 Lists — one popup holding every specific list: the curated
+           ones (🎉 Party per country, 😂 Meme) and the browse dimensions
+           (Country, Genre, Mood), as tabs, with one search box across all
+           of them. Only what exists in the data is shown. */
+        const tabs = [];
+        const curated = [];
         const party = countBy('party', countryMeta);
-        if (party.ids.length) container.appendChild(buildMenu('party', t('Party'), party, id => t('Party') + ' · ' + countryLabel(id), countryLabel));
-        if (albums.some(a => a.meme)) {
-            container.appendChild(quickPill(t('Meme'), 'meme', '', 'filter-meme', t('Songs that became memes')));
-        }
-        const dims = [
+        party.ids.forEach(id => curated.push({ type: 'party', value: id, label: t('Party') + ' · ' + countryLabel(id), count: party.counts[id] }));
+        const memeCount = albums.filter(a => a.meme).length;
+        if (memeCount) curated.push({ type: 'meme', value: '', label: t('Meme'), count: memeCount });
+        if (curated.length) tabs.push({ id: 'lists', label: t('Lists'), items: curated });
+        [
             { type: 'country', label: t('Country'), metaFn: countryMeta, labelFn: countryLabel },
             { type: 'genre',   label: t('Genre'),   metaFn: genreMeta,   labelFn: genreLabel },
             { type: 'mood',    label: t('Mood'),    metaFn: moodMeta,    labelFn: moodLabel },
-        ];
-        dims.forEach(function (d) {
+        ].forEach(function (d) {
             const data = countBy(d.type, d.metaFn);
-            if (data.ids.length) container.appendChild(buildMenu(d.type, d.label, data, d.labelFn));
+            if (data.ids.length) tabs.push({ id: d.type, label: d.label,
+                items: data.ids.map(id => ({ type: d.type, value: id, label: d.labelFn(id), count: data.counts[id] })) });
         });
+        if (tabs.length) container.appendChild(buildListsMenu(tabs));
 
         syncFilterUI(container);
     }
@@ -707,7 +832,6 @@
     function renderQueue() {
         const bar = document.getElementById('queueBar');
         bar.innerHTML = '';
-        if (window.CarinoNav) window.CarinoNav.queue(queue.length);
 
         bar.title = t('Queue');
         if (!queue.length) {
@@ -798,6 +922,8 @@
         lyricsData   = cues;
         lyricsCueIdx = -1;
         lyricsNotes  = false;   /* lyrics that arrived late replace the notes */
+        /* the mascot moves aside: it dances on the right, behind the lyrics */
+        if (window.MGDancer) MGDancer.show(currentAlbum, document.getElementById('lyricsSection'), { side: true });
         document.getElementById('lyricsSection').classList.remove('no-lyrics', 'gap');
 
         const container = document.getElementById('lyricsContainer');
@@ -835,6 +961,7 @@
         lyricsCueIdx = -1;
         lyricsNotes  = false;
         clearTimeout(notesTimer);
+        if (window.MGDancer) MGDancer.hide();
         stopLyricsSync();
         document.getElementById('lyricsContainer').innerHTML = '';
         document.getElementById('lyricsSection').classList.remove('no-lyrics', 'gap');
@@ -868,6 +995,8 @@
     function showLyricsNotes() {
         lyricsNotes = true;
         ensureNotes();
+        /* no lyrics for this song: a mascot dances to its genre instead */
+        if (window.MGDancer) MGDancer.show(currentAlbum, document.getElementById('lyricsSection'));
         document.getElementById('lyricsSection').classList.add('no-lyrics', 'gap');
         updateLyricsToggle();
         setLyricsMode(!lyricsHidden);
@@ -901,6 +1030,7 @@
         const first = bar.getBoundingClientRect();
         if (lyricsAnim) { lyricsAnim.cancel(); lyricsAnim = null; }
         bar.classList.toggle('lyrics-on', on);
+        syncListBottom();
         if (!animate) return;
 
         /* the stage sits on the left, the compact card on the right: slide
@@ -1016,11 +1146,49 @@
         openPanel(next);
     }
 
-    /* A random song from the current section, other than the one playing */
+    /* The shuffled playlist of the current section; rebuilt when the
+       section changes. played holds what this pass has already played. */
+    function sectionKey() { return filter.type + ':' + (filter.value || ''); }
+    function ensurePlaylist() {
+        const key = sectionKey();
+        if (playlist.key === key && playlist.order.length) return playlist;
+        const pool = visibleAlbums();
+        playlist = { key: key, order: shuffle(pool).map(a => a.url), played: new Set() };
+        if (currentAlbum && playlist.order.includes(currentAlbum.url)) {
+            /* the song playing now opens the playlist */
+            playlist.order = [currentAlbum.url].concat(playlist.order.filter(u => u !== currentAlbum.url));
+            playlist.played.add(currentAlbum.url);
+        }
+        return playlist;
+    }
+    function markPlayed(album) {
+        if (playlist.key === sectionKey() && playlist.order.includes(album.url)) playlist.played.add(album.url);
+    }
+    /* The next song of the playlist not yet played; a fresh shuffle once
+       the whole section has played */
+    function nextFromPlaylist() {
+        const pl = ensurePlaylist();
+        let url = pl.order.find(u => !pl.played.has(u) && (!currentAlbum || u !== currentAlbum.url));
+        if (!url) {
+            const pool = visibleAlbums();
+            if (!pool.length) return null;
+            let order = shuffle(pool).map(a => a.url);
+            if (currentAlbum && order.length > 1 && order[0] === currentAlbum.url) order.push(order.shift());
+            playlist = { key: pl.key, order: order, played: new Set() };
+            url = order.find(u => !currentAlbum || u !== currentAlbum.url) || order[0];
+        }
+        return albums.find(a => a.url === url) || null;
+    }
+
+    /* The next song of the section: the playlist's when shuffling, else any
+       random one other than the one playing */
     function playRandom() {
-        const pool = visibleAlbums().filter(a => !currentAlbum || a.url !== currentAlbum.url);
-        const next = pool.length ? pool[Math.floor(Math.random() * pool.length)]
-                   : (currentAlbum || null);
+        let next;
+        if (shuffleOn) next = nextFromPlaylist();
+        else {
+            const pool = visibleAlbums().filter(a => !currentAlbum || a.url !== currentAlbum.url);
+            next = pool.length ? pool[Math.floor(Math.random() * pool.length)] : (currentAlbum || null);
+        }
         if (next) { clearActiveCell(); openPanel(next); }
     }
 
@@ -1126,6 +1294,7 @@
             if (playHistory.length > HISTORY_MAX) playHistory.shift();
         }
         currentAlbum = album;
+        markPlayed(album);
         updateURL();
 
         clearLyrics();
@@ -1148,9 +1317,7 @@
         }, NOTES_AFTER * 1000);
 
         /* Lyrics come from LRCLIB by record id; a song without one shows the notes */
-        if (album.lrclib) fetch(`https://lrclib.net/api/get/${album.lrclib}`)
-            .then(function (r) { if (!r.ok) throw 0; return r.json(); })
-            .then(function (rec) { return rec.syncedLyrics || ''; })
+        if (album.lrclib) fetchLyrics(album)
             .then(function (text) {
                 if (currentAlbum !== album) return; /* a newer song took over */
                 const cues = parseLRC(text);
@@ -1164,6 +1331,73 @@
                 }
             })
             .catch(function () {});   /* no lyrics: notesTimer brings the notes */
+    }
+
+    /* ── Lyrics fetch: per-visitor cache + retry ─────────────── */
+    /*
+     * Each visitor keeps the lyrics they've already played in their own
+     * localStorage (like the browser cache: a private copy, never sent
+     * anywhere), so a song plays with lyrics even while LRCLIB is down.
+     * LRCLIB often answers 503 "busy"; that and network errors are retried
+     * a few times, giving up as soon as another song takes over the card.
+     */
+    const LRC_CACHE_PREFIX = 'mg_lrc_';
+    const LRC_CACHE_INDEX  = 'mg_lrc_index';   /* ids, most recently used last */
+    const LRC_CACHE_MAX    = 150;
+    const LRC_RETRY_DELAYS = [1500, 4000, 9000];
+
+    function lrcCacheGet(id) {
+        try {
+            const text = localStorage.getItem(LRC_CACHE_PREFIX + id);
+            if (text) lrcCacheTouch(id);
+            return text;
+        } catch (e) { return null; }
+    }
+
+    function lrcCacheTouch(id) {
+        try {
+            let ids = JSON.parse(localStorage.getItem(LRC_CACHE_INDEX) || '[]');
+            ids = ids.filter(function (x) { return x !== id; });
+            ids.push(id);
+            while (ids.length > LRC_CACHE_MAX) localStorage.removeItem(LRC_CACHE_PREFIX + ids.shift());
+            localStorage.setItem(LRC_CACHE_INDEX, JSON.stringify(ids));
+        } catch (e) { /* storage blocked or full: just don't cache */ }
+    }
+
+    function lrcCachePut(id, text) {
+        try {
+            localStorage.setItem(LRC_CACHE_PREFIX + id, text);
+            lrcCacheTouch(id);
+        } catch (e) { /* storage blocked or full: just don't cache */ }
+    }
+
+    function fetchLyrics(album) {
+        const id = String(album.lrclib);
+        const cached = lrcCacheGet(id);
+        if (cached) return Promise.resolve(cached);
+
+        function attempt(n) {
+            return fetch('https://lrclib.net/api/get/' + encodeURIComponent(id))
+                .then(function (r) {
+                    if (r.ok) return r.json();
+                    /* busy / rate-limited / server error → worth another try */
+                    throw { retry: r.status === 429 || r.status >= 500 };
+                }, function () { throw { retry: true }; })   /* network error */
+                .then(function (rec) {
+                    const text = (rec && rec.syncedLyrics) || '';
+                    if (text) lrcCachePut(id, text);
+                    return text;
+                }, function (err) {
+                    if (!err || !err.retry || n >= LRC_RETRY_DELAYS.length) throw 0;
+                    return new Promise(function (resolve) {
+                        setTimeout(resolve, LRC_RETRY_DELAYS[n]);
+                    }).then(function () {
+                        if (currentAlbum !== album) throw 0;   /* moved on: stop */
+                        return attempt(n + 1);
+                    });
+                });
+        }
+        return attempt(0);
     }
 
     /* A song the card was showing from a link starts here, on Play */
@@ -1208,16 +1442,6 @@
             });
             metaEl.appendChild(c);
         });
-
-        /* Feed the navbar diagnostics */
-        if (window.CarinoNav) {
-            const origin = [
-                album.country ? countryLabel(album.country) : '',
-                album.genre   ? genreLabel(album.genre)     : '',
-                album.mood    ? moodLabel(album.mood)       : ''
-            ].filter(Boolean).join(' · ') || '—';
-            window.CarinoNav.nowPlaying(title || album.tag || '—', origin);
-        }
 
         /* Platform links — deep-link when we have a real id, else search by tag */
         const linksEl = document.getElementById('videoLinks');
@@ -1279,7 +1503,6 @@
         currentAlbum = null;
         renderQueue();
         updateURL();
-        if (window.CarinoNav) window.CarinoNav.nowPlaying('—', '—');
         markListPlaying();
         syncListBottom();
         syncTransport(false);
@@ -1380,7 +1603,6 @@
         seedStateFromURL();
 
         buildFilters(filtersEl, musicgrid);
-        if (window.CarinoNav) window.CarinoNav.filter(filterLabel(filter));
 
         /* The button (or P / Space) pauses and resumes the wall */
         toggleBtn.addEventListener('click', toggleScroll);
@@ -1407,21 +1629,38 @@
             try { localStorage.setItem('mg_autoplay', autoplayOn ? '1' : '0'); } catch (e) {}
             syncAutoplayBtn();
             /* If turned on while nothing is playing, start something right away */
-            if (autoplayOn && !currentAlbum) {
-                const pool = visibleAlbums();
-                if (pool.length) { clearActiveCell(); openPanel(pool[Math.floor(Math.random() * pool.length)]); }
-            }
+            if (autoplayOn && !currentAlbum) playRandom();
         });
 
-        /* Random always plays immediately, ignoring "currently playing" rule */
+        /* Shuffle toggle — on: a no-repeat playlist of the section (Next,
+           Autoplay and the List follow it); off: any random song, A–Z list */
+        function syncShuffleBtn() {
+            randomBtn.classList.toggle('active', shuffleOn);
+            randomBtn.setAttribute('aria-pressed', shuffleOn ? 'true' : 'false');
+            const label = shuffleOn ? t('Shuffle on: no song repeats until the whole section has played')
+                                    : t('Shuffle off');
+            randomBtn.title = label;
+            randomBtn.setAttribute('aria-label', label);
+        }
+        syncShuffleBtn();
         randomBtn.addEventListener('click', function () {
-            const pool = visibleAlbums();
-            if (!pool.length) return;
-            clearActiveCell();
-            openPanel(pool[Math.floor(Math.random() * pool.length)]);
+            shuffleOn = !shuffleOn;
+            try { localStorage.setItem('mg_shuffle', shuffleOn ? '1' : '0'); } catch (e) {}
+            playlist = { key: '', order: [], played: new Set() };   /* a fresh pass */
+            syncShuffleBtn();
+            renderSongList();
         });
 
-        closeBtn.addEventListener('click', closePanel);
+        /* ✕ on the lyrics stage only leaves lyrics mode (the song plays on,
+           in the compact card); on the compact card it closes the player */
+        closeBtn.addEventListener('click', function () {
+            if (document.getElementById('videoInfoBar').classList.contains('lyrics-on')) {
+                lyricsHidden = true;
+                try { localStorage.setItem('mg_lyrics', '0'); } catch (e) {}
+                setLyricsMode(false);
+                updateLyricsToggle();
+            } else closePanel();
+        });
 
         /* Transport */
         document.getElementById('prevBtn').addEventListener('click', playPrevious);
@@ -1441,6 +1680,7 @@
         /* Lyrics toggle */
         lyricsTgl.addEventListener('click', function () {
             lyricsHidden = !lyricsHidden;
+            try { localStorage.setItem('mg_lyrics', lyricsHidden ? '0' : '1'); } catch (e) {}
             setLyricsMode(!lyricsHidden && (lyricsData.length > 0 || lyricsNotes));
             updateLyricsToggle();
         });

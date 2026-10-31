@@ -3,11 +3,30 @@
 // (carino-lang.js → window.CarinoLang.current) — this file only owns the
 // dictionaries and applies them. Content (albums, countries, genres in
 // catalog.json) is data and is never translated here.
-// Load order: catalog -> carino-navbar -> carino-lang -> i18n -> status -> grid
-// (all deferred, so t() is a global by the time status.js / grid.js run).
+// Load order: catalog -> carino-navbar -> carino-lang -> i18n -> dancer -> grid
+// (all deferred, so t() is a global by the time dancer.js / grid.js run).
 
 const I18N = {
     es: {
+        // Lists popup
+        "Lists": "Listas",
+        "Search lists…": "Buscar listas…",
+        "No lists match": "Ninguna lista coincide",
+        // Mascots / shuffle
+        "Mascots": "Mascotas",
+        "Mascot": "Mascota",
+        "Dance": "Baile",
+        "Random": "Al azar",
+        "Everyone": "Todos",
+        "Song's genre": "Género de la canción",
+        "Random moves": "Pasos al azar",
+        "Dances on the lyrics stage when a song has no lyrics.": "Baila en el panel de letras cuando una canción no tiene letra.",
+        "Dances on the lyrics stage when a song has no lyrics, and beside the lyrics when it has them.": "Baila en el panel de letras cuando una canción no tiene letra, y junto a la letra cuando la tiene.",
+        "All mascots at once when a song has no lyrics": "Todas las mascotas a la vez cuando una canción no tiene letra",
+        "Shuffle": "Aleatorio",
+        "Shuffle on: no song repeats until the whole section has played": "Aleatorio activado: ninguna canción se repite hasta que suene toda la sección",
+        "Shuffle off": "Aleatorio desactivado",
+        "See the dancing mascots and choose how they dance": "Mira las mascotas bailando y elige cómo bailan",
         // Navbar / diagnostics
         'Status': 'Estado',
         'Library': 'Biblioteca',
@@ -89,6 +108,25 @@ const I18N = {
         'Lists and filters': 'Listas y filtros',
     },
     'pt-BR': {
+        // Lists popup
+        "Lists": "Listas",
+        "Search lists…": "Buscar listas…",
+        "No lists match": "Nenhuma lista encontrada",
+        // Mascots / shuffle
+        "Mascots": "Mascotes",
+        "Mascot": "Mascote",
+        "Dance": "Dança",
+        "Random": "Aleatório",
+        "Everyone": "Todos",
+        "Song's genre": "Gênero da música",
+        "Random moves": "Passos aleatórios",
+        "Dances on the lyrics stage when a song has no lyrics.": "Dança no painel de letras quando a música não tem letra.",
+        "Dances on the lyrics stage when a song has no lyrics, and beside the lyrics when it has them.": "Dança no painel de letras quando a música não tem letra, e ao lado da letra quando tem.",
+        "All mascots at once when a song has no lyrics": "Todos os mascotes juntos quando a música não tem letra",
+        "Shuffle": "Aleatório",
+        "Shuffle on: no song repeats until the whole section has played": "Aleatório ligado: nenhuma música se repete até tocar a seção inteira",
+        "Shuffle off": "Aleatório desligado",
+        "See the dancing mascots and choose how they dance": "Veja os mascotes dançando e escolha como dançam",
         'Status': 'Status',
         'Library': 'Biblioteca',
         'Songs': 'Músicas',
@@ -165,6 +203,25 @@ const I18N = {
         'Lists and filters': 'Listas e filtros',
     },
     ja: {
+        // Lists popup
+        "Lists": "リスト",
+        "Search lists…": "リストを検索…",
+        "No lists match": "一致するリストはありません",
+        // Mascots / shuffle
+        "Mascots": "マスコット",
+        "Mascot": "マスコット",
+        "Dance": "ダンス",
+        "Random": "ランダム",
+        "Everyone": "みんな",
+        "Song's genre": "曲のジャンル",
+        "Random moves": "ランダムな動き",
+        "Dances on the lyrics stage when a song has no lyrics.": "歌詞のない曲では歌詞ステージで踊ります。",
+        "Dances on the lyrics stage when a song has no lyrics, and beside the lyrics when it has them.": "歌詞のない曲では歌詞ステージで、歌詞のある曲では歌詞の横で踊ります。",
+        "All mascots at once when a song has no lyrics": "歌詞のない曲ではマスコット全員で踊ります",
+        "Shuffle": "シャッフル",
+        "Shuffle on: no song repeats until the whole section has played": "シャッフルオン：セクションの全曲を再生するまで同じ曲は流れません",
+        "Shuffle off": "シャッフルオフ",
+        "See the dancing mascots and choose how they dance": "踊るマスコットを見て、踊り方を選びます",
         'Status': 'ステータス',
         'Library': 'ライブラリ',
         'Songs': '曲数',
@@ -241,6 +298,25 @@ const I18N = {
         'Lists and filters': 'リストと絞り込み',
     },
     ru: {
+        // Lists popup
+        "Lists": "Списки",
+        "Search lists…": "Поиск списков…",
+        "No lists match": "Нет подходящих списков",
+        // Mascots / shuffle
+        "Mascots": "Маскоты",
+        "Mascot": "Маскот",
+        "Dance": "Танец",
+        "Random": "Случайно",
+        "Everyone": "Все",
+        "Song's genre": "Жанр песни",
+        "Random moves": "Случайные движения",
+        "Dances on the lyrics stage when a song has no lyrics.": "Танцует на панели текста, когда у песни нет текста.",
+        "Dances on the lyrics stage when a song has no lyrics, and beside the lyrics when it has them.": "Танцует на панели текста, когда у песни нет текста, и рядом с текстом, когда он есть.",
+        "All mascots at once when a song has no lyrics": "Все маскоты сразу, когда у песни нет текста",
+        "Shuffle": "Перемешать",
+        "Shuffle on: no song repeats until the whole section has played": "Перемешивание включено: песни не повторяются, пока не прозвучит весь раздел",
+        "Shuffle off": "Перемешивание выключено",
+        "See the dancing mascots and choose how they dance": "Посмотрите на танцующих маскотов и выберите, как они танцуют",
         'Status': 'Статус',
         'Library': 'Библиотека',
         'Songs': 'Песни',

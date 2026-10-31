@@ -48,15 +48,20 @@
     <link rel="stylesheet" href="fonts/carino-fonts.css">
     <link rel="stylesheet" href="carino-ui.css">
     <link rel="stylesheet" href="assets/css/grid.css">
+    <link rel="stylesheet" href="assets/css/instruments.css">
     <link rel="icon" href="assets/images/logo.webp">
     <script src="assets/json/catalog.json" defer></script>
     <!-- The shared navbar (it loads carino-clock.js itself) slides away in
-         fullscreen or when idle; the filters and Status ride in it. -->
+         fullscreen or when idle; the filters and Mascots ride in it. -->
     <script src="carino-navbar.js" data-app="Music" data-repo="MusicGrid" data-license="AGPL-3.0" defer></script>
     <script src="carino-theme.js" data-mark="assets/images/logo.svg" data-mark-color="assets/images/logo-color.svg" defer></script>
     <script src="carino-lang.js" defer></script>
     <script src="i18n.js" defer></script>
-    <script src="assets/js/status.js" defer></script>
+    <script src="assets/js/mascots.js" defer></script>
+    <script src="assets/js/mascot-moe.js" defer></script>
+    <script src="assets/js/mascot-matrix.js" defer></script>
+    <script src="assets/js/instruments.js" defer></script>
+    <script src="assets/js/dancer.js" defer></script>
     <script src="assets/js/grid.js" defer></script>
     <meta property="twitter:title" content="Music Grid"/>
     <!-- Colourful theme + the switch; nothing applies until data-carino-theme="color". -->
@@ -132,31 +137,12 @@
 <body class="play-body">
     <!-- App controls: carino-navbar.js moves this group into its right
          cluster (one top bar). Lists + filters (★ Carino · All · Party · Meme ·
-         Country · Genre · Mood) are built by grid.js; Status is the library
-         readout status.js keeps current. -->
+         Country · Genre · Mood) are built by grid.js; Mascots is dancer.js's
+         gallery. -->
     <div class="mg-actions" data-carino-actions>
         <nav id="sectionFilters" class="header-filters" aria-label="Lists and filters" data-priority="1"></nav>
-        <div class="diag-wrap">
-            <button class="cs-btn" id="diagToggle" title="Library status" aria-label="Library status" aria-haspopup="true" aria-expanded="false" aria-controls="diagBox">
-                <span data-i18n>Status</span><span class="pulse-dot"></span>
-            </button>
-            <div class="diag-dropdown" id="diagBox">
-                <div class="diag-section" data-i18n>Library</div>
-                <div class="diag-pair">
-                    <div class="diag-row"><span class="diag-lbl" data-i18n>Songs</span><span class="diag-val" id="diagSongs">0</span></div>
-                    <div class="diag-row"><span class="diag-lbl" data-i18n>Countries</span><span class="diag-val" id="diagCountries">0</span></div>
-                </div>
-                <div class="diag-row"><span class="diag-lbl" data-i18n>Carino picks</span><span class="diag-val" id="diagCarino">0</span></div>
-                <div class="diag-section" data-i18n>Now playing</div>
-                <div class="diag-row"><span class="diag-lbl" data-i18n>Track</span><span class="diag-val diag-val-trunc" id="diagNow">—</span></div>
-                <div class="diag-row"><span class="diag-lbl" data-i18n>From</span><span class="diag-val" id="diagNowCountry">—</span></div>
-                <div class="diag-section" data-i18n>Session</div>
-                <div class="diag-pair">
-                    <div class="diag-row"><span class="diag-lbl" data-i18n>Filter</span><span class="diag-val" id="diagFilter">All</span></div>
-                    <div class="diag-row"><span class="diag-lbl" data-i18n>In queue</span><span class="diag-val" id="diagQueue">0</span></div>
-                </div>
-                <div class="diag-row"><span class="diag-lbl" data-i18n>Local time</span><span class="diag-val" id="diagClock">--:--:--</span></div>
-            </div>
+        <div class="mascot-wrap">
+            <button class="cs-btn filter-btn" id="mascotToggle" title="See the dancing mascots and choose how they dance" aria-haspopup="true" aria-expanded="false" aria-controls="mascotPanel">🕺 <span data-i18n>Mascots</span></button>
         </div>
     </div>
 
@@ -184,8 +170,8 @@
         <div id="ctlRight">
             <button id="listToggle" class="cs-btn ctl-btn" title="Show the songs in this section" aria-expanded="false" aria-controls="songList" data-i18n>List</button>
             <button id="autoplayToggle" class="cs-btn ctl-btn" title="Keep playing songs automatically" aria-pressed="false">Autoplay</button>
-            <button id="lyricsToggle" class="cs-btn ctl-btn" title="Toggle lyrics" aria-pressed="true" style="display:none">Lyrics</button>
-            <button id="randomBtn" class="cs-btn ctl-btn ctl-icon" title="Play a random song" aria-label="Play a random song">
+            <button id="lyricsToggle" class="cs-btn ctl-btn" title="Toggle lyrics" aria-pressed="false" style="display:none">Lyrics</button>
+            <button id="randomBtn" class="cs-btn ctl-btn ctl-icon active" title="Shuffle" aria-label="Shuffle" aria-pressed="true">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/></svg>
             </button>
             <button id="muteBtn" class="cs-btn ctl-btn" title="Sound (M)" aria-pressed="false">Sound on</button>

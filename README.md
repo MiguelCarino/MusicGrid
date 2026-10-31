@@ -10,30 +10,50 @@ collection **by country**, queue songs, and follow along with synced lyrics.
 
 ## Features
 - **Carino navbar** — the shared `carino-navbar.js` (it slides away in fullscreen or
-  when idle); the filters and a *Status* panel with live library/now-playing/session
-  stats (`assets/js/status.js`) ride in it.
+  when idle); the filters and the 🕺 *Mascots* gallery ride in it.
 - **Help and keys** — `?`/`H` help, `P`/`Space` pause the wall, `M` sound, `L` list,
   `F` fullscreen. Under reduced motion the wall starts paused. YouTube and LRCLIB load
   only after you play a song.
-- **Browse menus** — **🌍 Country**, **🎵 Genre** and **🎭 Mood** dropdown menus, each
-  listing its options with song counts, generated automatically from the catalog.
-- **★ Carino list** — a quick pill that filters to Miguel's personal picks (`carino: true`).
-- **🎉 Party menu** — the songs every party plays, per country (Mexico, Colombia and the US
-  so far). A song lists every country it's a staple in (`party: ["mexico", "colombia"]`), so
-  it can sit in several party lists; party songs aren't personal picks (`carino: false`).
-- **😂 Meme pill** — songs that became memes (`meme: true`).
-- **List** — opens a list of every song in the current section (A–Z), with a search box
-  (accent-insensitive; matches title, artist, country, genre and mood). Click a song to play
-  it, **+** to queue it; ↑/↓ and Enter work from the search box, Escape closes it. It stays
-  clear of the player card, above it or beside it.
-- **Layout** — the lists and filters (★ Carino, All, Party, Meme, Country, Genre, Mood) live in
-  the navbar; playback lives in a floating dock at the bottom center.
+- **Navbar lists** — **★ Carino** (Miguel's personal picks, `carino: true`), **All**, and
+  **📚 Lists**: one popup with every specific list, in tabs — *Lists* (🎉 Party per country,
+  😂 Meme), *Country*, *Genre* and *Mood* — each with song counts, built from the catalog, plus
+  a search box across all of them (Enter picks the first match). The button shows the list
+  you're on. Party = the songs every party plays, per country; a song lists every country
+  it's a staple in (`party: ["mexico", "colombia"]`), and party songs aren't personal picks
+  (`carino: false`). Memes are `meme: true`.
+- **List** — opens every song in the current section — the shuffle playlist (songs still to
+  come first) or, with shuffle off, A–Z — with a search box (accent-insensitive; matches
+  title, artist, country, genre and mood). Click a song to play it, **+** to queue it; ↑/↓ and
+  Enter work from the search box, Escape closes it. It sits on the left; the player card,
+  compact or the lyrics stage, is always on the right.
+- **Shuffle** (🔀 in the dock, on by default) — Next, Autoplay and the List walk a shuffled
+  playlist of the section, so no song repeats until all of it has played. Off: any random song.
+- **Lyrics** are off by default; the choice is remembered.
+- **Layout** — the lists live in the navbar; playback lives in a floating dock at the bottom
+  center.
 - **Transport** — ⏮ ▶/❚❚ ⏭ at the start of the dock. Previous restarts a song
   that's more than 3 s in, else steps back through what you played (the current song goes to
   the front of the queue); Next plays the queue, else a random song from the section. The
   queue sits right after them as small covers (hover one for × to remove it).
 - **Autoplay** — toggle in the dock; when on, a fresh song keeps playing after each
   one ends even with an empty queue (preference saved in `localStorage`).
+- **Dancer** — when a song has no lyrics (or LRCLIB can't be reached), a mascot dances on
+  the lyrics stage instead, picking random moves from its genre (headbang for rock, robot
+  for electronic, salsa for Latin, twerk for reggaeton…). The cast is original pixel art:
+  Lola, a dancer in a crop tee, leggings and sneakers (or a bikini, tube top, sports set
+  or mini dress) whose hairstyle and hair colour are random every time; Moe and Matrix,
+  drawn the same way (`assets/js/mascot-moe.js`, `assets/js/mascot-matrix.js`, built on
+  the kit and registry in `assets/js/mascots.js`); and crt, a monitor buddy. Each body
+  part is baked into one pixelated image in the browser, so no hairlines show between
+  pixel rows when the parts turn. Reggaeton twerks facing away, looking back over the
+  shoulder or from the side (Moe never twerks); 40-odd moves in all, each with a random
+  tempo and sometimes mirrored. **🕺 Mascots** in the navbar shows them all dancing: pick one (or
+  Random, or Everyone: the whole cast at once on a song with no lyrics) and how they dance
+  (the song's genre, random moves, or one genre's moves). On a song with lyrics the mascot
+  dances on the right of the stage, behind the lyrics. ✕ on the lyrics stage only leaves
+  lyrics mode; the song keeps playing in the compact card. It
+  pauses with the song and stands still under reduced motion (`assets/js/dancer.js`). Lyrics fetched once are kept in the visitor's own
+  `localStorage`, and a busy LRCLIB is retried.
 - Randomizer, auto-scrolling wall, a 10-song queue, synced karaoke lyrics from LRCLIB, and a
   redesigned now-playing panel with clickable country/genre/mood chips.
 - Everything is shareable via URL params (`?v=` play, `?q=` queue, `?cat=` filter). Filters

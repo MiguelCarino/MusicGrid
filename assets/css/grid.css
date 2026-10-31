@@ -27,19 +27,6 @@ html { height: 100%; overflow: hidden; }
     --panel-w:    320px;
 }
 
-/* ── Status (library diagnostics), in the navbar ─────────── */
-/* Branding's .diag-wrap / .diag-dropdown; only the pulse and the long
-   now-playing value are the wall's own. */
-.pulse-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--accent); box-shadow: 0 0 8px var(--accent);
-    animation: cs-pulse-glow 2s ease-in-out infinite;
-}
-@keyframes cs-pulse-glow { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
-@media (prefers-reduced-motion: reduce) { .pulse-dot { animation: none; } }
-.mg-actions .diag-dropdown { width: 280px; text-align: left; }
-.diag-val-trunc { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; text-align: right; }
-
 /* ── Lists + filters, in the navbar ─────────────────────── */
 /* carino-navbar.js carries .mg-actions into its right cluster; on a narrow
    screen the whole group folds into its ⋯ menu, where it wraps. Each menu's
@@ -82,7 +69,7 @@ html { height: 100%; overflow: hidden; }
     stroke-linejoin: round;
 }
 
-/* ── Country / Genre / Mood dropdown menus ────────────────── */
+/* ── 📚 Lists popup (and its .menu-panel base) ─────────────── */
 /* The button lives in the navbar; the .menu-panel is appended to <body> so no
    ancestor's overflow or stacking can clip it.
    Open = gold outline; a picked value = solid gold (.active, above). */
@@ -117,6 +104,118 @@ html { height: 100%; overflow: hidden; }
     visibility: visible;
     transform: translateY(0);
 }
+/* 📚 Lists: a centred dialog over a dim scrim — title + ✕, search, tabs
+   (Lists · Country · Genre · Mood), then a grid of tiles (2×2 cover
+   mosaic, name, song count). */
+.lists-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483000;
+    background: rgba(0, 0, 0, 0.55);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, visibility 0.15s;
+}
+.lists-scrim.open { opacity: 1; visibility: visible; }
+.menu-panel.lists-panel {
+    top: 50%;
+    left: 50%;
+    width: min(760px, calc(100vw - 24px));
+    height: min(640px, calc(100dvh - 48px));
+    max-height: none;
+    transform: translate(-50%, calc(-50% + 8px));
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden;
+    padding: 14px;
+    border-radius: 16px;
+}
+.menu-panel.lists-panel.open { transform: translate(-50%, -50%); }
+.lists-head { display: flex; align-items: center; justify-content: space-between; }
+.lists-title { font-size: 1rem; font-weight: 600; color: #fff; }
+.lists-close {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--border, #262626);
+    background: rgba(255, 255, 255, 0.04);
+    color: #fff;
+    cursor: pointer;
+}
+.lists-close:hover { background: rgba(220, 40, 40, 0.85); }
+.lists-search {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border, #262626);
+    border-radius: 8px;
+    color: #fff;
+    font: inherit;
+    font-size: 0.9rem;
+    padding: 9px 12px;
+}
+.lists-search:focus { outline: none; border-color: var(--accent); }
+.lists-tabs { display: flex; gap: 6px; }
+.lists-tab {
+    flex: 1;
+    background: transparent;
+    border: 1px solid var(--border, #262626);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.7);
+    font: inherit;
+    font-size: 0.82rem;
+    padding: 8px;
+    cursor: pointer;
+}
+.lists-tab:hover { color: #fff; border-color: rgba(255, 255, 255, 0.3); }
+.lists-tab.active { background: var(--accent-faint); border-color: var(--accent); color: var(--accent); }
+.lists-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+    align-content: start;
+    gap: 10px;
+    padding: 2px;
+}
+.menu-item.lists-tile {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 4px;
+    padding: 8px;
+    white-space: normal;
+    border: 1px solid transparent;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 10px;
+}
+.menu-item.lists-tile:hover { background: rgba(255, 255, 255, 0.09); }
+.menu-item.lists-tile.chosen { border-color: var(--accent); background: var(--accent-faint); }
+.lists-mosaic {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    aspect-ratio: 1;
+    border-radius: 7px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.06);
+}
+.lists-mosaic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.lists-tile .menu-item-label { font-size: 0.85rem; font-weight: 600; color: #fff; line-height: 1.25; }
+.lists-tile .menu-count { font-size: 0.72rem; }
+.lists-group {
+    grid-column: 1 / -1;
+    font-size: 0.7rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 6px 2px 0;
+}
+.lists-empty { grid-column: 1 / -1; color: var(--text-muted); font-size: 0.85rem; padding: 12px 4px; }
+@media (max-width: 600px) {
+    .lists-body { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+    .lists-tab { font-size: 0.75rem; padding: 7px 4px; }
+}
+
 .menu-panel::-webkit-scrollbar { width: 8px; }
 .menu-panel::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.14); border-radius: 8px; }
 
@@ -519,17 +618,17 @@ html { height: 100%; overflow: hidden; }
     background: rgba(34, 197, 94, 0.06);
 }
 
-/* ── Song list (right side) ───────────────────────────────── */
+/* ── Song list ─────────────────────────────────────────────── */
 /*
-   Every song in the current section, A–Z, with a search box. Sits under the
-   controls/queue and, when the compact player card is open, above it — or
-   beside it when there is no room above (--list-bottom / --list-right are set
-   by grid.js), so the two never overlap.
+   Every song in the current section (the shuffle playlist, or A–Z), with a
+   search box. Always on the left (.sl-left): the player card, compact or the
+   lyrics stage, is always on the right. grid.js sets --list-bottom (clear of
+   the dock).
 */
 #songList {
     position: fixed;
     top: calc(var(--mg-nav, var(--nav-h)) + 10px);
-    right: var(--list-right, 18px);
+    right: 18px;
     bottom: var(--list-bottom, 18px);
     width: 340px;
     max-width: calc(100vw - 36px);
@@ -550,6 +649,7 @@ html { height: 100%; overflow: hidden; }
     visibility: hidden;
     transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s 0.22s;
 }
+#songList.sl-left { right: auto; left: 18px; }
 #songList.open {
     opacity: 1;
     transform: none;
@@ -651,7 +751,7 @@ html { height: 100%; overflow: hidden; }
 
 /* ── Lyrics (inside the player card) ─────────────────────── */
 /*
-   Desktop only (over 900px): .lyrics-on moves the compact card to the left and turns it
+   Desktop only (over 900px): .lyrics-on grows the compact card, in place on the right,
    into a stage covering half the screen — lyrics on top, the video (as big as
    the row allows) + details merged below. It always starts under the queue
    strip, so the two never overlap.
@@ -661,9 +761,9 @@ html { height: 100%; overflow: hidden; }
 
 @media (min-width: 901px) {
     #videoInfoBar.lyrics-on {
-        left: 18px;
-        right: auto;
-        transform-origin: bottom left;
+        left: auto;
+        right: 18px;
+        transform-origin: bottom right;
         width: calc(50vw - 18px);
         max-width: none;
         height: calc(100dvh - var(--mg-nav, var(--nav-h)) - var(--dock-space) - 28px);
@@ -833,6 +933,1162 @@ html { height: 100%; overflow: hidden; }
     #lyricsSection.gap.playing .lyric-notes span { animation: none; }
 }
 
+/* ── The dancer (assets/js/dancer.js) ─────────────────────────
+   A song with no lyrics gets a mascot dancing on the stage instead of
+   the notes. Every body part is an SVG <g> turned about its own joint; the
+   .mv-* class on .dancer picks the move. Paused with the song, still under
+   reduced motion. */
+#lyricsSection.has-dancer .lyric-notes { display: none; }
+/* dancer.js puts its dancers in a .dancer-stage: the whole stage (no
+   lyrics), a row of slots for the whole cast ("All"), or the right half
+   behind the lyrics (.beside), which stay in front */
+.dancer-stage {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    pointer-events: none;
+}
+.dancer-slot { position: relative; flex: 1 1 0; min-width: 0; container-type: size; }
+.dancer-stage.troupe { padding: 0 2%; }
+/* beside the lyrics: the right edge, the lyrics shift left to make room */
+.dancer-stage.beside { left: 70%; right: 1%; z-index: 0; }
+.dancer-stage.beside .dancer svg { height: min(56cqh, 80cqw); }
+#videoInfoBar #lyricsSection.dancer-beside #lyricsContainer { position: relative; z-index: 2; padding-right: 31%; padding-left: 3%; }
+.dancer {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    animation: dancerIn 0.6s ease both;
+}
+.dancer svg {
+    height: min(70cqh, 80cqw);
+    width: auto;
+    max-width: 96cqw;   /* a group twerk is wider: it shrinks to fit */
+    overflow: visible;
+    image-rendering: pixelated;
+}
+@keyframes dancerIn { from { opacity: 0; transform: translateY(12px); } }
+
+.dancer { --b: calc(var(--beat, 0.5s) / var(--tempo, 1)); }
+.dancer.mirror svg { transform: scaleX(-1); }   /* dancer.js mirrors some moves */
+.dancer g { transform-box: fill-box; }
+.dancer .fig   { transform-origin: 50% 100%; }
+.dancer .upper { transform-origin: 50% 85%; }
+.dancer .head  { transform-origin: 50% 100%; }
+.dancer .hips  { transform-origin: 50% 50%; }
+.dancer .arm   { transform-origin: 50% 10%; }
+.dancer .leg   { transform-origin: 50% 0%; }
+/* the bust (a .bust group inside a front chest, mascots.js) jiggles a
+   little on the beat, on top of whatever the chest does; a copy of it stays
+   baked into the chest underneath, so it never leaves a gap */
+.dancer .bust { transform-origin: 50% 0%; animation: dJiggle var(--b) ease-in-out infinite; }
+@keyframes dJiggle { 0%, 100% { transform: translateY(0) scaleY(1); } 30% { transform: translateY(0.3px) scaleY(0.97); }
+                     65% { transform: translateY(-0.15px) scaleY(1.03); } }
+
+.dancer .fig, .dancer .upper, .dancer .head, .dancer .hips, .dancer .chest,
+.dancer .arm, .dancer .leg {
+    animation-duration: var(--b);
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+}
+#lyricsSection:not(.playing) .dancer * { animation-play-state: paused; }
+
+/* bounce — knees and arms on the beat */
+.mv-bounce .fig     { animation-name: dBounce; }
+.mv-bounce .arm-l   { animation-name: dPumpL; }
+.mv-bounce .arm-r   { animation-name: dPumpR; animation-delay: calc(var(--b) / -2); }
+@keyframes dBounce { 50% { transform: translateY(-2px) scaleY(1.03); } }
+@keyframes dPumpL  { 50% { transform: rotate(40deg); } }
+@keyframes dPumpR  { 50% { transform: rotate(-40deg); } }
+
+/* sway — slow side to side, head the other way */
+.mv-sway { --beat: 1.6s; }
+.mv-sway .fig   { animation-name: dSway; }
+.mv-sway .head  { animation-name: dTilt; }
+.mv-sway .arm-l { animation-name: dPumpL; }
+.mv-sway .arm-r { animation-name: dPumpR; }
+@keyframes dSway { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+@keyframes dTilt { 0%, 100% { transform: rotate(8deg); } 50% { transform: rotate(-8deg); } }
+
+/* armwave — both arms up, waving */
+.mv-armwave .fig   { animation-name: dBounce; }
+.mv-armwave .arm-l { animation-name: dWaveL; }
+.mv-armwave .arm-r { animation-name: dWaveR; }
+@keyframes dWaveL { 0%, 100% { transform: rotate(150deg); } 50% { transform: rotate(185deg); } }
+@keyframes dWaveR { 0%, 100% { transform: rotate(-150deg); } 50% { transform: rotate(-185deg); } }
+
+/* jump */
+.mv-jump { --beat: 0.7s; }
+.mv-jump .fig   { animation-name: dJump; animation-timing-function: cubic-bezier(.3, 0, .7, 1); }
+.mv-jump .arm-l { animation-name: dWaveL; }
+.mv-jump .arm-r { animation-name: dWaveR; }
+.mv-jump .leg-l { animation-name: dKickL; }
+.mv-jump .leg-r { animation-name: dKickR; }
+@keyframes dJump  { 0%, 100% { transform: translateY(0) scaleY(0.94); } 45% { transform: translateY(-7px) scaleY(1.04); } }
+@keyframes dKickL { 45% { transform: rotate(18deg); } }
+@keyframes dKickR { 45% { transform: rotate(-18deg); } }
+
+/* spin — a flat 2D turn */
+.mv-spin { --beat: 1.2s; }
+.mv-spin .fig   { animation-name: dSpin; animation-timing-function: linear; }
+.mv-spin .arm-l { animation-name: dPumpL; }
+.mv-spin .arm-r { animation-name: dPumpR; }
+@keyframes dSpin { 0%, 100% { transform: scaleX(1); } 25% { transform: scaleX(0.1); } 50% { transform: scaleX(-1); } 75% { transform: scaleX(0.1); } }
+
+/* headbang (+ jump crouch) */
+.mv-headbang { --beat: 0.42s; }
+.mv-headbang .head  { animation-name: dBang; }
+.mv-headbang .upper { animation-name: dLean; }
+.mv-headbang .arm-l { animation-name: dPumpL; }
+.mv-headbang .arm-r { animation-name: dPumpR; }
+@keyframes dBang { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(22deg) translateY(1px); } }
+@keyframes dLean { 50% { transform: rotate(8deg); } }
+
+/* air guitar — one arm strums, the other holds the neck */
+.mv-airguitar { --beat: 0.32s; }
+.mv-airguitar .arm-l { transform: rotate(-70deg); animation: none; }
+.mv-airguitar .arm-r { animation-name: dStrum; }
+.mv-airguitar .head  { animation-name: dBang; animation-duration: 0.64s; }
+.mv-airguitar .fig   { animation-name: dBounce; animation-duration: 0.64s; }
+@keyframes dStrum { 0%, 100% { transform: rotate(30deg); } 50% { transform: rotate(60deg); } }
+
+/* robot — stiff, stepped */
+.mv-robot { --beat: 1.6s; }
+.mv-robot .fig, .mv-robot .head, .mv-robot .arm { animation-timing-function: steps(1, end); }
+.mv-robot .arm-l { animation-name: dRobotL; }
+.mv-robot .arm-r { animation-name: dRobotR; }
+.mv-robot .head  { animation-name: dRobotH; }
+@keyframes dRobotL { 0% { transform: rotate(0); } 25% { transform: rotate(90deg); } 50% { transform: rotate(90deg); } 75% { transform: rotate(180deg); } }
+@keyframes dRobotR { 0% { transform: rotate(-90deg); } 25% { transform: rotate(0); } 50% { transform: rotate(-180deg); } 75% { transform: rotate(-90deg); } }
+@keyframes dRobotH { 0%, 50% { transform: rotate(0); } 25% { transform: rotate(-12deg); } 75% { transform: rotate(12deg); } }
+
+/* shuffle — feet slide, body slides along */
+.mv-shuffle { --beat: 0.5s; }
+.mv-shuffle .fig   { animation-name: dSlide; animation-duration: calc(var(--b) * 4); }
+.mv-shuffle .leg-l { animation-name: dKickL; }
+.mv-shuffle .leg-r { animation-name: dKickR; animation-delay: calc(var(--b) / -2); }
+.mv-shuffle .arm-l { animation-name: dPumpL; }
+.mv-shuffle .arm-r { animation-name: dPumpR; animation-delay: calc(var(--b) / -2); }
+@keyframes dSlide { 0%, 100% { transform: translateX(-4px); } 50% { transform: translateX(4px); } }
+
+/* salsa — side steps, hips, arms out */
+.mv-salsa { --beat: 0.6s; }
+.mv-salsa .fig   { animation-name: dStep; animation-duration: calc(var(--b) * 2); }
+.mv-salsa .hips  { animation-name: dHips; }
+.mv-salsa .arm-l { transform: rotate(60deg); animation-name: dOutL; }
+.mv-salsa .arm-r { transform: rotate(-60deg); animation-name: dOutR; }
+.mv-salsa .leg-l { animation-name: dKickL; animation-duration: calc(var(--b) * 2); }
+@keyframes dStep { 0%, 100% { transform: translateX(-2px) rotate(-4deg); } 50% { transform: translateX(2px) rotate(4deg); } }
+@keyframes dHips { 0%, 100% { transform: translateX(-1px); } 50% { transform: translateX(1px); } }
+@keyframes dOutL { 0%, 100% { transform: rotate(60deg); } 50% { transform: rotate(90deg); } }
+@keyframes dOutR { 0%, 100% { transform: rotate(-60deg); } 50% { transform: rotate(-90deg); } }
+
+/* conduct — one arm keeps time, gentle sway */
+.mv-conduct { --beat: 0.8s; }
+.mv-conduct .arm-r { animation-name: dBaton; }
+.mv-conduct .arm-l { transform: rotate(25deg); animation: none; }
+.mv-conduct .fig   { animation-name: dSway; animation-duration: calc(var(--b) * 4); }
+.mv-conduct .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 4); }
+@keyframes dBaton { 0%, 100% { transform: rotate(-110deg); } 33% { transform: rotate(-150deg); } 66% { transform: rotate(-80deg); } }
+
+/* twerk — turned around (dancer.js redraws the head from behind and puts
+   the hips over the chest), a low squat, hands on knees, hips bouncing */
+.mv-twerk, .mv-twerklook { --beat: 0.28s; }
+.mv-twerk .upper, .mv-twerklook .upper { transform: translateY(2px); animation: none; }
+.mv-twerk .leg, .mv-twerklook .leg   { transform: scaleY(0.8); animation: none; }
+.mv-twerk .leg-l, .mv-twerklook .leg-l { transform: scaleY(0.8) rotate(10deg); }
+.mv-twerk .leg-r, .mv-twerklook .leg-r { transform: scaleY(0.8) rotate(-10deg); }
+.mv-twerk .arm-l, .mv-twerklook .arm-l { transform: rotate(-25deg); animation: none; }
+.mv-twerk .arm-r, .mv-twerklook .arm-r { transform: rotate(25deg); animation: none; }
+.mv-twerk .hips, .mv-twerklook .hips  { animation-name: dTwerk; animation-timing-function: ease-out; }
+.mv-twerk .head, .mv-twerklook .head  { animation-name: dTwerkHead; animation-duration: calc(var(--b) * 4); }
+@keyframes dTwerk     { 0%, 100% { transform: translateY(0) scaleX(1.08); } 50% { transform: translateY(-2px) scaleX(1.08); } }
+@keyframes dTwerkHead { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+
+/* 🕺 Mascots panel (navbar): every mascot dancing in a tile, then how
+   they dance. A .menu-panel like the filter menus, appended to <body>. */
+.mascot-panel {
+    width: min(460px, calc(100vw - 16px));
+    max-height: calc(100dvh - var(--nav-h, 56px) - var(--dock-space, 90px) - 16px);
+    overflow-y: auto;
+    padding: 12px;
+}
+.mascot-head {
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 4px 2px 6px;
+}
+.mascot-hint { font-size: 12px; color: var(--text-sec, var(--text-muted)); margin: -2px 2px 10px; }
+.mascot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+    gap: 6px;
+    margin-bottom: 12px;
+}
+.mascot-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 4px 4px;
+    border-radius: 10px;
+    border: 1px solid var(--glass-line, rgba(255, 255, 255, 0.12));
+    background: rgba(255, 255, 255, 0.04);
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+.mascot-tile:hover { background: rgba(255, 255, 255, 0.09); }
+.mascot-tile.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.mascot-box {
+    position: relative;
+    width: 64px;
+    height: 72px;
+    container-type: size;
+}
+.mascot-dice { display: flex; align-items: center; justify-content: center; width: 64px; height: 72px; font-size: 30px; }
+.mascot-name { font-size: 11px; text-transform: capitalize; color: var(--text-sec, inherit); }
+.dancer.dancer-mini { animation: none; }
+.dancer.dancer-mini svg { height: 100%; filter: none; }
+.mascot-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.mascot-chip.active { background: var(--accent); color: var(--bg, #111); border-color: var(--accent); }
+
+/* twerk, looking back over the shoulder: the face turned to us, nodding */
+.mv-twerklook .head { animation-name: dLookBack; animation-duration: calc(var(--b) * 4); }
+@keyframes dLookBack { 0%, 100% { transform: rotate(-6deg) translateY(0); } 50% { transform: rotate(4deg) translateY(-0.6px); } }
+
+/* twerkside — lola's own side sprite (bent over, hips back, hand on the
+   knee, face to us): everything holds still but the hips, which bounce,
+   and the head, which nods along */
+.mv-twerkside { --beat: 0.28s; }
+.mv-twerkside .fig, .mv-twerkside .upper, .mv-twerkside .chest,
+.mv-twerkside .arm, .mv-twerkside .leg { transform: none; animation: none; }
+.mv-twerkside .hips { transform-origin: 85% 15%; animation-name: dTwerkSide; animation-timing-function: ease-out; }
+.mv-twerkside .head { animation-name: dSideHead; animation-duration: calc(var(--b) * 4); }
+@keyframes dTwerkSide { 0%, 100% { transform: rotate(0) translateY(0); } 50% { transform: rotate(-9deg) translateY(-1px); } }
+@keyframes dSideHead  { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg) translateY(-0.5px); } }
+
+/* company twerking from behind beside the dancer (.crew): whatever the
+   dancer's own move, they squat and bounce. A posed lola uses .pose below. */
+.dancer .crew .upper { transform: translateY(2px); animation: none; }
+.dancer .crew .leg-l { transform: scaleY(0.8) rotate(10deg); animation: none; }
+.dancer .crew .leg-r { transform: scaleY(0.8) rotate(-10deg); animation: none; }
+.dancer .crew .arm-l { transform: rotate(-25deg); animation: none; }
+.dancer .crew .arm-r { transform: rotate(25deg); animation: none; }
+.dancer .crew .chest { transform: none; animation: none; }
+.dancer .crew .hips  { animation: dTwerk var(--b) ease-out infinite; }
+.dancer .crew .head  { animation: dTwerkHead calc(var(--b) * 4) ease-in-out infinite; }
+
+/* lola's posed twerk sprites (from behind, the look-back peek): the pose is
+   drawn, so the knees dip, the hips bounce and the head nods */
+.dancer .pose .upper, .dancer .pose .chest, .dancer .pose .arm,
+.dancer .pose .leg { transform: none !important; animation: none !important; }
+.dancer .pose { animation: dPoseDip var(--b) ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+/* the hips pop up and rock, pivoting low so they stay over the seat */
+.dancer .pose .hips { transform-origin: 50% 90%; animation: dTwerkPose var(--b) ease-out infinite; }
+@keyframes dTwerkPose { 0%, 100% { transform: translateY(0) scaleY(1) rotate(0); } 35% { transform: translateY(-1.6px) scaleY(1.07) rotate(-3deg); } 65% { transform: translateY(-0.7px) scaleY(1.03) rotate(3deg); } }
+@keyframes dPoseDip   { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(0.9px); } }
+
+/* the partner in the side twerk: a gentle bob in time with her */
+.dancer .partner { transform-box: fill-box; transform-origin: 50% 100%;
+                   animation: dPartner calc(var(--b) * 2) ease-in-out infinite; }
+@keyframes dPartner { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(0.6px) rotate(-1.5deg); } }
+#lyricsSection:not(.playing) .dancer .partner { animation-play-state: paused; }
+
+/* clap — hands meet over the head */
+.mv-clap { --beat: 0.45s; }
+.mv-clap .fig   { animation-name: dBounce; }
+.mv-clap .arm-l { animation-name: dClapL; }
+.mv-clap .arm-r { animation-name: dClapR; }
+@keyframes dClapL { 0%, 100% { transform: rotate(140deg); } 50% { transform: rotate(168deg); } }
+@keyframes dClapR { 0%, 100% { transform: rotate(-140deg); } 50% { transform: rotate(-168deg); } }
+
+/* point — the disco point: up to the sky, down across, the other hand on the hip */
+.mv-point { --beat: 0.55s; }
+.mv-point .arm-r { animation-name: dPoint; animation-duration: calc(var(--b) * 2); animation-timing-function: steps(1, end); }
+.mv-point .arm-l { transform: rotate(-25deg); animation: none; }
+.mv-point .hips  { animation-name: dHips; }
+.mv-point .fig   { animation-name: dStep; animation-duration: calc(var(--b) * 2); }
+@keyframes dPoint { 0% { transform: rotate(-155deg); } 50% { transform: rotate(-35deg); } }
+
+/* twist — knees and shoulders turning against each other */
+.mv-twist { --beat: 0.4s; }
+.mv-twist .upper { animation-name: dTwistU; }
+.mv-twist .leg-l, .mv-twist .leg-r { animation-name: dTwistL; }
+.mv-twist .arm-l { transform: rotate(50deg); animation-name: dOutL; }
+.mv-twist .arm-r { transform: rotate(-50deg); animation-name: dOutR; }
+.mv-twist .fig   { animation-name: dDip; animation-duration: calc(var(--b) * 4); }
+@keyframes dTwistU { 0%, 100% { transform: rotate(-9deg); } 50% { transform: rotate(9deg); } }
+@keyframes dTwistL { 0%, 100% { transform: rotate(12deg); } 50% { transform: rotate(-12deg); } }
+@keyframes dDip    { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(2px) scaleY(0.97); } }
+
+/* kick — can-can: one leg up, then the other */
+.mv-kick { --beat: 0.5s; }
+.mv-kick .leg-l { animation-name: dCanL; animation-duration: calc(var(--b) * 2); }
+.mv-kick .leg-r { animation-name: dCanR; animation-duration: calc(var(--b) * 2); }
+.mv-kick .arm-l { transform: rotate(-60deg); animation: none; }
+.mv-kick .arm-r { transform: rotate(60deg); animation: none; }
+.mv-kick .fig   { animation-name: dBounce; }
+@keyframes dCanL { 0%, 50%, 100% { transform: rotate(0); } 25% { transform: rotate(-55deg); } }
+@keyframes dCanR { 0%, 50%, 100% { transform: rotate(0); } 75% { transform: rotate(55deg); } }
+
+/* floss — arms swing side to side, hips the other way */
+.mv-floss { --beat: 0.36s; }
+.mv-floss .arm-l, .mv-floss .arm-r { animation-name: dFloss; }
+.mv-floss .hips  { animation-name: dFlossH; }
+.mv-floss .upper { animation-name: dFlossU; }
+@keyframes dFloss  { 0%, 100% { transform: rotate(28deg); } 50% { transform: rotate(-28deg); } }
+@keyframes dFlossH { 0%, 100% { transform: translateX(-1.6px); } 50% { transform: translateX(1.6px); } }
+@keyframes dFlossU { 0%, 100% { transform: translateX(0.8px); } 50% { transform: translateX(-0.8px); } }
+
+/* shimmy — shoulders shaking fast, arms low and out */
+.mv-shimmy { --beat: 0.18s; }
+.mv-shimmy .chest, .mv-shimmy .head { animation-name: dShimmy; }
+.mv-shimmy .arm-l { transform: rotate(35deg); animation-name: dShimmyA; }
+.mv-shimmy .arm-r { transform: rotate(-35deg); animation-name: dShimmyB; }
+.mv-shimmy .fig   { animation-name: dDip; animation-duration: calc(var(--b) * 8); }
+@keyframes dShimmy  { 0%, 100% { transform: translateX(-0.8px); } 50% { transform: translateX(0.8px); } }
+@keyframes dShimmyA { 0%, 100% { transform: rotate(32deg); } 50% { transform: rotate(40deg); } }
+@keyframes dShimmyB { 0%, 100% { transform: rotate(-40deg); } 50% { transform: rotate(-32deg); } }
+
+/* pogo — straight up and down, stiff */
+.mv-pogo { --beat: 0.38s; }
+.mv-pogo .fig   { animation-name: dPogo; animation-timing-function: cubic-bezier(.3, 0, .7, 1); }
+.mv-pogo .arm-l { transform: rotate(-12deg); animation: none; }
+.mv-pogo .arm-r { transform: rotate(12deg); animation: none; }
+.mv-pogo .head  { animation-name: dBang; }
+@keyframes dPogo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+/* wave — a ripple through the arms and the body */
+.mv-wave { --beat: 0.9s; }
+.mv-wave .arm-l { animation-name: dRippleL; }
+.mv-wave .arm-r { animation-name: dRippleR; animation-delay: calc(var(--b) / -3); }
+.mv-wave .upper { animation-name: dBodyWave; animation-delay: calc(var(--b) / -6); }
+.mv-wave .head  { animation-name: dTilt; }
+@keyframes dRippleL  { 0%, 100% { transform: rotate(70deg); } 50% { transform: rotate(110deg); } }
+@keyframes dRippleR  { 0%, 100% { transform: rotate(-110deg); } 50% { transform: rotate(-70deg); } }
+@keyframes dBodyWave { 0%, 100% { transform: translateX(-1px) rotate(-3deg); } 50% { transform: translateX(1px) rotate(3deg); } }
+
+/* stomp — knee up, foot down, one side then the other */
+.mv-stomp { --beat: 0.45s; }
+.mv-stomp .leg-l { animation-name: dLiftL; animation-duration: calc(var(--b) * 2); }
+.mv-stomp .leg-r { animation-name: dLiftR; animation-duration: calc(var(--b) * 2); }
+.mv-stomp .arm-l { animation-name: dPumpL; }
+.mv-stomp .arm-r { animation-name: dPumpR; }
+.mv-stomp .fig   { animation-name: dDip; }
+@keyframes dLiftL { 0%, 50%, 100% { transform: translateY(0); } 25% { transform: translateY(-3px); } }
+@keyframes dLiftR { 0%, 50%, 100% { transform: translateY(0); } 75% { transform: translateY(-3px); } }
+
+/* sidehop — little hops from side to side */
+.mv-sidehop { --beat: 0.42s; }
+.mv-sidehop .fig   { animation-name: dHop; animation-duration: calc(var(--b) * 4); }
+.mv-sidehop .arm-l { animation-name: dPumpL; }
+.mv-sidehop .arm-r { animation-name: dPumpR; }
+@keyframes dHop { 0%  { transform: translate(-4px, 0); }  12% { transform: translate(-2px, -3px); } 25% { transform: translate(0, 0); }
+                  37% { transform: translate(2px, -3px); } 50% { transform: translate(4px, 0); }      62% { transform: translate(2px, -3px); }
+                  75% { transform: translate(0, 0); }      87% { transform: translate(-2px, -3px); } 100% { transform: translate(-4px, 0); } }
+
+/* vogue — framing the face, sharp angles, held */
+.mv-vogue { --beat: 1.6s; }
+.mv-vogue .arm-l, .mv-vogue .arm-r, .mv-vogue .head { animation-timing-function: steps(1, end); }
+.mv-vogue .arm-l { animation-name: dVogueL; }
+.mv-vogue .arm-r { animation-name: dVogueR; }
+.mv-vogue .head  { animation-name: dRobotH; }
+@keyframes dVogueL { 0% { transform: rotate(150deg); } 25% { transform: rotate(100deg); } 50% { transform: rotate(-20deg); } 75% { transform: rotate(170deg); } }
+@keyframes dVogueR { 0% { transform: rotate(-100deg); } 25% { transform: rotate(-160deg); } 50% { transform: rotate(-150deg); } 75% { transform: rotate(20deg); } }
+
+/* cumbia — a step back and forth, hips swaying, arms bent */
+.mv-cumbia { --beat: 0.5s; }
+.mv-cumbia .leg-l { animation-name: dCumbia; animation-duration: calc(var(--b) * 2); }
+.mv-cumbia .hips  { animation-name: dHips; }
+.mv-cumbia .upper { animation-name: dTwistU; animation-duration: calc(var(--b) * 2); }
+.mv-cumbia .arm-l { transform: rotate(70deg); animation-name: dOutL; }
+.mv-cumbia .arm-r { transform: rotate(-70deg); animation-name: dOutR; }
+@keyframes dCumbia { 0%, 100% { transform: translate(0, 0) rotate(0); } 50% { transform: translate(-2px, -1px) rotate(14deg); } }
+
+/* ── More steps (every genre's pool). Arms turn about the shoulder: on
+   arm-l a positive angle lifts it out to its side, on arm-r a negative one;
+   the other way crosses the body. Legs turn about the hip. ── */
+
+/* runningman — knee up on each beat, arms pumping low */
+.mv-runningman { --beat: 0.4s; }
+.mv-runningman .leg-l { animation-name: dLiftL; animation-duration: calc(var(--b) * 2); }
+.mv-runningman .leg-r { animation-name: dLiftR; animation-duration: calc(var(--b) * 2); }
+.mv-runningman .arm-l { animation-name: dRunArmL; animation-duration: calc(var(--b) * 2); }
+.mv-runningman .arm-r { animation-name: dRunArmR; animation-duration: calc(var(--b) * 2); }
+.mv-runningman .upper { animation-name: dRunLean; animation-duration: calc(var(--b) * 2); }
+.mv-runningman .fig   { animation-name: dDip; }
+@keyframes dRunArmL { 0%, 100% { transform: rotate(35deg); } 50% { transform: rotate(-15deg); } }
+@keyframes dRunArmR { 0%, 100% { transform: rotate(15deg); } 50% { transform: rotate(-35deg); } }
+@keyframes dRunLean { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+
+/* charleston — knees in, knees out, both arms swinging to one side */
+.mv-charleston { --beat: 0.45s; }
+.mv-charleston .leg-l { animation-name: dChL; }
+.mv-charleston .leg-r { animation-name: dChR; }
+.mv-charleston .arm-l { animation-name: dChArmL; animation-duration: calc(var(--b) * 2); }
+.mv-charleston .arm-r { animation-name: dChArmR; animation-duration: calc(var(--b) * 2); }
+.mv-charleston .fig   { animation-name: dDip; }
+.mv-charleston .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 2); }
+@keyframes dChL    { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(14deg); } }
+@keyframes dChR    { 0%, 100% { transform: rotate(8deg); } 50% { transform: rotate(-14deg); } }
+@keyframes dChArmL { 0%, 100% { transform: rotate(70deg); } 50% { transform: rotate(-35deg); } }
+@keyframes dChArmR { 0%, 100% { transform: rotate(35deg); } 50% { transform: rotate(-70deg); } }
+
+/* glide — sliding across the floor and back, heels lifting in turn */
+.mv-glide { --beat: 0.5s; }
+.mv-glide .fig   { animation-name: dGlide; animation-duration: calc(var(--b) * 8); animation-timing-function: linear; }
+.mv-glide .leg-l { animation-name: dLiftL; animation-duration: calc(var(--b) * 2); }
+.mv-glide .leg-r { animation-name: dLiftR; animation-duration: calc(var(--b) * 2); }
+.mv-glide .arm-l { animation-name: dGlideArmL; animation-duration: calc(var(--b) * 2); }
+.mv-glide .arm-r { animation-name: dGlideArmR; animation-duration: calc(var(--b) * 2); }
+.mv-glide .head  { transform: rotate(-6deg); }
+@keyframes dGlide     { 0%, 100% { transform: translateX(-4px); } 50% { transform: translateX(4px); } }
+@keyframes dGlideArmL { 0%, 100% { transform: rotate(18deg); } 50% { transform: rotate(-6deg); } }
+@keyframes dGlideArmR { 0%, 100% { transform: rotate(6deg); } 50% { transform: rotate(-18deg); } }
+
+/* hustle — the disco point: up to the sky, down across to the hip */
+.mv-hustle { --beat: 0.5s; }
+.mv-hustle .arm-r { animation-name: dDisco; animation-duration: calc(var(--b) * 2); animation-timing-function: cubic-bezier(.6, 0, .3, 1); }
+.mv-hustle .arm-l { transform: rotate(22deg); }
+.mv-hustle .hips  { animation-name: dHips; }
+.mv-hustle .fig   { animation-name: dStep; animation-duration: calc(var(--b) * 2); }
+.mv-hustle .head  { animation-name: dDiscoHead; animation-duration: calc(var(--b) * 2); }
+@keyframes dDisco     { 0%, 100% { transform: rotate(-150deg); } 50% { transform: rotate(30deg); } }
+@keyframes dDiscoHead { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(6deg); } }
+
+/* macarena — one arm then the other, beat by beat: out, flip, across to
+   the shoulder, up behind the head, then a hip roll */
+.mv-macarena { --beat: 0.45s; }
+.mv-macarena .arm-l, .mv-macarena .arm-r { animation-duration: calc(var(--b) * 8); animation-timing-function: steps(1, end); }
+.mv-macarena .arm-r { animation-name: dMacR; }
+.mv-macarena .arm-l { animation-name: dMacL; }
+.mv-macarena .hips  { animation-name: dMacHips; animation-duration: calc(var(--b) * 8); }
+.mv-macarena .fig   { animation-name: dDip; }
+@keyframes dMacR { 0% { transform: rotate(-90deg); } 25% { transform: rotate(-100deg); } 50% { transform: rotate(125deg); }
+                   75% { transform: rotate(-165deg); } }
+@keyframes dMacL { 0% { transform: rotate(10deg); } 12.5% { transform: rotate(90deg); } 37.5% { transform: rotate(100deg); }
+                   62.5% { transform: rotate(-125deg); } 87.5% { transform: rotate(165deg); } }
+@keyframes dMacHips { 0%, 75%, 100% { transform: translateX(0); } 81% { transform: translateX(-1.2px); } 87.5% { transform: translateX(1.2px); }
+                      94% { transform: translateX(-1.2px); } }
+
+/* cabbagepatch — fists in front of the chest, churning in circles */
+.mv-cabbagepatch { --beat: 0.45s; }
+.mv-cabbagepatch .arm-l { animation-name: dCabL; animation-timing-function: linear; }
+.mv-cabbagepatch .arm-r { animation-name: dCabR; animation-timing-function: linear; }
+.mv-cabbagepatch .upper { animation-name: dCabU; animation-timing-function: linear; }
+.mv-cabbagepatch .fig   { animation-name: dDip; animation-duration: calc(var(--b) * 2); }
+@keyframes dCabL { 0%, 100% { transform: rotate(-35deg); } 25% { transform: rotate(-55deg); } 50% { transform: rotate(-40deg); } 75% { transform: rotate(-20deg); } }
+@keyframes dCabR { 0%, 100% { transform: rotate(35deg); } 25% { transform: rotate(20deg); } 50% { transform: rotate(40deg); } 75% { transform: rotate(55deg); } }
+@keyframes dCabU { 0%, 100% { transform: translate(0.8px, 0) rotate(2deg); } 25% { transform: translate(0, -0.6px); }
+                   50% { transform: translate(-0.8px, 0) rotate(-2deg); } 75% { transform: translate(0, 0.6px); } }
+
+/* sprinkler — hand behind the head, the other arm ticking round */
+.mv-sprinkler { --beat: 0.3s; }
+.mv-sprinkler .arm-l { transform: rotate(150deg); }
+.mv-sprinkler .arm-r, .mv-sprinkler .upper { animation-duration: calc(var(--b) * 8); animation-timing-function: steps(1, end); }
+.mv-sprinkler .arm-r { animation-name: dSprArm; }
+.mv-sprinkler .upper { animation-name: dSprU; }
+.mv-sprinkler .fig   { animation-name: dDip; }
+@keyframes dSprArm { 0% { transform: rotate(-55deg); } 12.5% { transform: rotate(-70deg); } 25% { transform: rotate(-85deg); } 37.5% { transform: rotate(-100deg); }
+                     50% { transform: rotate(-115deg); } 62.5% { transform: rotate(-100deg); } 75% { transform: rotate(-85deg); } 87.5% { transform: rotate(-70deg); } }
+@keyframes dSprU   { 0% { transform: rotate(-5deg); } 12.5% { transform: rotate(-2deg); } 25% { transform: rotate(1deg); } 37.5% { transform: rotate(4deg); }
+                     50% { transform: rotate(6deg); } 62.5% { transform: rotate(4deg); } 75% { transform: rotate(1deg); } 87.5% { transform: rotate(-2deg); } }
+
+/* lasso — a rope swung overhead, galloping side to side */
+.mv-lasso { --beat: 0.45s; }
+.mv-lasso .arm-r { animation-name: dLasso; animation-timing-function: linear; }
+.mv-lasso .arm-l { transform: rotate(-28deg); }
+.mv-lasso .fig   { animation-name: dHop; animation-duration: calc(var(--b) * 4); }
+.mv-lasso .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 4); }
+@keyframes dLasso { 0%, 100% { transform: rotate(-150deg); } 25% { transform: rotate(-175deg); } 50% { transform: rotate(-200deg); } 75% { transform: rotate(-175deg); } }
+
+/* polka — hop, step, close, step, a heel kicked out on each hop */
+.mv-polka { --beat: 0.36s; }
+.mv-polka .fig   { animation-name: dPolka; animation-duration: calc(var(--b) * 2); }
+.mv-polka .leg-l { animation-name: dPolkaL; animation-duration: calc(var(--b) * 2); }
+.mv-polka .leg-r { animation-name: dPolkaR; animation-duration: calc(var(--b) * 2); }
+.mv-polka .arm-l { transform: rotate(32deg); }
+.mv-polka .arm-r { transform: rotate(-32deg); }
+.mv-polka .upper { animation-name: dTwistU; animation-duration: calc(var(--b) * 2); }
+@keyframes dPolka  { 0%, 100% { transform: translate(-2px, 0); } 25% { transform: translate(-1px, -3px); } 50% { transform: translate(2px, 0); } 75% { transform: translate(1px, -3px); } }
+@keyframes dPolkaL { 0%, 50%, 100% { transform: rotate(0); } 25% { transform: rotate(18deg); } }
+@keyframes dPolkaR { 0%, 50%, 100% { transform: rotate(0); } 75% { transform: rotate(-18deg); } }
+
+/* skank — ska running in place: knees high, arms swinging wide, rocking */
+.mv-skank { --beat: 0.3s; }
+.mv-skank .leg-l { animation-name: dLiftL; animation-duration: calc(var(--b) * 2); }
+.mv-skank .leg-r { animation-name: dLiftR; animation-duration: calc(var(--b) * 2); }
+.mv-skank .arm-l { animation-name: dSkankL; animation-duration: calc(var(--b) * 2); }
+.mv-skank .arm-r { animation-name: dSkankR; animation-duration: calc(var(--b) * 2); }
+.mv-skank .upper { animation-name: dTwistU; animation-duration: calc(var(--b) * 2); }
+.mv-skank .head  { animation-name: dBang; }
+@keyframes dSkankL { 0%, 100% { transform: rotate(95deg); } 50% { transform: rotate(-25deg); } }
+@keyframes dSkankR { 0%, 100% { transform: rotate(25deg); } 50% { transform: rotate(-95deg); } }
+
+/* tango — arms in the embrace, a held step, a snap of the head, a flick */
+.mv-tango { --beat: 0.6s; }
+.mv-tango .arm-l { transform: rotate(115deg); }
+.mv-tango .arm-r { transform: rotate(-75deg); }
+.mv-tango .fig   { animation-name: dTango; animation-duration: calc(var(--b) * 4); animation-timing-function: cubic-bezier(.7, 0, .2, 1); }
+.mv-tango .head  { animation-name: dTangoHead; animation-duration: calc(var(--b) * 4); animation-timing-function: steps(1, end); }
+.mv-tango .leg-r { animation-name: dTangoFlick; animation-duration: calc(var(--b) * 4); }
+@keyframes dTango      { 0%, 100% { transform: translateX(-3px); } 25%, 45% { transform: translateX(3px) rotate(2deg); } 70% { transform: translateX(0) rotate(-2deg); } }
+@keyframes dTangoHead  { 0% { transform: rotate(0); } 25% { transform: rotate(-14deg); } 62.5% { transform: rotate(10deg); } }
+@keyframes dTangoFlick { 0%, 40%, 60%, 100% { transform: rotate(0); } 50% { transform: rotate(-35deg); } }
+
+/* zapateado — quick heel taps, upright and proud */
+.mv-zapateado { --beat: 0.2s; }
+.mv-zapateado .leg-l { animation-name: dZapL; animation-duration: calc(var(--b) * 2); animation-timing-function: ease-out; }
+.mv-zapateado .leg-r { animation-name: dZapR; animation-duration: calc(var(--b) * 2); animation-timing-function: ease-out; }
+.mv-zapateado .arm-l { transform: rotate(-22deg); }
+.mv-zapateado .arm-r { transform: rotate(22deg); }
+.mv-zapateado .upper { animation-name: dZapU; }
+.mv-zapateado .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 16); }
+@keyframes dZapL { 0%, 50%, 100% { transform: translateY(0); } 25% { transform: translateY(-1.6px); } }
+@keyframes dZapR { 0%, 50%, 100% { transform: translateY(0); } 75% { transform: translateY(-1.6px); } }
+@keyframes dZapU { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-0.5px); } }
+
+/* plie — knees out, down and up, the arms through en bas, second, fifth */
+.mv-plie { --beat: 0.8s; }
+.mv-plie .fig   { animation-name: dPlie; animation-duration: calc(var(--b) * 2); }
+.mv-plie .leg-l { animation-name: dPlieL; animation-duration: calc(var(--b) * 2); }
+.mv-plie .leg-r { animation-name: dPlieR; animation-duration: calc(var(--b) * 2); }
+.mv-plie .arm-l { animation-name: dBrasL; animation-duration: calc(var(--b) * 4); }
+.mv-plie .arm-r { animation-name: dBrasR; animation-duration: calc(var(--b) * 4); }
+.mv-plie .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 4); }
+@keyframes dPlie  { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.92); } }
+@keyframes dPlieL { 0%, 100% { transform: rotate(3deg); } 50% { transform: rotate(15deg); } }
+@keyframes dPlieR { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(-15deg); } }
+@keyframes dBrasL { 0%, 100% { transform: rotate(18deg); } 30% { transform: rotate(85deg); } 60% { transform: rotate(168deg); } }
+@keyframes dBrasR { 0%, 100% { transform: rotate(-18deg); } 30% { transform: rotate(-85deg); } 60% { transform: rotate(-168deg); } }
+
+/* float — weightless: rising and settling, limbs drifting */
+.mv-float { --beat: 1.2s; }
+.mv-float .fig   { animation-name: dFloat; animation-duration: calc(var(--b) * 4); }
+.mv-float .arm-l { animation-name: dDriftL; animation-duration: calc(var(--b) * 3); }
+.mv-float .arm-r { animation-name: dDriftR; animation-duration: calc(var(--b) * 3); animation-delay: calc(var(--b) * -1); }
+.mv-float .leg-l { animation-name: dDangleL; animation-duration: calc(var(--b) * 4); }
+.mv-float .leg-r { animation-name: dDangleR; animation-duration: calc(var(--b) * 4); }
+.mv-float .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 5); }
+@keyframes dFloat   { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes dDriftL  { 0%, 100% { transform: rotate(35deg); } 50% { transform: rotate(70deg); } }
+@keyframes dDriftR  { 0%, 100% { transform: rotate(-35deg); } 50% { transform: rotate(-70deg); } }
+@keyframes dDangleL { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(7deg); } }
+@keyframes dDangleR { 0%, 100% { transform: rotate(-2deg); } 60% { transform: rotate(-6deg); } }
+
+/* idol — J-pop idol: arms up framing the head, a wave, a cute point */
+.mv-idol { --beat: 0.5s; }
+.mv-idol .arm-l, .mv-idol .arm-r, .mv-idol .head { animation-duration: calc(var(--b) * 4); animation-timing-function: cubic-bezier(.5, 0, .2, 1); }
+.mv-idol .arm-l { animation-name: dIdolL; }
+.mv-idol .arm-r { animation-name: dIdolR; }
+.mv-idol .head  { animation-name: dIdolHead; }
+.mv-idol .fig   { animation-name: dStep; animation-duration: calc(var(--b) * 2); }
+.mv-idol .hips  { animation-name: dHips; }
+@keyframes dIdolL    { 0%, 40%, 100% { transform: rotate(160deg); } 55%, 85% { transform: rotate(-25deg); } }
+@keyframes dIdolR    { 0%, 40%, 100% { transform: rotate(-160deg); } 55% { transform: rotate(-140deg); } 65% { transform: rotate(-115deg); }
+                       75% { transform: rotate(-140deg); } 85% { transform: rotate(-60deg); } }
+@keyframes dIdolHead { 0%, 40%, 100% { transform: rotate(-9deg); } 55%, 85% { transform: rotate(9deg); } }
+
+/* snaps — finger snaps low at the sides, cool head tilt, easy lean */
+.mv-snaps { --beat: 0.55s; }
+.mv-snaps .arm-l { animation-name: dSnapL; animation-duration: calc(var(--b) * 2); }
+.mv-snaps .arm-r { animation-name: dSnapR; animation-duration: calc(var(--b) * 2); animation-delay: calc(var(--b) * -1); }
+.mv-snaps .upper { animation-name: dRunLean; animation-duration: calc(var(--b) * 2); }
+.mv-snaps .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 2); }
+.mv-snaps .fig   { animation-name: dDip; }
+@keyframes dSnapL { 0%, 100% { transform: rotate(28deg); } 40% { transform: rotate(28deg); } 50% { transform: rotate(52deg); } 60% { transform: rotate(30deg); } }
+@keyframes dSnapR { 0%, 100% { transform: rotate(-28deg); } 40% { transform: rotate(-28deg); } 50% { transform: rotate(-52deg); } 60% { transform: rotate(-30deg); } }
+
+/* ── Steps from around the world (dancer.js MOVES_BY_COUNTRY mixes a
+   song's country's steps into its genre's pool) and a few more for every
+   genre. Same rules: small translations, limbs stay on their joints. ── */
+
+/* quebradita (Mexico) — hops leaning back, a hand up holding the hat,
+   heels kicking in turn */
+.mv-quebradita { --beat: 0.38s; }
+.mv-quebradita .fig   { animation-name: dQueb; }
+.mv-quebradita .leg-l { animation-name: dQuebL; animation-duration: calc(var(--b) * 2); }
+.mv-quebradita .leg-r { animation-name: dQuebR; animation-duration: calc(var(--b) * 2); }
+.mv-quebradita .arm-l { animation-name: dHatL; animation-duration: calc(var(--b) * 2); }
+.mv-quebradita .arm-r { transform: rotate(-70deg); animation-name: dOutR; animation-duration: calc(var(--b) * 2); }
+.mv-quebradita .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 4); }
+@keyframes dQueb  { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-2.5px) rotate(-3deg); } }
+@keyframes dQuebL { 0%, 50%, 100% { transform: rotate(0); } 25% { transform: rotate(-22deg); } }
+@keyframes dQuebR { 0%, 50%, 100% { transform: rotate(0); } 75% { transform: rotate(22deg); } }
+@keyframes dHatL  { 0%, 100% { transform: rotate(150deg); } 50% { transform: rotate(168deg); } }
+
+/* jarabe (Mexico, the hat dance) — hands behind the back, heels tapping
+   forward one then the other, upright and proud */
+.mv-jarabe { --beat: 0.28s; }
+.mv-jarabe .arm-l { transform: rotate(-14deg); }
+.mv-jarabe .arm-r { transform: rotate(14deg); }
+.mv-jarabe .leg-l { animation-name: dJarL; animation-duration: calc(var(--b) * 2); }
+.mv-jarabe .leg-r { animation-name: dJarR; animation-duration: calc(var(--b) * 2); }
+.mv-jarabe .upper { animation-name: dZapU; }
+.mv-jarabe .fig   { animation-name: dHop; animation-duration: calc(var(--b) * 8); }
+.mv-jarabe .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 8); }
+@keyframes dJarL { 0%, 50%, 100% { transform: translateY(0) rotate(0); } 25% { transform: translateY(-1.2px) rotate(18deg); } }
+@keyframes dJarR { 0%, 50%, 100% { transform: translateY(0) rotate(0); } 75% { transform: translateY(-1.2px) rotate(-18deg); } }
+
+/* samba (Brazil) — quick down-up bounce, hips rocking, arms rolling */
+.mv-samba { --beat: 0.28s; }
+.mv-samba .fig   { animation-name: dSamba; }
+.mv-samba .hips  { animation-name: dSambaH; animation-duration: calc(var(--b) * 2); }
+.mv-samba .upper { animation-name: dRunLean; animation-duration: calc(var(--b) * 2); }
+.mv-samba .leg-l { animation-name: dMarchL; animation-duration: calc(var(--b) * 2); }
+.mv-samba .leg-r { animation-name: dMarchR; animation-duration: calc(var(--b) * 2); }
+.mv-samba .arm-l { animation-name: dSambaL; animation-duration: calc(var(--b) * 2); }
+.mv-samba .arm-r { animation-name: dSambaR; animation-duration: calc(var(--b) * 2); }
+@keyframes dSamba  { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(1.2px) scaleY(0.98); } }
+@keyframes dSambaH { 0%, 100% { transform: translateX(-1.4px) rotate(-5deg); } 50% { transform: translateX(1.4px) rotate(5deg); } }
+@keyframes dSambaL { 0%, 100% { transform: rotate(40deg); } 50% { transform: rotate(115deg); } }
+@keyframes dSambaR { 0%, 100% { transform: rotate(-115deg); } 50% { transform: rotate(-40deg); } }
+@keyframes dMarchL { 0%, 50%, 100% { transform: translateY(0); } 25% { transform: translateY(-1.5px); } }
+@keyframes dMarchR { 0%, 50%, 100% { transform: translateY(0); } 75% { transform: translateY(-1.5px); } }
+
+/* merengue (Dominican Republic) — marching in place, the hips doing all
+   the work, elbows out */
+.mv-merengue { --beat: 0.3s; }
+.mv-merengue .leg-l { animation-name: dMarchL; animation-duration: calc(var(--b) * 2); }
+.mv-merengue .leg-r { animation-name: dMarchR; animation-duration: calc(var(--b) * 2); }
+.mv-merengue .hips  { animation-name: dMerH; animation-duration: calc(var(--b) * 2); }
+.mv-merengue .upper { animation-name: dFlossU; animation-duration: calc(var(--b) * 2); }
+.mv-merengue .arm-l { animation-name: dMerL; animation-duration: calc(var(--b) * 2); }
+.mv-merengue .arm-r { animation-name: dMerR; animation-duration: calc(var(--b) * 2); }
+.mv-merengue .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 4); }
+@keyframes dMerH { 0%, 100% { transform: translateX(-1.8px) rotate(-7deg); } 50% { transform: translateX(1.8px) rotate(7deg); } }
+@keyframes dMerL { 0%, 100% { transform: rotate(50deg); } 50% { transform: rotate(62deg); } }
+@keyframes dMerR { 0%, 100% { transform: rotate(-62deg); } 50% { transform: rotate(-50deg); } }
+
+/* bachata (Dominican Republic) — three steps to the side and a tap with a
+   hip pop, then back; arms in the hold */
+.mv-bachata { --beat: 0.42s; }
+.mv-bachata .fig   { animation-name: dBach; animation-duration: calc(var(--b) * 8); }
+.mv-bachata .hips  { animation-name: dBachH; animation-duration: calc(var(--b) * 8); }
+.mv-bachata .leg-l { animation-name: dBachL; animation-duration: calc(var(--b) * 8); }
+.mv-bachata .leg-r { animation-name: dBachR; animation-duration: calc(var(--b) * 8); }
+.mv-bachata .arm-l { transform: rotate(100deg); animation-name: dBachA; animation-duration: calc(var(--b) * 2); }
+.mv-bachata .arm-r { transform: rotate(-40deg); }
+.mv-bachata .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 8); }
+@keyframes dBach  { 0%, 100% { transform: translateX(-3px); } 12.5% { transform: translateX(-1px); } 25% { transform: translateX(1px); }
+                    37.5%, 50% { transform: translateX(3px); } 62.5% { transform: translateX(1px); } 75% { transform: translateX(-1px); } 87.5% { transform: translateX(-3px); } }
+@keyframes dBachH { 0%, 30%, 50%, 80%, 100% { transform: translate(0, 0); } 40% { transform: translate(1.6px, -0.8px) rotate(6deg); }
+                    90% { transform: translate(-1.6px, -0.8px) rotate(-6deg); } }
+@keyframes dBachL { 0%, 80%, 95%, 100% { transform: rotate(0); } 87.5% { transform: translateY(-1px) rotate(12deg); } }
+@keyframes dBachR { 0%, 30%, 45%, 100% { transform: rotate(0); } 37.5% { transform: translateY(-1px) rotate(-12deg); } }
+@keyframes dBachA { 0%, 100% { transform: rotate(100deg); } 50% { transform: rotate(108deg); } }
+
+/* flamenco (Spain) — arms curving high and slow, the head held proud and
+   turned sharp, heels drumming fast underneath */
+.mv-flamenco { --beat: 0.7s; }
+.mv-flamenco .arm-l { animation-name: dFlaL; animation-duration: calc(var(--b) * 4); }
+.mv-flamenco .arm-r { animation-name: dFlaR; animation-duration: calc(var(--b) * 4); }
+.mv-flamenco .head  { animation-name: dFlaHead; animation-duration: calc(var(--b) * 4); animation-timing-function: steps(1, end); }
+.mv-flamenco .leg-l { animation-name: dZapL; animation-duration: calc(var(--b) * 0.6); animation-timing-function: ease-out; }
+.mv-flamenco .leg-r { animation-name: dZapR; animation-duration: calc(var(--b) * 0.6); animation-timing-function: ease-out; }
+.mv-flamenco .fig   { animation-name: dFlaFig; animation-duration: calc(var(--b) * 8); }
+@keyframes dFlaL    { 0%, 100% { transform: rotate(150deg); } 50% { transform: rotate(178deg); } 75% { transform: rotate(120deg); } }
+@keyframes dFlaR    { 0%, 100% { transform: rotate(-115deg); } 25% { transform: rotate(-150deg); } 50% { transform: rotate(-176deg); } }
+@keyframes dFlaHead { 0% { transform: rotate(-8deg); } 50% { transform: rotate(8deg); } }
+@keyframes dFlaFig  { 0%, 100% { transform: translateX(-1px) rotate(-2deg); } 50% { transform: translateX(1px) rotate(2deg); } }
+
+/* linedance (USA) — the grapevine: step, cross behind, step, touch, and
+   back, arms swinging easy at the sides */
+.mv-linedance { --beat: 0.36s; }
+.mv-linedance .fig   { animation-name: dVine; animation-duration: calc(var(--b) * 8); }
+.mv-linedance .leg-l { animation-name: dVineL; animation-duration: calc(var(--b) * 8); }
+.mv-linedance .leg-r { animation-name: dVineR; animation-duration: calc(var(--b) * 8); }
+.mv-linedance .arm-l { animation-name: dRunArmL; animation-duration: calc(var(--b) * 2); }
+.mv-linedance .arm-r { animation-name: dRunArmR; animation-duration: calc(var(--b) * 2); }
+.mv-linedance .upper { animation-name: dZapU; }
+.mv-linedance .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 8); }
+@keyframes dVine  { 0%, 100% { transform: translateX(-3px); } 12.5% { transform: translateX(-1px); } 25% { transform: translateX(1px); }
+                    37.5%, 50% { transform: translateX(3px); } 62.5% { transform: translateX(1px); } 75% { transform: translateX(-1px); } 87.5% { transform: translateX(-3px); } }
+@keyframes dVineL { 0%, 25%, 50%, 75%, 100% { transform: rotate(0); } 12.5% { transform: rotate(-14deg); } 62.5% { transform: rotate(8deg); }
+                    87.5% { transform: translateY(-1px) rotate(18deg); } }
+@keyframes dVineR { 0%, 25%, 50%, 75%, 100% { transform: rotate(0); } 12.5% { transform: rotate(-8deg); } 37.5% { transform: translateY(-1px) rotate(-18deg); }
+                    62.5% { transform: rotate(14deg); } }
+
+/* parapara (Japan) — feet barely stepping, both arms flicking together
+   from pose to pose */
+.mv-parapara { --beat: 0.4s; }
+.mv-parapara .arm-l, .mv-parapara .arm-r { animation-name: dPara; animation-duration: calc(var(--b) * 8); animation-timing-function: cubic-bezier(.7, 0, .3, 1); }
+.mv-parapara .head  { animation-name: dParaHead; animation-duration: calc(var(--b) * 8); animation-timing-function: cubic-bezier(.7, 0, .3, 1); }
+.mv-parapara .fig   { animation-name: dStep; animation-duration: calc(var(--b) * 2); }
+.mv-parapara .leg-l { animation-name: dMarchL; animation-duration: calc(var(--b) * 2); }
+.mv-parapara .leg-r { animation-name: dMarchR; animation-duration: calc(var(--b) * 2); }
+@keyframes dPara { 0%, 100% { transform: rotate(125deg); } 12.5% { transform: rotate(60deg); } 25% { transform: rotate(-125deg); } 37.5% { transform: rotate(-60deg); }
+                   50% { transform: rotate(150deg); } 62.5% { transform: rotate(-150deg); } 75% { transform: rotate(90deg); } 87.5% { transform: rotate(-90deg); } }
+@keyframes dParaHead { 0%, 100% { transform: rotate(-8deg); } 25% { transform: rotate(8deg); } 50% { transform: rotate(-5deg); } 62.5% { transform: rotate(5deg); }
+                       75% { transform: rotate(-8deg); } 87.5% { transform: rotate(8deg); } }
+
+/* bonodori (Japan) — the slow summer circle: both hands rise to one side,
+   come down, rise to the other, an easy walking step */
+.mv-bonodori { --beat: 0.85s; }
+.mv-bonodori .arm-l, .mv-bonodori .arm-r { animation-name: dBon; animation-duration: calc(var(--b) * 4); }
+.mv-bonodori .fig   { animation-name: dBonFig; animation-duration: calc(var(--b) * 4); }
+.mv-bonodori .leg-l { animation-name: dMarchL; animation-duration: calc(var(--b) * 2); }
+.mv-bonodori .leg-r { animation-name: dMarchR; animation-duration: calc(var(--b) * 2); }
+.mv-bonodori .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 4); }
+@keyframes dBon    { 0%, 100% { transform: rotate(15deg); } 25% { transform: rotate(120deg); } 50% { transform: rotate(-15deg); } 75% { transform: rotate(-120deg); } }
+@keyframes dBonFig { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-2px, 0.6px); } 50% { transform: translate(0, 0); } 75% { transform: translate(2px, 0.6px); } }
+
+/* kpop (Korea) — sharp point choreography: hit a pose on every beat */
+.mv-kpop { --beat: 0.4s; }
+.mv-kpop .arm-l, .mv-kpop .arm-r, .mv-kpop .head, .mv-kpop .fig { animation-duration: calc(var(--b) * 8); animation-timing-function: cubic-bezier(.8, 0, .2, 1); }
+.mv-kpop .arm-r { animation-name: dKpopR; }
+.mv-kpop .arm-l { animation-name: dKpopL; }
+.mv-kpop .head  { animation-name: dKpopHead; }
+.mv-kpop .fig   { animation-name: dKpopFig; }
+.mv-kpop .hips  { animation-name: dHips; }
+@keyframes dKpopR { 0%, 100% { transform: rotate(-20deg); } 12.5% { transform: rotate(-170deg); } 25% { transform: rotate(-90deg); } 37.5% { transform: rotate(-20deg); }
+                    50% { transform: rotate(35deg); } 62.5% { transform: rotate(-135deg); } 75% { transform: rotate(-60deg); } 87.5% { transform: rotate(-150deg); } }
+@keyframes dKpopL { 0%, 100% { transform: rotate(20deg); } 12.5% { transform: rotate(20deg); } 25% { transform: rotate(-30deg); } 37.5% { transform: rotate(165deg); }
+                    50% { transform: rotate(90deg); } 62.5% { transform: rotate(20deg); } 75% { transform: rotate(100deg); } 87.5% { transform: rotate(30deg); } }
+@keyframes dKpopHead { 0%, 100% { transform: rotate(0); } 12.5% { transform: rotate(-10deg); } 37.5% { transform: rotate(10deg); } 62.5% { transform: rotate(-6deg); } 87.5% { transform: rotate(8deg); } }
+@keyframes dKpopFig  { 0%, 100% { transform: translateX(0); } 12.5% { transform: translateX(-2px); } 37.5% { transform: translateX(2px); }
+                       50% { transform: translateX(1px) translateY(1px); } 75% { transform: translateX(-1px); } }
+
+/* prisyadka (Russia, Ukraine) — down in a squat, arms folded, kicking
+   one leg out and then the other */
+.mv-prisyadka { --beat: 0.36s; }
+.mv-prisyadka .upper { transform: translateY(3px); }
+.mv-prisyadka .arm-l { transform: rotate(-38deg); }
+.mv-prisyadka .arm-r { transform: rotate(38deg); }
+.mv-prisyadka .leg-l { transform: translateY(3px) scaleY(0.7); animation-name: dPrisL; animation-duration: calc(var(--b) * 2); }
+.mv-prisyadka .leg-r { transform: translateY(3px) scaleY(0.7); animation-name: dPrisR; animation-duration: calc(var(--b) * 2); }
+.mv-prisyadka .fig   { animation-name: dPrisFig; }
+.mv-prisyadka .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 4); }
+@keyframes dPrisL   { 0%, 50%, 100% { transform: translateY(3px) scaleY(0.7); } 25% { transform: translateY(3px) rotate(75deg); } }
+@keyframes dPrisR   { 0%, 50%, 100% { transform: translateY(3px) scaleY(0.7); } 75% { transform: translateY(3px) rotate(-75deg); } }
+@keyframes dPrisFig { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1px); } }
+
+/* hora (Romania) — the ring dance: arms out holding the neighbours'
+   hands, hop-step around, a kick across */
+.mv-hora { --beat: 0.36s; }
+.mv-hora .arm-l { transform: rotate(95deg); animation-name: dHoraL; }
+.mv-hora .arm-r { transform: rotate(-95deg); animation-name: dHoraR; }
+.mv-hora .fig   { animation-name: dPolka; animation-duration: calc(var(--b) * 4); }
+.mv-hora .leg-l { animation-name: dHoraKL; animation-duration: calc(var(--b) * 4); }
+.mv-hora .leg-r { animation-name: dHoraKR; animation-duration: calc(var(--b) * 4); }
+.mv-hora .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 4); }
+@keyframes dHoraL  { 0%, 100% { transform: rotate(95deg); } 50% { transform: rotate(105deg); } }
+@keyframes dHoraR  { 0%, 100% { transform: rotate(-95deg); } 50% { transform: rotate(-105deg); } }
+@keyframes dHoraKL { 0%, 15%, 35%, 100% { transform: rotate(0); } 25% { transform: rotate(-24deg); } }
+@keyframes dHoraKR { 0%, 65%, 85%, 100% { transform: rotate(0); } 75% { transform: rotate(24deg); } }
+
+/* humppa (Finland, Sweden, Iceland) — fast bouncing two-step in a
+   partner hold */
+.mv-humppa { --beat: 0.24s; }
+.mv-humppa .fig   { animation-name: dHumppa; }
+.mv-humppa .leg-l { animation-name: dMarchL; animation-duration: calc(var(--b) * 2); }
+.mv-humppa .leg-r { animation-name: dMarchR; animation-duration: calc(var(--b) * 2); }
+.mv-humppa .arm-l { transform: rotate(100deg); }
+.mv-humppa .arm-r { transform: rotate(-35deg); }
+.mv-humppa .upper { animation-name: dRunLean; animation-duration: calc(var(--b) * 4); }
+.mv-humppa .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 4); }
+@keyframes dHumppa { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.6px); } }
+
+/* powerstomp (Australia, New Zealand; haka-inspired) — a wide, low,
+   grounded stance, heavy stomps, hands slapping chest and thighs */
+.mv-powerstomp { --beat: 0.5s; }
+.mv-powerstomp .leg-l { animation-name: dPowL; animation-duration: calc(var(--b) * 2); animation-timing-function: cubic-bezier(.5, 0, .9, .5); }
+.mv-powerstomp .leg-r { animation-name: dPowR; animation-duration: calc(var(--b) * 2); animation-timing-function: cubic-bezier(.5, 0, .9, .5); }
+.mv-powerstomp .upper { animation-name: dPowU; }
+.mv-powerstomp .arm-l { animation-name: dPowAL; animation-duration: calc(var(--b) * 2); }
+.mv-powerstomp .arm-r { animation-name: dPowAR; animation-duration: calc(var(--b) * 2); }
+.mv-powerstomp .head  { animation-name: dPowH; }
+@keyframes dPowL  { 0%, 40%, 100% { transform: rotate(14deg); } 20% { transform: translateY(-2.5px) rotate(20deg); } }
+@keyframes dPowR  { 0%, 50%, 90%, 100% { transform: rotate(-14deg); } 70% { transform: translateY(-2.5px) rotate(-20deg); } }
+@keyframes dPowU  { 0%, 100% { transform: translateY(1.5px); } 40% { transform: translateY(2.3px); } }
+@keyframes dPowAL { 0%, 100% { transform: rotate(70deg); } 25% { transform: rotate(-30deg); } 50% { transform: rotate(12deg); } 75% { transform: rotate(-30deg); } }
+@keyframes dPowAR { 0%, 100% { transform: rotate(-12deg); } 25% { transform: rotate(30deg); } 50% { transform: rotate(-70deg); } 75% { transform: rotate(30deg); } }
+@keyframes dPowH  { 0%, 100% { transform: rotate(0) translateY(0.4px); } 50% { transform: rotate(0) translateY(-0.4px); } }
+
+/* swagger (UK, britpop) — hands behind the back, a slow rolling lean
+   from foot to foot, shoulders loose */
+.mv-swagger { --beat: 0.55s; }
+.mv-swagger .arm-l { transform: rotate(-10deg); animation-name: dSwagAL; animation-duration: calc(var(--b) * 2); }
+.mv-swagger .arm-r { transform: rotate(10deg); animation-name: dSwagAR; animation-duration: calc(var(--b) * 2); }
+.mv-swagger .fig   { animation-name: dSwag; animation-duration: calc(var(--b) * 2); }
+.mv-swagger .upper { animation-name: dSwagU; animation-duration: calc(var(--b) * 2); }
+.mv-swagger .head  { animation-name: dSwagH; animation-duration: calc(var(--b) * 2); }
+.mv-swagger .leg-l { animation-name: dMarchL; animation-duration: calc(var(--b) * 2); }
+.mv-swagger .leg-r { animation-name: dMarchR; animation-duration: calc(var(--b) * 2); }
+@keyframes dSwag   { 0%, 100% { transform: translateX(-1px) rotate(-3deg); } 50% { transform: translateX(1px) rotate(3deg); } }
+@keyframes dSwagU  { 0%, 100% { transform: translateX(0.6px) rotate(2deg); } 50% { transform: translateX(-0.6px) rotate(-2deg); } }
+@keyframes dSwagH  { 0%, 100% { transform: rotate(-5deg) translateY(0); } 25%, 75% { transform: rotate(0) translateY(0.5px); } 50% { transform: rotate(5deg); } }
+@keyframes dSwagAL { 0%, 100% { transform: rotate(-10deg); } 50% { transform: rotate(-4deg); } }
+@keyframes dSwagAR { 0%, 100% { transform: rotate(4deg); } 50% { transform: rotate(10deg); } }
+
+/* pandero (Puerto Rico, plena) — a hand drum held up, the other hand
+   striking it, a bouncy step */
+.mv-pandero { --beat: 0.32s; }
+.mv-pandero .arm-l { animation-name: dPanL; }
+.mv-pandero .arm-r { animation-name: dPanR; animation-timing-function: cubic-bezier(.6, 0, .9, .6); }
+.mv-pandero .fig   { animation-name: dBounce; }
+.mv-pandero .hips  { animation-name: dHips; animation-duration: calc(var(--b) * 2); }
+.mv-pandero .leg-l { animation-name: dMarchL; animation-duration: calc(var(--b) * 2); }
+.mv-pandero .leg-r { animation-name: dMarchR; animation-duration: calc(var(--b) * 2); }
+.mv-pandero .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 4); }
+@keyframes dPanL { 0%, 100% { transform: rotate(118deg); } 50% { transform: rotate(124deg); } }
+@keyframes dPanR { 0%, 100% { transform: rotate(-150deg); } 50% { transform: rotate(-178deg); } }
+
+/* son (Cuba) — the Cuban hip roll, the step held to the second beat,
+   arms low and easy */
+.mv-son { --beat: 0.45s; }
+.mv-son .hips  { animation-name: dSonH; animation-duration: calc(var(--b) * 2); animation-timing-function: linear; }
+.mv-son .upper { animation-name: dFlossU; animation-duration: calc(var(--b) * 2); }
+.mv-son .leg-l { animation-name: dSonL; animation-duration: calc(var(--b) * 4); }
+.mv-son .leg-r { animation-name: dSonR; animation-duration: calc(var(--b) * 4); }
+.mv-son .arm-l { animation-name: dSonAL; animation-duration: calc(var(--b) * 2); }
+.mv-son .arm-r { animation-name: dSonAR; animation-duration: calc(var(--b) * 2); }
+.mv-son .fig   { animation-name: dStep; animation-duration: calc(var(--b) * 4); }
+.mv-son .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 4); }
+@keyframes dSonH  { 0%, 100% { transform: translateX(-1.3px); } 25% { transform: translate(0, -0.6px) rotate(3deg); } 50% { transform: translateX(1.3px); } 75% { transform: translate(0, 0.4px) rotate(-3deg); } }
+@keyframes dSonL  { 0%, 15%, 40%, 100% { transform: rotate(0); } 25% { transform: translateY(-1px) rotate(10deg); } }
+@keyframes dSonR  { 0%, 65%, 90%, 100% { transform: rotate(0); } 75% { transform: translateY(-1px) rotate(-10deg); } }
+@keyframes dSonAL { 0%, 100% { transform: rotate(38deg); } 50% { transform: rotate(52deg); } }
+@keyframes dSonAR { 0%, 100% { transform: rotate(-70deg); } 50% { transform: rotate(-56deg); } }
+
+/* calena (Colombia, salsa caleña) — feet flicking at full speed while
+   the body above stays calm, arms out */
+.mv-calena { --beat: 0.18s; }
+.mv-calena .leg-l { animation-name: dCalL; animation-duration: calc(var(--b) * 2); }
+.mv-calena .leg-r { animation-name: dCalR; animation-duration: calc(var(--b) * 2); }
+.mv-calena .arm-l { transform: rotate(45deg); animation-name: dShimmyA; animation-duration: calc(var(--b) * 2); }
+.mv-calena .arm-r { transform: rotate(-45deg); animation-name: dShimmyB; animation-duration: calc(var(--b) * 2); }
+.mv-calena .hips  { animation-name: dHips; animation-duration: calc(var(--b) * 2); }
+.mv-calena .fig   { animation-name: dDip; animation-duration: calc(var(--b) * 8); }
+.mv-calena .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 16); }
+@keyframes dCalL { 0%, 50%, 100% { transform: rotate(0); } 25% { transform: translateY(-1px) rotate(-18deg); } }
+@keyframes dCalR { 0%, 50%, 100% { transform: rotate(0); } 75% { transform: translateY(-1px) rotate(18deg); } }
+
+/* windmill (rock, metal) — the big power-chord arm, all the way round */
+.mv-windmill { --beat: 0.5s; }
+.mv-windmill .arm-r { animation-name: dMill; animation-duration: calc(var(--b) * 2); animation-timing-function: linear; }
+.mv-windmill .arm-l { transform: rotate(-70deg); }
+.mv-windmill .head  { animation-name: dBang; }
+.mv-windmill .upper { animation-name: dLean; animation-duration: calc(var(--b) * 2); }
+.mv-windmill .fig   { animation-name: dBounce; }
+@keyframes dMill { 0% { transform: rotate(0deg); } 100% { transform: rotate(-360deg); } }
+
+/* fistpump — a fist punched at the sky on every beat, a hop with it */
+.mv-fistpump { --beat: 0.44s; }
+.mv-fistpump .arm-r { animation-name: dFistR; animation-timing-function: cubic-bezier(.3, 0, .2, 1); }
+.mv-fistpump .arm-l { transform: rotate(28deg); }
+.mv-fistpump .fig   { animation-name: dFistFig; animation-timing-function: cubic-bezier(.3, 0, .7, 1); }
+.mv-fistpump .head  { animation-name: dBang; }
+.mv-fistpump .leg-l { animation-name: dKickL; }
+.mv-fistpump .leg-r { animation-name: dKickR; }
+@keyframes dFistR   { 0%, 100% { transform: rotate(-120deg); } 45% { transform: rotate(-172deg); } }
+@keyframes dFistFig { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(-3px); } }
+
+/* taichi — slow and centred: the arms float up and open, a knee bends */
+.mv-taichi { --beat: 1.3s; }
+.mv-taichi .arm-l { animation-name: dTaiL; animation-duration: calc(var(--b) * 4); }
+.mv-taichi .arm-r { animation-name: dTaiR; animation-duration: calc(var(--b) * 4); animation-delay: calc(var(--b) * -0.5); }
+.mv-taichi .fig   { animation-name: dTaiFig; animation-duration: calc(var(--b) * 4); }
+.mv-taichi .leg-l { animation-name: dTaiLeg; animation-duration: calc(var(--b) * 4); }
+.mv-taichi .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 6); }
+@keyframes dTaiL   { 0%, 100% { transform: rotate(15deg); } 35% { transform: rotate(95deg); } 65% { transform: rotate(140deg); } }
+@keyframes dTaiR   { 0%, 100% { transform: rotate(-15deg); } 35% { transform: rotate(-95deg); } 65% { transform: rotate(-140deg); } }
+@keyframes dTaiFig { 0%, 100% { transform: translateY(0); } 50% { transform: translate(-1px, 1px) scaleY(0.97); } }
+@keyframes dTaiLeg { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(10deg); } }
+
+/* waltz — one-two-three, rise and fall, turning in the hold */
+.mv-waltz { --beat: 0.5s; }
+.mv-waltz .fig   { animation-name: dWaltz; animation-duration: calc(var(--b) * 6); }
+.mv-waltz .arm-l { transform: rotate(110deg); animation-name: dWaltzA; animation-duration: calc(var(--b) * 3); }
+.mv-waltz .arm-r { transform: rotate(-60deg); }
+.mv-waltz .leg-l { animation-name: dWaltzL; animation-duration: calc(var(--b) * 6); }
+.mv-waltz .leg-r { animation-name: dWaltzR; animation-duration: calc(var(--b) * 6); }
+.mv-waltz .upper { animation-name: dRunLean; animation-duration: calc(var(--b) * 6); }
+.mv-waltz .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 6); }
+@keyframes dWaltz  { 0%, 100% { transform: translate(-2px, 0) rotate(-3deg); } 16.7% { transform: translate(-1px, -1.5px) rotate(-1deg); } 33.3% { transform: translate(0, 0); }
+                     50% { transform: translate(2px, 0) rotate(3deg); } 66.7% { transform: translate(1px, -1.5px) rotate(1deg); } 83.3% { transform: translate(0, 0); } }
+@keyframes dWaltzA { 0%, 100% { transform: rotate(110deg); } 50% { transform: rotate(118deg); } }
+@keyframes dWaltzL { 0%, 33%, 100% { transform: rotate(0); } 16.7% { transform: rotate(10deg); } }
+@keyframes dWaltzR { 0%, 50%, 83%, 100% { transform: rotate(0); } 66.7% { transform: rotate(-10deg); } }
+
+/* bodyroll (funk, soul, pop) — a wave down the body, head then chest then
+   hips, a hand sliding down with it */
+.mv-bodyroll { --beat: 0.7s; }
+.mv-bodyroll .head  { animation-name: dRollH; animation-duration: calc(var(--b) * 2); }
+.mv-bodyroll .upper { animation-name: dRollU; animation-duration: calc(var(--b) * 2); animation-delay: calc(var(--b) * -1.75); }
+.mv-bodyroll .hips  { animation-name: dRollHips; animation-duration: calc(var(--b) * 2); animation-delay: calc(var(--b) * -1.5); }
+.mv-bodyroll .arm-r { animation-name: dRollA; animation-duration: calc(var(--b) * 2); }
+.mv-bodyroll .arm-l { transform: rotate(25deg); }
+.mv-bodyroll .fig   { animation-name: dDip; animation-duration: calc(var(--b) * 2); }
+@keyframes dRollH    { 0%, 100% { transform: translate(0, 0) rotate(0); } 25% { transform: translate(-0.8px, -0.6px) rotate(-6deg); } 50% { transform: translate(0, 0.6px) rotate(0); }
+                       75% { transform: translate(0.8px, 0) rotate(4deg); } }
+@keyframes dRollU    { 0%, 100% { transform: translateX(0) rotate(0); } 25% { transform: translateX(-0.8px) rotate(-3deg); } 75% { transform: translateX(0.8px) rotate(3deg); } }
+@keyframes dRollHips { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-1.4px); } 75% { transform: translateX(1.4px); } }
+@keyframes dRollA    { 0%, 100% { transform: rotate(-160deg); } 60% { transform: rotate(-25deg); } }
+
+/* ── Salsa, bachata, merengue and cumbia variations ───────── */
+
+/* salsaon1 — the on1 basic: forward break on 1, three steps, a hold on 4,
+   back break on 5, three steps, a hold on 8; Cuban hips on every beat,
+   arms up in the frame */
+.mv-salsaon1 { --beat: 0.48s; }
+.mv-salsaon1 .fig   { animation-name: dOn1; animation-duration: calc(var(--b) * 8); }
+.mv-salsaon1 .leg-l { animation-name: dOn1L; animation-duration: calc(var(--b) * 8); }
+.mv-salsaon1 .leg-r { animation-name: dOn1R; animation-duration: calc(var(--b) * 8); }
+.mv-salsaon1 .hips  { animation-name: dHips; }
+.mv-salsaon1 .upper { animation-name: dRunLean; animation-duration: calc(var(--b) * 2); }
+.mv-salsaon1 .arm-l { animation-name: dOn1AL; animation-duration: calc(var(--b) * 2); }
+.mv-salsaon1 .arm-r { animation-name: dOn1AR; animation-duration: calc(var(--b) * 2); }
+.mv-salsaon1 .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 8); }
+@keyframes dOn1  { 0%, 25%, 50%, 75%, 100% { transform: translateY(0) scale(1); } 12.5% { transform: translateY(0.5px) scale(1.035); }
+                   62.5% { transform: translateY(-0.4px) scale(0.965); } }
+@keyframes dOn1L { 0%, 12.5%, 100% { transform: translateY(0) rotate(0); } 6% { transform: translateY(-1.5px) rotate(6deg); } 31% { transform: translateY(-0.8px); } 37.5% { transform: translateY(0); } }
+@keyframes dOn1R { 0%, 50%, 62.5%, 100% { transform: translateY(0) rotate(0); } 56% { transform: translateY(-1.5px) rotate(-6deg); } 81% { transform: translateY(-0.8px); } 87.5% { transform: translateY(0); } }
+@keyframes dOn1AL { 0%, 100% { transform: rotate(98deg); } 50% { transform: rotate(108deg); } }
+@keyframes dOn1AR { 0%, 100% { transform: rotate(-48deg); } 50% { transform: rotate(-58deg); } }
+
+/* crossbody — the cross-body lead: across the slot in three steps, a half
+   turn, back again; the leading arm sweeps high as she passes */
+.mv-crossbody { --beat: 0.45s; }
+.mv-crossbody .fig   { animation-name: dCross; animation-duration: calc(var(--b) * 8); }
+.mv-crossbody .leg-l { animation-name: dMarchL; animation-duration: calc(var(--b) * 2); }
+.mv-crossbody .leg-r { animation-name: dMarchR; animation-duration: calc(var(--b) * 2); }
+.mv-crossbody .hips  { animation-name: dHips; }
+.mv-crossbody .arm-l { animation-name: dCrossA; animation-duration: calc(var(--b) * 4); }
+.mv-crossbody .arm-r { transform: rotate(-42deg); }
+.mv-crossbody .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 4); }
+@keyframes dCross  { 0%, 100% { transform: translateX(-4px) scaleX(1); } 25% { transform: translateX(-3px) scaleX(1); } 37.5% { transform: translateX(0) scaleX(0.12); }
+                     50% { transform: translateX(4px) scaleX(-1); } 75% { transform: translateX(3px) scaleX(-1); } 87.5% { transform: translateX(0) scaleX(-0.12); } }
+@keyframes dCrossA { 0%, 100% { transform: rotate(95deg); } 30% { transform: rotate(160deg); } 60% { transform: rotate(120deg); } }
+
+/* salsaspin — two beats of basic, then a right turn under the raised hand */
+.mv-salsaspin { --beat: 0.5s; }
+.mv-salsaspin .fig   { animation-name: dSSpin; animation-duration: calc(var(--b) * 4); }
+.mv-salsaspin .arm-r { animation-name: dSSpinR; animation-duration: calc(var(--b) * 4); }
+.mv-salsaspin .arm-l { animation-name: dSSpinL; animation-duration: calc(var(--b) * 4); }
+.mv-salsaspin .hips  { animation-name: dHips; }
+.mv-salsaspin .leg-l { animation-name: dMarchL; animation-duration: calc(var(--b) * 2); }
+.mv-salsaspin .leg-r { animation-name: dMarchR; animation-duration: calc(var(--b) * 2); }
+@keyframes dSSpin  { 0%, 45%, 100% { transform: translateY(0) scaleX(1); } 25% { transform: translateY(1px) scaleX(1); }
+                     60% { transform: translateY(-1px) scaleX(0.1); } 72% { transform: translateY(-1px) scaleX(-1); } 84% { transform: translateY(-1px) scaleX(0.1); } }
+@keyframes dSSpinR { 0%, 40%, 100% { transform: rotate(-60deg); } 52%, 88% { transform: rotate(-172deg); } }
+@keyframes dSSpinL { 0%, 40%, 100% { transform: rotate(60deg); } 52%, 88% { transform: rotate(18deg); } }
+
+/* suzyq — a salsa shine: the knees swivel in and out as she travels
+   sideways, elbows out */
+.mv-suzyq { --beat: 0.36s; }
+.mv-suzyq .leg-l { animation-name: dSuzyL; animation-duration: calc(var(--b) * 2); }
+.mv-suzyq .leg-r { animation-name: dSuzyR; animation-duration: calc(var(--b) * 2); }
+.mv-suzyq .hips  { animation-name: dSuzyH; animation-duration: calc(var(--b) * 2); }
+.mv-suzyq .fig   { animation-name: dSlide; animation-duration: calc(var(--b) * 8); }
+.mv-suzyq .upper { animation-name: dDip; }
+.mv-suzyq .arm-l { transform: rotate(52deg); animation-name: dShimmyA; animation-duration: calc(var(--b) * 2); }
+.mv-suzyq .arm-r { transform: rotate(-52deg); animation-name: dShimmyB; animation-duration: calc(var(--b) * 2); }
+.mv-suzyq .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 4); }
+@keyframes dSuzyL { 0%, 100% { transform: rotate(9deg); } 50% { transform: rotate(-7deg); } }
+@keyframes dSuzyR { 0%, 100% { transform: rotate(7deg); } 50% { transform: rotate(-9deg); } }
+@keyframes dSuzyH { 0%, 100% { transform: translateX(1.2px) rotate(4deg); } 50% { transform: translateX(-1.2px) rotate(-4deg); } }
+
+/* salsaarms — arm styling: one arm then the other traces a slow circle
+   over the head while the feet keep the basic */
+.mv-salsaarms { --beat: 0.5s; }
+.mv-salsaarms .arm-l { animation-name: dSArmL; animation-duration: calc(var(--b) * 4); }
+.mv-salsaarms .arm-r { animation-name: dSArmR; animation-duration: calc(var(--b) * 4); animation-delay: calc(var(--b) * -2); }
+.mv-salsaarms .hips  { animation-name: dHips; }
+.mv-salsaarms .upper { animation-name: dRunLean; animation-duration: calc(var(--b) * 2); }
+.mv-salsaarms .leg-l { animation-name: dMarchL; animation-duration: calc(var(--b) * 2); }
+.mv-salsaarms .leg-r { animation-name: dMarchR; animation-duration: calc(var(--b) * 2); }
+.mv-salsaarms .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 4); }
+@keyframes dSArmL { 0%, 100% { transform: rotate(40deg); } 30% { transform: rotate(168deg); } 55% { transform: rotate(135deg); } 80% { transform: rotate(70deg); } }
+@keyframes dSArmR { 0%, 100% { transform: rotate(-40deg); } 30% { transform: rotate(-168deg); } 55% { transform: rotate(-135deg); } 80% { transform: rotate(-70deg); } }
+
+/* bachatahip — the basic, three steps and a tap, with a sharp hip pop on
+   4 and 8 and the shoulders answering it */
+.mv-bachatahip { --beat: 0.4s; }
+.mv-bachatahip .fig   { animation-name: dBach; animation-duration: calc(var(--b) * 8); }
+.mv-bachatahip .hips  { animation-name: dBHip; animation-duration: calc(var(--b) * 8); animation-timing-function: ease-out; }
+.mv-bachatahip .upper { animation-name: dBHipU; animation-duration: calc(var(--b) * 8); }
+.mv-bachatahip .leg-l { animation-name: dBachL; animation-duration: calc(var(--b) * 8); }
+.mv-bachatahip .leg-r { animation-name: dBachR; animation-duration: calc(var(--b) * 8); }
+.mv-bachatahip .arm-l { transform: rotate(30deg); animation-name: dBHipAL; animation-duration: calc(var(--b) * 8); }
+.mv-bachatahip .arm-r { transform: rotate(-30deg); animation-name: dBHipAR; animation-duration: calc(var(--b) * 8); }
+.mv-bachatahip .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 8); }
+@keyframes dBHip   { 0%, 28%, 50%, 78%, 100% { transform: translate(0, 0) rotate(0); } 37.5% { transform: translate(1.8px, -0.8px) rotate(7deg); }
+                     87.5% { transform: translate(-1.8px, -0.8px) rotate(-7deg); } }
+@keyframes dBHipU  { 0%, 28%, 50%, 78%, 100% { transform: rotate(0); } 37.5% { transform: rotate(-3deg); } 87.5% { transform: rotate(3deg); } }
+@keyframes dBHipAL { 0%, 28%, 50%, 78%, 100% { transform: rotate(30deg); } 37.5% { transform: rotate(20deg); } 87.5% { transform: rotate(48deg); } }
+@keyframes dBHipAR { 0%, 28%, 50%, 78%, 100% { transform: rotate(-30deg); } 37.5% { transform: rotate(-48deg); } 87.5% { transform: rotate(-20deg); } }
+
+/* bachatawave — the sensual body wave, slow: head, chest, hips in turn,
+   one hand behind the head and the other gliding down */
+.mv-bachatawave { --beat: 0.62s; }
+.mv-bachatawave .head  { animation-name: dRollH; animation-duration: calc(var(--b) * 4); }
+.mv-bachatawave .upper { animation-name: dBWaveU; animation-duration: calc(var(--b) * 4); animation-delay: calc(var(--b) * -3.5); }
+.mv-bachatawave .hips  { animation-name: dBWaveH; animation-duration: calc(var(--b) * 4); animation-delay: calc(var(--b) * -3); }
+.mv-bachatawave .arm-l { animation-name: dBWaveL; animation-duration: calc(var(--b) * 4); }
+.mv-bachatawave .arm-r { animation-name: dBWaveR; animation-duration: calc(var(--b) * 4); }
+.mv-bachatawave .fig   { animation-name: dDip; animation-duration: calc(var(--b) * 4); }
+.mv-bachatawave .leg-l { animation-name: dTaiLeg; animation-duration: calc(var(--b) * 4); }
+@keyframes dBWaveU { 0%, 100% { transform: translate(0, 0) rotate(0); } 25% { transform: translate(-1px, 0.4px) rotate(-5deg); } 50% { transform: translate(0, 0.8px) rotate(0); }
+                     75% { transform: translate(1px, 0.4px) rotate(5deg); } }
+@keyframes dBWaveH { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-1.4px, 0.3px); } 50% { transform: translate(0, 0.5px); } 75% { transform: translate(1.4px, 0.3px); } }
+@keyframes dBWaveL { 0%, 100% { transform: rotate(150deg); } 50% { transform: rotate(162deg); } }
+@keyframes dBWaveR { 0%, 100% { transform: rotate(-165deg); } 70% { transform: rotate(-22deg); } }
+
+/* bachataturn — side to side with the tap, then a turn on the way back */
+.mv-bachataturn { --beat: 0.42s; }
+.mv-bachataturn .fig   { animation-name: dBTurn; animation-duration: calc(var(--b) * 16); }
+.mv-bachataturn .hips  { animation-name: dBachH; animation-duration: calc(var(--b) * 8); }
+.mv-bachataturn .leg-l { animation-name: dBachL; animation-duration: calc(var(--b) * 8); }
+.mv-bachataturn .leg-r { animation-name: dBachR; animation-duration: calc(var(--b) * 8); }
+.mv-bachataturn .arm-l { animation-name: dBTurnL; animation-duration: calc(var(--b) * 16); }
+.mv-bachataturn .arm-r { animation-name: dBTurnR; animation-duration: calc(var(--b) * 16); }
+.mv-bachataturn .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 8); }
+@keyframes dBTurn  { 0%, 100% { transform: translateX(-3px) scaleX(1); } 18.75%, 25% { transform: translateX(3px) scaleX(1); } 43.75%, 50% { transform: translateX(-3px) scaleX(1); }
+                     56% { transform: translateX(-1px) scaleX(0.1); } 62.5% { transform: translateX(1px) scaleX(-1); } 68.75% { transform: translateX(3px) scaleX(0.1); }
+                     75% { transform: translateX(3px) scaleX(1); } 93.75% { transform: translateX(-3px) scaleX(1); } }
+@keyframes dBTurnL { 0%, 50%, 75%, 100% { transform: rotate(100deg); } 25% { transform: rotate(108deg); } 56%, 69% { transform: rotate(25deg); } }
+@keyframes dBTurnR { 0%, 50%, 75%, 100% { transform: rotate(-40deg); } 56%, 69% { transform: rotate(-170deg); } }
+
+/* bachatastyle — solo styling: a slow hip circle, a hand through the hair
+   and a hair flick with it */
+.mv-bachatastyle { --beat: 0.45s; }
+.mv-bachatastyle .hips  { animation-name: dBStyleH; animation-duration: calc(var(--b) * 4); animation-timing-function: linear; }
+.mv-bachatastyle .head  { animation-name: dBStyleHead; animation-duration: calc(var(--b) * 4); }
+.mv-bachatastyle .arm-r { animation-name: dBStyleR; animation-duration: calc(var(--b) * 4); }
+.mv-bachatastyle .arm-l { transform: rotate(28deg); animation-name: dShimmyA; animation-duration: calc(var(--b) * 2); }
+.mv-bachatastyle .upper { animation-name: dRunLean; animation-duration: calc(var(--b) * 4); }
+.mv-bachatastyle .leg-l { animation-name: dSonL; animation-duration: calc(var(--b) * 4); }
+.mv-bachatastyle .leg-r { animation-name: dSonR; animation-duration: calc(var(--b) * 4); }
+.mv-bachatastyle .fig   { animation-name: dDip; animation-duration: calc(var(--b) * 2); }
+@keyframes dBStyleH    { 0%, 100% { transform: translate(-1.6px, 0); } 25% { transform: translate(0, -0.8px); } 50% { transform: translate(1.6px, 0); } 75% { transform: translate(0, 0.6px); } }
+@keyframes dBStyleHead { 0%, 100% { transform: rotate(0); } 40% { transform: rotate(-6deg); } 55% { transform: rotate(14deg); } 70% { transform: rotate(4deg); } }
+@keyframes dBStyleR    { 0%, 100% { transform: rotate(-60deg); } 30% { transform: rotate(-160deg); } 50% { transform: rotate(-178deg); } 75% { transform: rotate(-95deg); } }
+
+/* merenguewalk — the merengue march turning slowly round in the hold */
+.mv-merenguewalk { --beat: 0.3s; }
+.mv-merenguewalk .fig   { animation-name: dMerWalk; animation-duration: calc(var(--b) * 16); animation-timing-function: linear; }
+.mv-merenguewalk .leg-l { animation-name: dMarchL; animation-duration: calc(var(--b) * 2); }
+.mv-merenguewalk .leg-r { animation-name: dMarchR; animation-duration: calc(var(--b) * 2); }
+.mv-merenguewalk .hips  { animation-name: dMerH; animation-duration: calc(var(--b) * 2); }
+.mv-merenguewalk .upper { animation-name: dFlossU; animation-duration: calc(var(--b) * 2); }
+.mv-merenguewalk .arm-l { transform: rotate(100deg); animation-name: dBachA; animation-duration: calc(var(--b) * 2); }
+.mv-merenguewalk .arm-r { animation-name: dMerR; animation-duration: calc(var(--b) * 2); }
+.mv-merenguewalk .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 4); }
+@keyframes dMerWalk { 0%, 100% { transform: translateX(0) scaleX(1); } 20% { transform: translateX(-2px) scaleX(0.8); } 30% { transform: translateX(-2.5px) scaleX(0.12); }
+                      50% { transform: translateX(0) scaleX(-1); } 70% { transform: translateX(2.5px) scaleX(-0.12); } 80% { transform: translateX(2px) scaleX(0.8); } }
+
+/* cumbiavela — the traditional cumbia: one hand held high as if carrying
+   the candle, the other swishing the skirt, small dragging steps */
+.mv-cumbiavela { --beat: 0.5s; }
+.mv-cumbiavela .arm-r { animation-name: dVelaR; animation-duration: calc(var(--b) * 4); }
+.mv-cumbiavela .arm-l { animation-name: dVelaL; animation-duration: calc(var(--b) * 2); }
+.mv-cumbiavela .leg-l { animation-name: dCumbia; animation-duration: calc(var(--b) * 2); }
+.mv-cumbiavela .hips  { animation-name: dHips; }
+.mv-cumbiavela .fig   { animation-name: dSlide; animation-duration: calc(var(--b) * 8); }
+.mv-cumbiavela .upper { animation-name: dRunLean; animation-duration: calc(var(--b) * 2); }
+.mv-cumbiavela .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 4); }
+@keyframes dVelaR { 0%, 100% { transform: rotate(-160deg); } 50% { transform: rotate(-170deg); } }
+@keyframes dVelaL { 0%, 100% { transform: rotate(28deg); } 50% { transform: rotate(72deg); } }
+
+/* sonidera — cumbia sonidera: a cross-step back on each side, the arms
+   swinging low like pendulums */
+.mv-sonidera { --beat: 0.48s; }
+.mv-sonidera .leg-l { animation-name: dCumbia; animation-duration: calc(var(--b) * 4); }
+.mv-sonidera .leg-r { animation-name: dCumbiaR; animation-duration: calc(var(--b) * 4); }
+.mv-sonidera .arm-l { animation-name: dSonidL; animation-duration: calc(var(--b) * 2); }
+.mv-sonidera .arm-r { animation-name: dSonidR; animation-duration: calc(var(--b) * 2); }
+.mv-sonidera .upper { animation-name: dTwistU; animation-duration: calc(var(--b) * 4); }
+.mv-sonidera .fig   { animation-name: dDip; }
+.mv-sonidera .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 4); }
+@keyframes dCumbiaR { 0%, 50%, 100% { transform: translate(0, 0) rotate(0); } 75% { transform: translate(2px, -1px) rotate(-14deg); } }
+@keyframes dSonidL  { 0%, 100% { transform: rotate(-12deg); } 50% { transform: rotate(38deg); } }
+@keyframes dSonidR  { 0%, 100% { transform: rotate(-38deg); } 50% { transform: rotate(12deg); } }
+
+/* ── A few more for the other genres ─────────────────────── */
+
+/* twostep (americana, country) — quick-quick-slow side to side, thumbs
+   near the belt */
+.mv-twostep { --beat: 0.42s; }
+.mv-twostep .fig   { animation-name: dTwoStep; animation-duration: calc(var(--b) * 6); }
+.mv-twostep .leg-l { animation-name: dMarchL; animation-duration: calc(var(--b) * 2); }
+.mv-twostep .leg-r { animation-name: dMarchR; animation-duration: calc(var(--b) * 2); }
+.mv-twostep .arm-l { transform: rotate(14deg); }
+.mv-twostep .arm-r { transform: rotate(-14deg); }
+.mv-twostep .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 6); }
+.mv-twostep .upper { animation-name: dRunLean; animation-duration: calc(var(--b) * 3); }
+@keyframes dTwoStep { 0%, 100% { transform: translateX(-3px); } 16.7% { transform: translate(-1px, -0.8px); } 33.3%, 50% { transform: translateX(3px); }
+                      66.7% { transform: translate(1px, -0.8px); } 83.3% { transform: translateX(-3px); } }
+
+/* pony (rock and roll) — hopping foot to foot, fists pumping low */
+.mv-pony { --beat: 0.3s; }
+.mv-pony .fig   { animation-name: dPony; }
+.mv-pony .leg-l { animation-name: dPonyL; animation-duration: calc(var(--b) * 2); }
+.mv-pony .leg-r { animation-name: dPonyR; animation-duration: calc(var(--b) * 2); }
+.mv-pony .arm-l { animation-name: dPonyA; animation-duration: calc(var(--b) * 2); }
+.mv-pony .arm-r { animation-name: dPonyB; animation-duration: calc(var(--b) * 2); }
+.mv-pony .head  { animation-name: dBang; animation-duration: calc(var(--b) * 2); }
+@keyframes dPony  { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1.6px); } }
+@keyframes dPonyL { 0%, 50%, 100% { transform: translateY(0) rotate(0); } 25% { transform: translateY(-2.4px) rotate(10deg); } }
+@keyframes dPonyR { 0%, 50%, 100% { transform: translateY(0) rotate(0); } 75% { transform: translateY(-2.4px) rotate(-10deg); } }
+@keyframes dPonyA { 0%, 100% { transform: rotate(30deg); } 50% { transform: rotate(62deg); } }
+@keyframes dPonyB { 0%, 100% { transform: rotate(-62deg); } 50% { transform: rotate(-30deg); } }
+
+/* lindy (swing) — the swing-out: a kick back, a lean and an arm thrown
+   wide on the stretch */
+.mv-lindy { --beat: 0.42s; }
+.mv-lindy .fig   { animation-name: dLindy; animation-duration: calc(var(--b) * 4); }
+.mv-lindy .upper { animation-name: dLindyU; animation-duration: calc(var(--b) * 4); }
+.mv-lindy .leg-l { animation-name: dLindyL; animation-duration: calc(var(--b) * 4); }
+.mv-lindy .leg-r { animation-name: dMarchR; animation-duration: calc(var(--b) * 2); }
+.mv-lindy .arm-r { animation-name: dLindyR; animation-duration: calc(var(--b) * 4); }
+.mv-lindy .arm-l { transform: rotate(35deg); animation-name: dShimmyA; }
+.mv-lindy .head  { animation-name: dTilt; animation-duration: calc(var(--b) * 4); }
+@keyframes dLindy  { 0%, 100% { transform: translateX(-2px); } 50% { transform: translate(2px, -1px); } }
+@keyframes dLindyU { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(6deg); } }
+@keyframes dLindyL { 0%, 40%, 70%, 100% { transform: rotate(0); } 55% { transform: translateY(-1px) rotate(26deg); } }
+@keyframes dLindyR { 0%, 30%, 100% { transform: rotate(-40deg); } 55%, 70% { transform: rotate(-112deg); } }
+
+/* handsup (electronic) — both hands up for the drop, pumping, a hop */
+.mv-handsup { --beat: 0.46s; }
+.mv-handsup .arm-l { animation-name: dUpL; }
+.mv-handsup .arm-r { animation-name: dUpR; }
+.mv-handsup .fig   { animation-name: dFistFig; animation-timing-function: cubic-bezier(.3, 0, .7, 1); }
+.mv-handsup .head  { animation-name: dBang; }
+.mv-handsup .leg-l { animation-name: dKickL; }
+.mv-handsup .leg-r { animation-name: dKickR; }
+@keyframes dUpL { 0%, 100% { transform: rotate(148deg); } 45% { transform: rotate(172deg); } }
+@keyframes dUpR { 0%, 100% { transform: rotate(-148deg); } 45% { transform: rotate(-172deg); } }
+
+/* hula (folk) — knees soft, the hips swaying gently and both hands
+   flowing together to one side, then the other */
+.mv-hula { --beat: 0.65s; }
+.mv-hula .fig   { animation-name: dHulaFig; animation-duration: calc(var(--b) * 4); }
+.mv-hula .hips  { animation-name: dHulaH; animation-duration: calc(var(--b) * 2); }
+.mv-hula .arm-l { animation-name: dHulaL; animation-duration: calc(var(--b) * 4); }
+.mv-hula .arm-r { animation-name: dHulaR; animation-duration: calc(var(--b) * 4); }
+.mv-hula .leg-l { animation-name: dMarchL; animation-duration: calc(var(--b) * 2); }
+.mv-hula .leg-r { animation-name: dMarchR; animation-duration: calc(var(--b) * 2); }
+.mv-hula .head  { animation-name: dHulaHead; animation-duration: calc(var(--b) * 4); }
+@keyframes dHulaFig  { 0%, 100% { transform: translate(-1.5px, 0.8px) scaleY(0.97); } 50% { transform: translate(1.5px, 0.8px) scaleY(0.97); } }
+@keyframes dHulaH    { 0%, 100% { transform: translateX(-1.8px) rotate(-4deg); } 50% { transform: translateX(1.8px) rotate(4deg); } }
+@keyframes dHulaL    { 0%, 100% { transform: rotate(82deg); } 50% { transform: rotate(-40deg); } }
+@keyframes dHulaR    { 0%, 100% { transform: rotate(40deg); } 50% { transform: rotate(-82deg); } }
+@keyframes dHulaHead { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+    .dancer { animation: none; }
+    .dancer * { animation: none !important; }
+}
+
 .lyric-line {
     padding: 8px 0;
     text-align: center;
@@ -951,6 +2207,7 @@ html { height: 100%; overflow: hidden; }
         width: auto; max-width: none;
         z-index: 160;
     }
+    #songList.sl-left { right: 8px; left: 8px; }
     .sl-queue { opacity: 1; }
 
     /* bottom sheet, sitting on top of the dock */
