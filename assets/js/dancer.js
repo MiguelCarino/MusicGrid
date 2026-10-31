@@ -4,7 +4,7 @@
  * The mascots themselves are drawn in assets/js/mascots.js (MGMascots).
  *
  *   MGDancer.show(album, stageEl)   a mascot (random, never twice in a row,
- *                                   or the one picked in 🕺 Mascots) dances
+ *                                   or the one picked in ⚙ Settings) dances
  *   MGDancer.hide()                 gone (lyrics turned up, or a new song)
  *
  * The moves are CSS animations (assets/css/grid.css, .dancer / .mv-*); they
@@ -127,7 +127,7 @@
     const VIEW = { twerk: 'back', twerklook: 'look', twerkside: 'side' };
     function tr(key) { return typeof t === 'function' ? t(key) : key; }
 
-    /* ── Preferences (the 🕺 Mascots panel) ─────────────────── */
+    /* ── Preferences (Mascots, in ⚙ Settings) ───────────────── */
     /* mascot: 'random' or a name; dance: 'song' (the song's genre),
        'random' (any move) or a genre id. Kept in this browser only. */
     const PREF_KEY = 'mg_dancer';
@@ -146,7 +146,13 @@
 
     /* The moves a mascot picks from for a song of this genre (and, in
        "Song's genre" mode, its country's own steps on top) */
-    function movesFor(name, genre, country) {
+    /* A melancholic song (its mood): sad, slow moves instead, a few gentle
+       ones in between, and sad faces (see Dancer) */
+    const SAD_MOVES = ['mope', 'hugself', 'heartache', 'ponder', 'rainlook'];
+    const SAD_POOL = SAD_MOVES.concat(SAD_MOVES, ['sway', 'float', 'waltz']);
+    function isSad(mood) { return mood === 'melancholic' && prefs.dance === 'song'; }
+    function movesFor(name, genre, country, mood) {
+        if (isSad(mood)) return SAD_POOL.slice();
         let pool = prefs.dance === 'random' ? ALL_MOVES
                  : prefs.dance === 'song'   ? (MOVES[genre] || DEFAULT_MOVES)
                  : MOVES[prefs.dance];
@@ -183,6 +189,21 @@
         this.el.setAttribute('aria-hidden', 'true');
         this.svg = document.createElementNS(SVGNS, 'svg');
         this.variant = M.variant(name, this.ctx);   /* e.g. lola's hair, new every time */
+        this.sad = !!(ctx && isSad(ctx.mood));
+        if (this.sad && M.express) this.variant = M.express(name, this.variant, 'sad');
+        /* rain for the rainlook move: streaks at random places and speeds */
+        const rain = document.createElement('div');
+        rain.className = 'rain';
+        for (let i = 0; i < 28; i++) {
+            const drop = document.createElement('i');
+            drop.style.setProperty('--x', (Math.random() * 100).toFixed(1) + '%');
+            drop.style.setProperty('--l', (6 + Math.random() * 10).toFixed(1) + '%');
+            drop.style.setProperty('--d', (0.6 + Math.random() * 0.5).toFixed(2) + 's');
+            drop.style.setProperty('--p', Math.random().toFixed(2));
+            drop.style.setProperty('--o', (0.35 + Math.random() * 0.45).toFixed(2));
+            rain.appendChild(drop);
+        }
+        this.el.appendChild(rain);
         this.svg.setAttribute('viewBox', M.viewBox(null));
         this.svg.innerHTML = M.figure(name, 'front', this.variant);
         this.el.appendChild(this.svg);
@@ -235,8 +256,13 @@
             this.variant = nv;
         }
         /* and, on its own, its expression (M.faces: positive ones only) */
-        if (!plain && this.move && M.express && Math.random() < 0.35) {
-            const nv = M.express(this.name, this.variant);
+        if (!plain && this.move && M.express && (Math.random() < (this.sad ? 0.5 : 0.35) || this.move === 'rainlook')) {
+            const nv = M.express(this.name, this.variant, this.sad ? 'sad' : null);
+            if (nv !== this.variant) { restyled = true; this.variant = nv; }
+        }
+        /* in the rain she looks up at the sky */
+        if (move === 'rainlook' && M.withFace) {
+            const nv = M.withFace(this.name, this.variant, 'skyward');
             if (nv !== this.variant) { restyled = true; this.variant = nv; }
         }
         if (restyled || view !== this.view || company !== this.company || inst !== this.inst) {   /* turn around, outfit, face, company or instrument changes */
@@ -252,6 +278,7 @@
         this.el.className = this.base + ' mv-' + move + (inst ? ' inst-' + inst : '') + (mirror ? ' mirror' : '');
         let tempo = 0.85 + Math.random() * 0.35;
         if (VIEW[move]) tempo = Math.random() < 0.5 ? 0.9 + Math.random() * 0.25 : 0.4 + Math.random() * 0.15;
+        if (this.sad) tempo = 0.8 + Math.random() * 0.2;   /* sad moves stay slow */
         this.el.style.setProperty('--tempo', plain ? 1 : tempo.toFixed(2));
         this.el.dataset.move = move;
         this.el.dataset.instrument = inst;
@@ -262,7 +289,7 @@
         const self = this;
         (function next() {
             /* a song with instruments: now and then the dancer plays one */
-            const play = self.insts.length && self.move !== 'play' && Math.random() < PLAY_ODDS;
+            const play = self.insts.length && self.move !== 'play' && Math.random() < (self.sad ? PLAY_ODDS / 2 : PLAY_ODDS);
             self.setMove(play ? 'play' : pickMove(self.pool, self.move));
             self.timer = setTimeout(next, MOVE_MIN + Math.random() * MOVE_SPREAD);
         })();
@@ -301,8 +328,9 @@
             const slot = document.createElement('div');
             slot.className = 'dancer-slot';
             stageBox.appendChild(slot);
-            const ctx = { country: (album && album.country) || null, genre: (album && album.genre) || null };
-            const d = new Dancer(slot, name, movesFor(name, ctx.genre, ctx.country), 'dancer', ctx);
+            const ctx = { country: (album && album.country) || null, genre: (album && album.genre) || null,
+                          mood: (album && album.mood) || null };
+            const d = new Dancer(slot, name, movesFor(name, ctx.genre, ctx.country, ctx.mood), 'dancer', ctx);
             d.solo = names.length > 1;
             d.start();
             stageDancers.push(d);
@@ -323,11 +351,11 @@
         if (stageDancers.length && stageEl) show(stageAlbum, stageEl, { side: stageSide });
     }
 
-    /* ── 🕺 Mascots panel ──────────────────────────────────── */
+    /* ── Mascots (in ⚙ Settings) ─────────────────────────────── */
     /* Every mascot dancing in a tile; pick one (or Random) and how they
        dance: to the song's genre, random moves, or one genre's moves. The
-       tiles only dance while the panel is open. */
-    let panel = null, btn = null, tiles = [];
+       tiles only dance while Settings is open. */
+    let panel = null, tiles = [];
 
     function previewGenre() {
         return prefs.dance === 'song' || prefs.dance === 'random' ? null : prefs.dance;
@@ -342,10 +370,7 @@
         stopTiles();
         panel.innerHTML = '';
 
-        const h1 = document.createElement('div');
-        h1.className = 'mascot-head';
-        h1.textContent = tr('Mascot');
-        panel.appendChild(h1);
+        /* the Settings sheet heads this section ("Mascots") */
         const hint = document.createElement('div');
         hint.className = 'mascot-hint';
         hint.textContent = tr('Dances on the lyrics stage when a song has no lyrics, and beside the lyrics when it has them.');
@@ -421,65 +446,25 @@
     function choose(key, value) {
         prefs[key] = value;
         savePrefs();
-        renderPanel();
+        if (panel) renderPanel();
         restage();
     }
 
-    /* Under the button, never over the navbar (on a phone the button sits
-       in the navbar's ⋯ menu, which may be closed: then under the navbar) */
-    function place() {
-        const r = btn.getBoundingClientRect();
-        const nav = document.getElementById('carinoNav');
-        const navBottom = nav ? nav.getBoundingClientRect().bottom : 0;
-        const shown = r.width > 0 && r.height > 0;
-        panel.style.top = Math.max(navBottom + 6, shown ? r.bottom + 6 : 0) + 'px';
-        const left = shown ? r.left : (window.innerWidth - panel.offsetWidth) / 2;
-        panel.style.left = Math.max(8, Math.min(left, window.innerWidth - panel.offsetWidth - 8)) + 'px';
+    /* The panel lives in the ⚙ Settings sheet (grid.js): mount() when the
+       sheet opens, unmount() when it closes, so the tiles only dance while
+       they can be seen. */
+    function mount(host) {
+        if (!host) return;
+        panel = host;
+        renderPanel();
+    }
+    function unmount() {
+        stopTiles();
+        if (panel) panel.innerHTML = '';
+        panel = null;
     }
 
-    function setOpen(on) {
-        if (!panel) return;
-        if (on === panel.classList.contains('open')) return;
-        if (on) {
-            renderPanel();
-            panel.classList.add('open');
-            place();
-        } else {
-            panel.classList.remove('open');
-            stopTiles();
-        }
-        btn.classList.toggle('menu-open', on);
-        btn.setAttribute('aria-expanded', on ? 'true' : 'false');
-    }
-
-    function wirePanel() {
-        btn = document.getElementById('mascotToggle');
-        if (!btn) return;
-        panel = document.createElement('div');
-        panel.id = 'mascotPanel';
-        panel.className = 'menu-panel mascot-panel';
-        panel.setAttribute('role', 'dialog');
-        panel.setAttribute('aria-label', tr('Mascots'));
-        document.body.appendChild(panel);
-        /* a choice re-renders the panel, detaching the clicked node: keep
-           that click from reading as an outside click */
-        panel.addEventListener('click', function (e) { e.stopPropagation(); });
-        btn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            setOpen(!panel.classList.contains('open'));
-        });
-        document.addEventListener('click', function (e) {
-            if (!panel.classList.contains('open')) return;
-            if (panel.contains(e.target) || btn.contains(e.target)) return;
-            setOpen(false);
-        });
-        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
-        window.addEventListener('resize', function () { setOpen(false); });
-    }
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wirePanel);
-    else wirePanel();
-
-    window.MGDancer = { show: show, hide: hide, mascots: NAMES, moves: MOVES, countryMoves: MOVES_BY_COUNTRY,
+    window.MGDancer = { show: show, hide: hide, mount: mount, unmount: unmount, mascots: NAMES, moves: MOVES, countryMoves: MOVES_BY_COUNTRY,
                         allMoves: ALL_MOVES, movesFor: movesFor, figure: M.figure,
                         prefs: function () { return Object.assign({}, prefs); } };
 })();

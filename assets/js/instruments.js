@@ -537,7 +537,7 @@
 
     /* ── microphone: a hand mic held up under the chin ─────────── */
     register('mic', {
-        genres: ['pop', 'hiphop', 'funksoul'],
+        genres: ['pop', 'hiphop', 'funksoul', 'reggaeton'],
         pal: { o: O, g: '#4a4a54', G: '#2a2a32', h: '#a8a8b4', b: '#2a2a30', B: '#44444c', r: '#e8304a' },
         draw: function (P, sp, dx, dy) {
             /* up from the right hand to the chin: the grille, a red band, the

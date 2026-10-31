@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Display</title>
+    <meta name="description" content="The TV display of the Music Wall: big lyrics, dancing mascots or the cover wall, following the music page open in the same browser.">
+    <meta name="robots" content="noindex">
+    <!-- The TV / projector output of index.html (assets/js/display.js). A
+         chromeless page: no navbar, no sound, no video. It follows the music
+         page over BroadcastChannel('musicgrid'); see display-link.js. -->
+    <meta name="theme-color" content="#050505">
+    <script>
+    (function () {
+      var d = document.documentElement, t = null;
+      function pick(v) { return v === 'gold' ? 'gold' : (v === 'color' || v === 'colour') ? 'color' : null; }
+      try { t = pick(new URLSearchParams(location.search).get('theme')); } catch (e) {}
+      if (!t) { try { var m = document.cookie.match(/(?:^|;\s*)carino-theme=([^;]*)/); if (m) t = pick(decodeURIComponent(m[1])); } catch (e) {} }
+      if (!t) { try { t = pick(localStorage.getItem('carino-theme')); } catch (e) {} }
+      d.setAttribute('data-carino-theme', t || 'gold');
+      var mode = null;
+      try { mode = new URLSearchParams(location.search).get('mode') || localStorage.getItem('mg_display_mode'); } catch (e) {}
+      d.setAttribute('data-mode', /^(karaoke|party|ambient)$/.test(mode || '') ? mode : 'party');
+    })();
+    </script>
+    <link rel="stylesheet" href="fonts/carino-fonts.css">
+    <link rel="stylesheet" href="carino-ui.css">
+    <link rel="stylesheet" href="assets/css/grid.css">
+    <link rel="stylesheet" href="assets/css/instruments.css">
+    <link rel="stylesheet" href="assets/css/display.css">
+    <link rel="icon" href="assets/images/logo.webp">
+    <script src="assets/json/catalog.json" defer></script>
+    <script src="carino-lang.js" defer></script>
+    <script src="i18n.js" defer></script>
+    <script src="assets/js/mascots.js" defer></script>
+    <script src="assets/js/mascot-moe.js" defer></script>
+    <script src="assets/js/mascot-matrix.js" defer></script>
+    <script src="assets/js/instruments.js" defer></script>
+    <script src="assets/js/dancer.js" defer></script>
+    <script src="assets/js/display.js" defer></script>
+</head>
+<body class="dp" data-view="waiting">
+    <!-- the song's cover, blurred, under everything (two layers crossfade) -->
+    <div class="dp-bg" aria-hidden="true"><div class="dp-bg-img"></div><div class="dp-bg-img"></div></div>
+
+    <!-- Ambient (and idle): the slow cover wall -->
+    <div class="dp-wall" id="wall" aria-hidden="true"></div>
+
+    <!-- Party: the mascots big, the song beside them -->
+    <section class="dp-party" id="party" aria-label="Party">
+        <div class="dp-stage" id="stage"></div>
+        <div class="dp-info">
+            <div class="dp-kicker"><span class="dp-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span data-i18n>Now playing</span></div>
+            <div class="dp-np">
+                <img class="dp-cover" id="partyCover" alt="">
+                <div class="dp-np-text">
+                    <h1 class="dp-title" id="partyTitle"></h1>
+                    <div class="dp-artist" id="partyArtist"></div>
+                    <div class="dp-meta" id="partyMeta"></div>
+                </div>
+            </div>
+            <div class="dp-progress">
+                <span class="dp-time" id="partyNow">0:00</span>
+                <div class="dp-bar"><i id="partyBar"></i></div>
+                <span class="dp-time" id="partyTotal">0:00</span>
+            </div>
+            <div class="dp-next">
+                <h2 class="dp-next-head" data-i18n>Up next</h2>
+                <ol class="dp-next-list" id="partyNext"></ol>
+            </div>
+        </div>
+        <div class="dp-note" id="noLyrics" hidden><span aria-hidden="true">🎤</span> <span data-i18n>No lyrics for this song</span></div>
+    </section>
+
+    <!-- Karaoke: the line being sung, huge -->
+    <section class="dp-karaoke" id="karaoke" aria-label="Karaoke" aria-live="off">
+        <div class="dp-titlecard" id="titleCard">
+            <img class="dp-tc-cover" id="tcCover" alt="">
+            <h1 class="dp-tc-title" id="tcTitle"></h1>
+            <div class="dp-tc-artist" id="tcArtist"></div>
+        </div>
+        <div class="dp-lines" id="lines">
+            <div class="dp-line dp-prev" id="linePrev"></div>
+            <div class="dp-line dp-cur" id="lineCur"><div class="dp-sung" id="lineCurText"></div><div class="dp-trans" id="lineCurTrans"></div></div>
+            <div class="dp-gap" id="gapNotes" aria-hidden="true"><span>♪</span><span>♫</span><span>♪</span></div>
+            <div class="dp-count" id="count" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="dp-line dp-next-line" id="lineNext"></div>
+        </div>
+    </section>
+
+    <!-- Corners (Karaoke, Ambient): the song, Up next, how far in -->
+    <div class="dp-tag" id="tag">
+        <img class="dp-tag-cover" id="tagCover" alt="">
+        <div class="dp-tag-text">
+            <b id="tagTitle"></b>
+            <span id="tagArtist"></span>
+            <div class="dp-bar dp-tag-bar"><i id="tagBar"></i></div>
+        </div>
+    </div>
+    <div class="dp-upnext" id="upNext"><span class="dp-upnext-k" data-i18n>Up next</span><span class="dp-upnext-v" id="upNextText"></span></div>
+    <div class="dp-edge-bar" aria-hidden="true"><i id="edgeBar"></i></div>
+    <div class="dp-paused" id="paused" hidden><span aria-hidden="true">❚❚</span> <span data-i18n>Paused</span></div>
+
+    <!-- Connected, nothing loaded yet -->
+    <div class="dp-ready" id="ready">
+        <div class="dp-ready-card">
+            <img class="dp-logo" src="assets/images/logo.svg" alt="">
+            <h1 data-i18n>Ready when you are</h1>
+            <p data-i18n>Pick a song on the music screen.</p>
+        </div>
+    </div>
+
+    <!-- No music page in this browser -->
+    <section class="dp-waiting" id="waiting">
+        <img class="dp-logo" src="assets/images/logo.svg" alt="">
+        <h1 class="dp-wait-title" data-i18n>Waiting for the music…</h1>
+        <p class="dp-wait-sub" data-i18n>Open the music page in this browser and press 📺 there. This screen follows it.</p>
+    </section>
+
+    <div class="dp-flash" id="flash" aria-live="polite"></div>
+    <div class="dp-hint" id="hint">
+        <span><span class="kbd">F</span> <span data-i18n>Fullscreen</span></span>
+        <span><span class="kbd">1</span> <span data-i18n>Karaoke</span></span>
+        <span><span class="kbd">2</span> <span data-i18n>Party</span></span>
+        <span><span class="kbd">3</span> <span data-i18n>Ambient</span></span>
+        <span><span class="kbd">Space</span> <span data-i18n>Play or pause</span></span>
+        <span><span class="kbd">N</span> <span data-i18n>Next</span></span>
+    </div>
+</body>
+</html>

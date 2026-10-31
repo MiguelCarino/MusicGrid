@@ -427,7 +427,7 @@
         const hair = v.colour || '#2a1a12';
         const P = { o: sk.o, s: sk.s, S: sk.S, e: v.eyes || '#3a2216', m: mix(sk.S, '#8a2a2a', 0.3),
                     h: hair, H: shade(hair, hair === '#141010' ? 1.35 : 0.72),
-                    k: '#f8f4ec', O: mix(sk.o, '#8a2a2a', 0.45) };
+                    k: '#f8f4ec', O: mix(sk.o, '#8a2a2a', 0.45), q: '#8fd0f4' };
         /* dyed (matrix-green) hair: brows and beard stay a natural dark brown,
            or the beard rings his face like a neon helmet */
         const facial = hair === '#3ac060' ? '#3a2416' : hair;
@@ -523,7 +523,13 @@
         sing:  { 6: "ozmssSsmzo", 7: "ozzmOOmzzo", 8: ".ozzOOzzo." },
         laugh: { 3: "ossossosso", 4: "osossssoso", 6: "ozmkkkkmzo", 7: "ozzOOOOzzo" },
         cool:  { 6: "ozsssSsmzo", 7: "ozzsmmmzzo" },
+        /* sad faces (melancholic songs); q = a tear / raindrop */
+        sad:         { 3: "ossBssBsso", 7: "ozzsmmszzo", 8: ".ozmZZmzo." },
+        heartbroken: { 3: "ossBssBsso", 4: "osoossooso", 5: "osqsssqsSo", 7: "ozzsmmszzo", 8: ".ozmZZmzo." },
+        pensive:     { 4: "ossessseso", 7: "ozzssmmzzo" },
+        skyward:     { 2: "osBBssBBso", 3: "osesssseso", 4: "osSsssSsso", 5: "osssssqsSo", 7: "ozzsOOszzo" },
     };
+    const SAD_FACES = ['sad', 'heartbroken', 'pensive'];
     function faceRows(face, shades) {
         const swap = FACE_ROWS[face] || FACE_ROWS.smile;
         const rows = FACE.map((r, i) => swap[i] || r);
@@ -1164,7 +1170,7 @@
         pose: pose,
         views: { back: true, look: true, side: false },
         twerk: true,
-        faces: FACES,
+        faces: FACES, sadFaces: SAD_FACES, extraFaces: ['skyward'],
         outfits: OUTFITS,
     });
     /* for tests and contact sheets */

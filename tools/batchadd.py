@@ -75,7 +75,7 @@ ITUNES_GENRE = {
     "folk": "folk", "singer/songwriter": "folk", "country": "americana",
     "americana": "americana", "r&b/soul": "funksoul", "soul": "funksoul",
     "funk": "funksoul", "latin": "latin", "latin pop": "latin", "pop latino": "latin",
-    "música mexicana": "latin", "regional mexicano": "latin", "urbano latino": "latin",
+    "música mexicana": "latin", "regional mexicano": "latin", "urbano latino": "reggaeton", "reggaeton": "reggaeton",
     "punk": "punkska", "ska": "punkska", "ambient": "ambient", "new age": "ambient",
 }
 

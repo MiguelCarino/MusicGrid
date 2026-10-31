@@ -438,7 +438,7 @@
     const LOLA = {
         o: '#2a1a14', s: '#f0c09a', S: '#d89a74', w: '#fafafc', W: '#d6d6de',
         k: '#1c1c22', K: '#3a3a46', n: '#ffffff', g: '#b0b0bc', e: '#2a1a14', l: '#d0607a', y: '#e8c050',
-        a: '#1a1012', i: '#ffffff', b: '#f0909a',
+        a: '#1a1012', i: '#ffffff', b: '#f0909a', q: '#8fd0f4',
     };
     /* the face, 10 wide, at x 5–14, y 1–9: brows (r), then
        two round 2x2 eyes (iris e, a highlight i), nose, lips; no lashes */
@@ -468,7 +468,17 @@
         sing:  { 6: ".oslaalso.", 7: "..osllso.." },
         laugh: { 2: "osssssssso", 3: "osoossooso", 4: "osSssssSso", 6: ".oliiiilo.", 7: "..olaalo.." },
         blush: { 5: "obsssSssbo", 6: ".osllllso." },
+        sad:         { 2: "ossrssrsso", 3: "osaassaaso", 4: "oseesseeso", 6: ".osSllSso.", 7: "..olsslo.." },
+        heartbroken: { 2: "ossrssrsso", 3: "osssssssso", 4: "osaassaaso", 5: "osqssSsqso", 6: ".osSllSso.", 7: "..olsslo.." },
+        pensive:     { 3: "osaassaaso", 4: "ossessseso", 6: ".osssllso." },
+        skyward:     { 3: "osiessieso", 4: "osSSssSSso", 5: "ossssSsqso", 6: ".ossaasso." },
     };
+    /* Sad faces for melancholic songs (dancer.js picks them by the song's
+       mood, never mixed with the happy ones): sad (lids low, a frown),
+       heartbroken (eyes shut, a tear on each cheek), pensive (lids low,
+       looking aside, a small flat mouth), skyward (looking up, a raindrop
+       on the cheek: the rain move). q = a tear / raindrop. */
+    const SAD_FACES = ['sad', 'heartbroken', 'pensive'];
     function faceRows(face) {
         const swap = FACE_ROWS[face] || FACE_ROWS.smile;
         return LOLA_FACE.map((r, i) => swap[i] || r);
@@ -494,9 +504,11 @@
         CAP.forEach((r, i) => { F[i] = r; });
         switch (style) {
             case 'ponytail':
+                /* the tail belongs to the head (it moves with it), ending at
+                   the chin so the head still turns about its neck */
                 F[2] = "...hhhhhhhhhhH..";
-                for (let i = 3; i <= 14; i++) B[i] = i < 13 ? "..............hH" : "..............h.";
-                for (let i = 3; i <= 17; i++) K[i] = i < 15 ? ".......hH......." : ".......h........";
+                for (let i = 3; i <= 11; i++) F[i] = (F[i] || "................").slice(0, 14) + (i < 11 ? "hH" : "h.");
+                for (let i = 3; i <= 11; i++) K[i] = i < 11 ? ".......hH......." : ".......h........";
                 K[2] = "......HHH.......";
                 break;
             case 'long':
@@ -558,13 +570,13 @@
             ".osssSsso.",
         ] : [
             /* from the front, 12 wide (x 4–15): a fuller bust under the tee,
-               a shade under each curve, the hem hanging loose over the waist */
+               a soft shade under the bust and between, the hem hanging loose over the waist */
             "....osso....",
             ".ouuuuuuuuo.",
             "owwwwwwwwwwo",
             "owwwwwwwwwwo",
-            "owWwwWWwwWwo",
-            ".oWxxWWxxWo.",
+            "owwwwWWwwwwo",
+            ".oWWWWWWWWo.",
             "..oMMMMMMo..",
             "..ommmmMmo..",
         ];
@@ -844,8 +856,10 @@
             curly: [[4, 5, 'hhhhhhhhhh'], [5, 5, 'h'], [5, 14, 'h'], [6, 5, 'H'], [6, 14, 'H'], [8, 5, 'h'], [8, 14, 'h'], [9, 5, 'H'], [9, 14, 'H']],
             pixie: [],
         }[v.hair] || [];
-        /* from behind long hair, braids and a ponytail hang down her back */
-        const behindHead = extra.slice();
+        /* from behind long hair and braids hang down her back; a ponytail
+           is part of the head (it moves with it), ending at the nape */
+        const behindHead = v.hair === 'ponytail' ? [] : extra.slice();
+        if (v.hair === 'ponytail') head = head.concat(extra.filter(r => r[0] <= 10));
         let chest = [
             [12, 5, 'ouuuuuuuuo'],
             [13, 4, 'owwwwwwwwwwo'],
@@ -1132,7 +1146,7 @@
         views: { back: true, look: true, side: true },
         twerk: true,
         partner: true,
-        faces: FACES,
+        faces: FACES, sadFaces: SAD_FACES, extraFaces: ['skyward'],
         outfits: OUTFITS,
     });
     register('crt', {
@@ -1252,10 +1266,13 @@
     }
     /* a copy of v with a different random face (v itself when there's no
        other face to pick, or no v) */
-    function express(name, v) {
+    /* mood 'sad': pick from the mascot's sad faces instead */
+    function express(name, v, mood) {
         if (!v || typeof v !== 'object') return v;
         const cur = v.face || 'smile';
-        const others = faces(name).filter(f => f !== cur);
+        const d = REG[name];
+        const pool = mood === 'sad' ? ((d && d.sadFaces) || []) : faces(name);
+        const others = pool.filter(f => f !== cur);
         if (!others.length) return v;
         return Object.assign({}, v, { face: others[Math.floor(Math.random() * others.length)] });
     }
@@ -1271,6 +1288,13 @@
         restyle: function (name, v, ctx) { const d = REG[name]; return d && d.restyle ? d.restyle(v, ctx || null) : v; },
         faces: faces,
         express: express,
+        /* v showing one exact face (no-op when the mascot doesn't have it) */
+        withFace: function (name, v, face) {
+            const d = REG[name];
+            if (!v || typeof v !== 'object' || !d) return v;
+            const has = (d.faces || []).concat(d.sadFaces || [], d.extraFaces || []).indexOf(face) >= 0;
+            return has && v.face !== face ? Object.assign({}, v, { face: face }) : v;
+        },
         /* is v dressed in a national outfit (an outfits entry with
            countries)? dancer.js never twerks in one */
         national: function (name, v) {

@@ -51,218 +51,406 @@
     <link rel="stylesheet" href="assets/css/instruments.css">
     <link rel="icon" href="assets/images/logo.webp">
     <script src="assets/json/catalog.json" defer></script>
-    <!-- The shared navbar (it loads carino-clock.js itself) slides away in
-         fullscreen or when idle; the filters and Mascots ride in it. -->
+    <!-- The shared navbar (it loads carino-clock.js itself); Settings rides in it. -->
     <script src="carino-navbar.js" data-app="Music" data-repo="MusicGrid" data-license="AGPL-3.0" defer></script>
     <script src="carino-theme.js" data-mark="assets/images/logo.svg" data-mark-color="assets/images/logo-color.svg" defer></script>
     <script src="carino-lang.js" defer></script>
     <script src="i18n.js" defer></script>
+    <script src="assets/js/mg-core.js" defer></script>
     <script src="assets/js/mascots.js" defer></script>
     <script src="assets/js/mascot-moe.js" defer></script>
     <script src="assets/js/mascot-matrix.js" defer></script>
     <script src="assets/js/instruments.js" defer></script>
     <script src="assets/js/dancer.js" defer></script>
     <script src="assets/js/grid.js" defer></script>
+    <script src="assets/js/display-link.js" defer></script>
+    <script src="assets/js/party.js" defer></script>
     <meta property="twitter:title" content="Music Grid"/>
     <!-- Colourful theme + the switch; nothing applies until data-carino-theme="color". -->
     <link rel="stylesheet" href="carino-theme.css">
-    <style>
-        /* Colourful: carino-theme.css remaps the tokens, so everything that reads
-           one follows; these are grid.css's values that were written for black.
-           The cover wall itself is the content and is left as it is. */
-        :root[data-carino-theme="color"] {
-            --glass-bg:     var(--ct-glass);
-            --glass-edge:   var(--border);
-            --glass-line:   var(--border);
-            --glass-shadow: var(--ct-shadow-3);
-        }
-        :root[data-carino-theme="color"] .filter-btn.active,
-        :root[data-carino-theme="color"] .ctl-btn.active,
-        :root[data-carino-theme="color"] .filter-btn.filter-carino.active,
-        :root[data-carino-theme="color"] .ctl-btn.ctl-play { color: var(--ct-on-accent); }
-        :root[data-carino-theme="color"] .ctl-btn.ctl-play:hover { background: var(--ct-accent-strong); border-color: var(--ct-accent-strong); color: var(--ct-on-accent); box-shadow: var(--ct-shadow-1); }
-
-        /* dropdown menus and the song list: cards, not black glass */
-        :root[data-carino-theme="color"] .menu-panel,
-        :root[data-carino-theme="color"] #songList { background: var(--bg-card); border-color: var(--border); box-shadow: var(--ct-shadow-3); }
-        :root[data-carino-theme="color"] .menu-panel::-webkit-scrollbar-thumb { background: var(--ct-scroll); }
-        :root[data-carino-theme="color"] .menu-item { color: var(--text-sec); }
-        :root[data-carino-theme="color"] .menu-item:hover { background: var(--ct-hover); color: var(--text); }
-        :root[data-carino-theme="color"] .menu-item.chosen { background: var(--ct-tonal); color: var(--ct-on-tonal); }
-        :root[data-carino-theme="color"] .menu-count,
-        :root[data-carino-theme="color"] .menu-item.chosen .menu-count { color: var(--text-muted); }
-        :root[data-carino-theme="color"] #songSearch { background: var(--bg-elev); color: var(--text); }
-        :root[data-carino-theme="color"] #songSearch:focus { border-color: var(--accent); }
-        :root[data-carino-theme="color"] #songListClose { color: var(--text-sec); }
-        :root[data-carino-theme="color"] #songListClose:hover,
-        :root[data-carino-theme="color"] .queue-remove:hover { background: var(--err); color: var(--ct-on-accent); }
-        :root[data-carino-theme="color"] .sl-meta,
-        :root[data-carino-theme="color"] .sl-artist,
-        :root[data-carino-theme="color"] .sl-empty { color: var(--text-muted); }
-        :root[data-carino-theme="color"] .sl-items { scrollbar-color: var(--ct-scroll) transparent; }
-        :root[data-carino-theme="color"] .sl-row:hover,
-        :root[data-carino-theme="color"] .sl-row.kbd { background: var(--ct-hover); }
-        :root[data-carino-theme="color"] .sl-row.playing { background: var(--ct-tonal); }
-        :root[data-carino-theme="color"] .sl-row img { background: var(--bg-elev); }
-        :root[data-carino-theme="color"] .sl-title { color: var(--text); }
-        :root[data-carino-theme="color"] .sl-row.playing .sl-title { color: var(--ct-on-tonal); }
-        :root[data-carino-theme="color"] .sl-queue { color: var(--text-sec); }
-        :root[data-carino-theme="color"] .sl-queue:hover { background: var(--accent-faint); color: var(--accent); }
-        :root[data-carino-theme="color"] .sl-queue.done { border-color: color-mix(in srgb, var(--ok) 40%, transparent); }
-
-        /* the player card and its lyrics stage: light glass, dark ink */
-        :root[data-carino-theme="color"] #videoInfoBar { color: var(--text); }
-        :root[data-carino-theme="color"] #closeInfoBar { background: var(--bg-card); border-color: var(--border); color: var(--text-sec); box-shadow: var(--ct-shadow-1); }
-        :root[data-carino-theme="color"] #closeInfoBar:hover { background: var(--err); color: var(--ct-on-accent); }
-        :root[data-carino-theme="color"] #videoPlayer,
-        :root[data-carino-theme="color"] #albumImage { box-shadow: var(--ct-shadow-2); }
-        :root[data-carino-theme="color"] .meta-chip { text-shadow: none; }
-        :root[data-carino-theme="color"] #queueAddBtn:disabled { border-color: color-mix(in srgb, var(--ok) 40%, transparent); background: color-mix(in srgb, var(--ok) 8%, transparent); }
-        :root[data-carino-theme="color"] .queue-fly > div { box-shadow: var(--ct-shadow-3), 0 0 0 1px var(--accent-dim); }
-        :root[data-carino-theme="color"] #videoInfoBar.lyrics-on #lyricsSection { background: var(--bg-card); border-color: var(--border); box-shadow: none; }
-        :root[data-carino-theme="color"] .lyrics-ctl { background: var(--bg-elev); border-color: var(--border); color: var(--text-sec); }
-        :root[data-carino-theme="color"] .lyrics-ctl:hover,
-        :root[data-carino-theme="color"] .lyrics-ctl:focus-within { border-color: var(--accent); }
-        :root[data-carino-theme="color"] .lyrics-ctl button:hover:not(:disabled) { background: var(--accent-faint); color: var(--accent); }
-        :root[data-carino-theme="color"] #lyricsOffset.shifted { color: var(--accent); }
-        :root[data-carino-theme="color"] .lyric-notes span { color: var(--text-muted); filter: none; }
-        :root[data-carino-theme="color"] .lyric-notes span:nth-child(3) { color: var(--accent); }
-        :root[data-carino-theme="color"] .lyric-original { color: var(--text-muted); text-shadow: none; }
-        :root[data-carino-theme="color"] .lyric-line:hover .lyric-original { color: var(--text-sec); }
-        :root[data-carino-theme="color"] .lyric-line.current .lyric-original,
-        :root[data-carino-theme="color"] .lyric-line.current:hover .lyric-original { color: var(--text); text-shadow: none; }
-        :root[data-carino-theme="color"] .lyric-line.current .lyric-translation { color: var(--text-sec); }
-    </style>
 </head>
 <body class="play-body">
-    <!-- App controls: carino-navbar.js moves this group into its right
-         cluster (one top bar). Lists + filters (★ Carino · All · Party · Meme ·
-         Country · Genre · Mood) are built by grid.js; Mascots is dancer.js's
-         gallery. -->
+    <!-- Navbar controls: carino-navbar.js moves this group into its right
+         cluster. Only Settings rides there; browsing lives in the toolbar
+         under the navbar, playing in the player bar at the foot. -->
     <div class="mg-actions" data-carino-actions>
-        <nav id="sectionFilters" class="header-filters" aria-label="Lists and filters" data-priority="1"></nav>
-        <div class="mascot-wrap">
-            <button class="cs-btn filter-btn" id="mascotToggle" title="See the dancing mascots and choose how they dance" aria-haspopup="true" aria-expanded="false" aria-controls="mascotPanel">🕺 <span data-i18n>Mascots</span></button>
-        </div>
+        <!-- Party lock: shown while it is on; a click asks for the PIN (or,
+             unlocked for a moment, locks again) -->
+        <button type="button" class="cs-btn mg-lock-chip" id="lockChip" data-priority="1" hidden>
+            <svg class="mg-i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            <span id="lockChipLabel">Locked</span>
+        </button>
+        <button type="button" class="cs-btn" id="settingsBtn" data-priority="1" aria-haspopup="dialog" aria-controls="settingsScrim" data-lock>
+            <svg class="mg-i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.08a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.08a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span data-i18n>Settings</span>
+        </button>
     </div>
 
-    <!-- The stage: the cover wall, with the dock floating at its foot -->
+    <!-- Toolbar: search first, then which list the wall shows -->
+    <div class="mg-toolbar" id="toolbar">
+        <div class="mg-search" id="searchBox" role="search">
+            <svg class="mg-i mg-search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input type="search" id="searchInput" placeholder="Search songs, artists, countries…" autocomplete="off" spellcheck="false"
+                   role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="searchPanel" aria-label="Search songs, artists, countries…">
+            <kbd class="mg-search-kbd" aria-hidden="true">/</kbd>
+            <button type="button" class="mg-search-clear" id="searchClear" aria-label="Clear search" hidden>
+                <svg class="mg-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <!-- Search results (and, with an empty box, the songs of the list on
+             the wall). Built by grid.js. -->
+        <div class="mg-results" id="searchPanel" role="listbox" aria-label="Search results" hidden></div>
+
+        <nav class="mg-scope" id="scopeBar" aria-label="Lists and filters">
+            <button type="button" class="mg-pill" id="scopeAll" data-lock data-ftype="all" aria-pressed="false" data-i18n>All</button>
+            <button type="button" class="mg-pill mg-pill-carino" id="scopeCarino" data-lock data-ftype="carino" aria-pressed="false" title="Miguel's personal list">★ Carino</button>
+            <button type="button" class="mg-pill mg-pill-lists" id="scopeLists" data-lock aria-haspopup="dialog" aria-expanded="false">
+                <svg class="mg-i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                <span id="scopeListsLabel">Lists</span>
+                <span class="mg-caret" aria-hidden="true">▾</span>
+            </button>
+        </nav>
+        <div class="mg-count" id="wallCount" aria-live="polite"></div>
+    </div>
+
+    <!-- The stage: the cover wall (Browse); the lyrics stage over it when
+         lyrics are on; the Now playing + Up next panel on its right (on a
+         phone, a sheet over it) -->
     <main class="play-stage" id="stage">
-    <div id="musicgrid"></div>
+        <div id="musicgrid" aria-label="Cover wall"></div>
 
-    <!-- Dock (bottom centre): transport + queue · toggles · help -->
-    <div id="dock" class="play-dock">
-        <div id="transport">
-            <button id="prevBtn" class="cs-btn ctl-btn ctl-icon" title="Previous" aria-label="Previous">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="fill" points="19 20 9 12 19 4 19 20"/><line x1="5" x2="5" y1="19" y2="5"/></svg>
-            </button>
-            <button id="playBtn" class="cs-btn ctl-btn ctl-icon ctl-play" title="Play" aria-label="Play">
-                <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><polygon class="fill" points="7 4 20 12 7 20 7 4"/></svg>
-                <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><rect class="fill" x="6" y="4" width="4" height="16" rx="1"/><rect class="fill" x="14" y="4" width="4" height="16" rx="1"/></svg>
-            </button>
-            <button id="nextBtn" class="cs-btn ctl-btn ctl-icon" title="Next" aria-label="Next">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><polygon class="fill" points="5 4 15 12 5 20 5 4"/><line x1="19" x2="19" y1="5" y2="19"/></svg>
-            </button>
-            <!-- queued songs, as small covers — hidden until something is queued -->
-            <div id="queueBar" title="Queue"></div>
-        </div>
-
-        <div id="ctlRight">
-            <button id="listToggle" class="cs-btn ctl-btn" title="Show the songs in this section" aria-expanded="false" aria-controls="songList" data-i18n>List</button>
-            <button id="autoplayToggle" class="cs-btn ctl-btn" title="Keep playing songs automatically" aria-pressed="false">Autoplay</button>
-            <button id="lyricsToggle" class="cs-btn ctl-btn" title="Toggle lyrics" aria-pressed="false" style="display:none">Lyrics</button>
-            <button id="randomBtn" class="cs-btn ctl-btn ctl-icon active" title="Shuffle" aria-label="Shuffle" aria-pressed="true">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.7-1.1 2-1.7 3.3-1.7H22"/><path d="m18 2 4 4-4 4"/><path d="M2 6h1.9c1.5 0 2.9.9 3.6 2.2"/><path d="M22 18h-5.9c-1.3 0-2.6-.7-3.3-1.8l-.5-.8"/><path d="m18 14 4 4-4 4"/></svg>
-            </button>
-            <button id="muteBtn" class="cs-btn ctl-btn" title="Sound (M)" aria-pressed="false">Sound on</button>
-            <button id="scrollToggle" class="cs-btn ctl-btn" title="Pause auto-scroll" aria-pressed="false">Pause</button>
-            <button id="helpBtn" class="cs-btn ctl-btn ctl-icon" title="Help" aria-label="Help" aria-haspopup="dialog" aria-controls="helpScrim">?</button>
-        </div>
-    </div>
-    </main>
-
-    <!--
-        Player card (fixed, bottom right). With lyrics on (desktop) it becomes
-        a stage on the left half of the screen: synced lyrics on top, the track
-        info merged in below. Without lyrics it is the compact info panel.
-    -->
-    <div id="videoInfoBar">
-        <button id="closeInfoBar" aria-label="Close panel">✕</button>
-
-        <div id="lyricsSection">
+        <section id="lyricsSection" aria-label="Lyrics" aria-hidden="true">
             <div id="lyricsCtls">
-                <div class="lyrics-ctl" id="lyricsOffset">
+                <div class="lyrics-ctl" id="lyricsOffset" data-lock>
                     <span class="lyrics-ctl-icon" aria-hidden="true">⏱</span>
-                    <button id="lyricsLater" aria-label="Show lyrics later">−</button>
-                    <button id="lyricsOffsetVal" title="Lyrics timing for this song — + shows lines sooner, click to reset">±0.00s</button>
-                    <button id="lyricsSooner" aria-label="Show lyrics sooner">+</button>
+                    <button type="button" id="lyricsLater" aria-label="Show lyrics later">−</button>
+                    <button type="button" id="lyricsOffsetVal" title="Lyrics timing for this song — + shows lines sooner, click to reset">±0.00s</button>
+                    <button type="button" id="lyricsSooner" aria-label="Show lyrics sooner">+</button>
                 </div>
             </div>
+            <button type="button" class="mg-stage-x" id="lyricsClose" data-lock aria-label="Hide lyrics" title="Hide lyrics">
+                <svg class="mg-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
             <div id="lyricsContainer"></div>
-        </div>
+        </section>
 
-        <div class="vib-info">
-            <!-- Player on top (left of the details when lyrics are on) -->
-            <div id="videoPlayer">
-                <div id="ytPlayerSlot"></div>
+        <aside id="nowPanel" aria-label="Now playing" aria-hidden="true">
+            <div class="np-head">
+                <span class="np-kicker" data-i18n>Now playing</span>
+                <button type="button" class="mg-icon-btn np-lyrics-btn" id="npLyricsBtn" data-lock aria-pressed="false" aria-label="Lyrics" title="Lyrics (L)">
+                    <svg class="mg-i" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></svg>
+                </button>
+                <button type="button" class="mg-icon-btn" id="npHide" aria-label="Hide the player panel" title="Hide the player panel (Q)">
+                    <svg class="mg-i np-hide-desk" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 17 5-5-5-5M6 17l5-5-5-5"/></svg>
+                    <svg class="mg-i np-hide-phone" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
             </div>
 
-            <div class="vib-side">
-                <!-- Track header: cover thumb + title + meta chips -->
-                <div class="vib-head">
+            <div class="np-scroll">
+                <div id="videoPlayer">
+                    <div id="ytPlayerSlot"></div>
+                    <button type="button" id="videoPoster" aria-label="Play">
+                        <img id="videoPosterImg" alt="">
+                        <span class="np-poster-play" aria-hidden="true"><svg viewBox="0 0 24 24"><polygon points="8 5 19 12 8 19 8 5"/></svg></span>
+                    </button>
+                </div>
+
+                <div class="np-track">
                     <div id="albumImage"></div>
-                    <div class="vib-headtext">
-                        <div id="videoTitle"></div>
-                        <div id="videoMeta"></div>
+                    <div class="np-text">
+                        <h2 id="videoTitle"></h2>
+                        <div id="videoArtist"></div>
+                    </div>
+                </div>
+                <div id="videoMeta"></div>
+                <div id="videoLinks"></div>
+
+                <section class="np-queue" aria-labelledby="queueTitle">
+                    <div class="np-queue-head">
+                        <h3 id="queueTitle"><span data-i18n>Up next</span> <span class="np-count" id="queueCount"></span></h3>
+                        <button type="button" class="mg-text-btn" id="queueClear" hidden data-lock data-i18n>Clear</button>
+                    </div>
+                    <ol id="queueList" class="mg-rows" aria-labelledby="queueTitle"></ol>
+                    <p class="np-empty" id="queueEmpty" data-i18n>Nothing queued. Use + on a cover or in search to add songs.</p>
+                    <div class="np-then" id="queueThen"></div>
+                </section>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Player bar: what is playing, the transport, Up next, volume -->
+    <div class="mg-player" id="playerBar" role="region" aria-label="Player">
+        <div class="pb-progress" data-lock>
+            <span class="pb-time" id="timeNow">0:00</span>
+            <input type="range" id="seekBar" min="0" max="1000" step="1" value="0" aria-label="Seek" disabled>
+            <span class="pb-time" id="timeTotal">0:00</span>
+        </div>
+        <button type="button" class="pb-now" id="pbNow" aria-controls="nowPanel" aria-expanded="false">
+            <span class="pb-cover" id="pbCover" aria-hidden="true">
+                <svg class="mg-i" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            </span>
+            <span class="pb-text">
+                <span class="pb-title" id="pbTitle" data-i18n>Nothing playing</span>
+                <span class="pb-artist" id="pbArtist"></span>
+            </span>
+        </button>
+        <div class="pb-transport">
+            <button type="button" id="prevBtn" class="mg-icon-btn" data-lock aria-label="Previous" title="Previous (B)">
+                <svg class="mg-i" viewBox="0 0 24 24" aria-hidden="true"><polygon class="fill" points="19 20 9 12 19 4 19 20"/><path d="M5 19V5"/></svg>
+            </button>
+            <button type="button" id="playBtn" class="mg-play" aria-label="Play" title="Play (Space)">
+                <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><polygon points="8 5 19 12 8 19 8 5"/></svg>
+                <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+            </button>
+            <button type="button" id="nextBtn" class="mg-icon-btn" data-lock aria-label="Next" title="Next (N)">
+                <svg class="mg-i" viewBox="0 0 24 24" aria-hidden="true"><polygon class="fill" points="5 4 15 12 5 20 5 4"/><path d="M19 5v14"/></svg>
+            </button>
+        </div>
+        <div class="pb-side">
+            <!-- The TV display (display.html): open it, pick what it shows -->
+            <div class="pb-display">
+                <button type="button" id="displayBtn" class="mg-icon-btn" data-lock aria-haspopup="dialog" aria-expanded="false" aria-controls="displayPop" aria-label="TV display" title="TV display (D)">
+                    <svg class="mg-i" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                    <span class="pb-live" aria-hidden="true"></span>
+                </button>
+                <div class="mg-pop" id="displayPop" role="dialog" aria-labelledby="displayPopTitle" hidden>
+                    <div class="mg-pop-head">
+                        <b id="displayPopTitle" data-i18n>TV display</b>
+                        <span class="mg-pop-status" data-display-status></span>
+                    </div>
+                    <button type="button" class="btn btn-primary mg-pop-open" data-display-open><span aria-hidden="true">📺</span> <span data-display-open-label>Open display</span></button>
+                    <div class="mg-seg" role="radiogroup" aria-label="Display mode" data-display-modes>
+                        <button type="button" role="radio" aria-checked="false" data-mode="karaoke"><span aria-hidden="true">🎤</span> <span data-i18n>Karaoke</span></button>
+                        <button type="button" role="radio" aria-checked="false" data-mode="party"><span aria-hidden="true">🕺</span> <span data-i18n>Party</span></button>
+                        <button type="button" role="radio" aria-checked="false" data-mode="ambient"><span aria-hidden="true">🖼</span> <span data-i18n>Ambient</span></button>
+                    </div>
+                    <p class="mg-pop-hint" data-i18n>Drag the window to the TV and press F (or click it) for fullscreen. The sound stays here.</p>
+                </div>
+            </div>
+            <button type="button" id="lyricsBtn" class="mg-icon-btn pb-lyrics" data-lock aria-pressed="false" aria-label="Lyrics" title="Lyrics (L)">
+                <svg class="mg-i" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></svg>
+            </button>
+            <button type="button" id="queueBtn" class="mg-icon-btn pb-queue" aria-controls="nowPanel" aria-expanded="false" aria-label="Up next" title="Up next (Q)">
+                <svg class="mg-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h13M3 12h13M3 18h9"/><path class="fill" d="M17 15v6l5-3z"/></svg>
+                <span class="pb-badge" id="queueBadge" hidden></span>
+            </button>
+            <div class="pb-volume" data-lock>
+                <button type="button" id="muteBtn" class="mg-icon-btn" aria-pressed="false" aria-label="Mute" title="Mute (M)">
+                    <svg class="mg-i i-vol" viewBox="0 0 24 24" aria-hidden="true"><polygon class="fill" points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>
+                    <svg class="mg-i i-mute" viewBox="0 0 24 24" aria-hidden="true"><polygon class="fill" points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="m23 9-6 6M17 9l6 6"/></svg>
+                </button>
+                <input type="range" id="volumeBar" min="0" max="100" step="1" value="100" aria-label="Volume">
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings (the ⚙ in the navbar): every switch in one place -->
+    <div class="modal-scrim mg-sheet-scrim" id="settingsScrim" hidden>
+        <div class="modal mg-sheet" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+            <div class="modal-head">
+                <div><div class="modal-title" id="settingsTitle" data-i18n>Settings</div><div class="modal-sub">Music</div></div>
+                <button type="button" class="modal-x" id="settingsX" aria-label="Close">✕</button>
+            </div>
+            <div class="modal-body">
+                <h3 class="mg-set-head" data-i18n>Playback</h3>
+                <label class="mg-set-row">
+                    <span class="mg-set-text"><b data-i18n>Autoplay</b><small data-i18n>When Up next runs out, keep playing songs from the list on the wall.</small></span>
+                    <span class="switch"><input type="checkbox" id="setAutoplay"><span class="track"></span></span>
+                </label>
+                <label class="mg-set-row">
+                    <span class="mg-set-text"><b data-i18n>Shuffle</b><small data-i18n>No song repeats until the whole list has played. Off: any song, at random.</small></span>
+                    <span class="switch"><input type="checkbox" id="setShuffle"><span class="track"></span></span>
+                </label>
+                <label class="mg-set-row">
+                    <span class="mg-set-text"><b data-i18n>Smooth transitions</b><small data-i18n>Songs fade in, and fade out when you skip.</small></span>
+                    <span class="switch"><input type="checkbox" id="setSmooth"><span class="track"></span></span>
+                </label>
+                <div class="mg-set-row">
+                    <span class="mg-set-text"><b data-i18n>Sound</b><small id="setVolumeVal"></small></span>
+                    <span class="mg-set-vol">
+                        <input type="range" id="setVolume" min="0" max="100" step="1" aria-label="Volume">
+                        <span class="switch"><input type="checkbox" id="setSound" aria-label="Sound"><span class="track"></span></span>
+                    </span>
+                </div>
+
+                <h3 class="mg-set-head" data-i18n>Party</h3>
+                <div class="mg-set-row">
+                    <span class="mg-set-text"><b data-i18n>Party setup</b><small id="setTonightVal" data-i18n>Karaoke, party or background music: the right switches in one go.</small></span>
+                    <button type="button" class="btn" id="setTonight"><span aria-hidden="true">✨</span> <span data-i18n>Choose</span></button>
+                </div>
+                <label class="mg-set-row">
+                    <span class="mg-set-text"><b data-i18n>Party lock</b><small data-i18n>Guests can still search and add songs to Up next, but skipping, pausing, the list and these settings ask for the PIN. A reload keeps it on.</small></span>
+                    <span class="switch"><input type="checkbox" id="setLock"><span class="track"></span></span>
+                </label>
+                <div class="mg-set-row mg-set-pin">
+                    <span class="mg-set-text"><label for="setLockPin"><b data-i18n>PIN</b></label><small id="setLockPinHint" data-i18n>Optional, 4 digits; set it before turning the lock on. Without one, the host unlocks by holding a button.</small></span>
+                    <input type="text" class="input mg-pin-input" id="setLockPin" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" spellcheck="false" placeholder="····" aria-describedby="setLockPinHint">
+                </div>
+                <p class="mg-set-note" data-i18n>A light house-party lock, not security: it keeps guests from skipping songs by accident. The PIN is kept in this browser only.</p>
+
+                <h3 class="mg-set-head" data-i18n>Stage</h3>
+                <label class="mg-set-row">
+                    <span class="mg-set-text"><b data-i18n>Lyrics</b><small data-i18n>Synced lyrics over the wall while a song plays. ⏱ on the stage fixes the timing per song.</small></span>
+                    <span class="switch"><input type="checkbox" id="setLyrics"><span class="track"></span></span>
+                </label>
+                <label class="mg-set-row">
+                    <span class="mg-set-text"><b data-i18n>Moving wall</b><small data-i18n>The covers scroll slowly by themselves.</small></span>
+                    <span class="switch"><input type="checkbox" id="setWall"><span class="track"></span></span>
+                </label>
+
+                <h3 class="mg-set-head" data-i18n>TV display</h3>
+                <div class="mg-set-row">
+                    <span class="mg-set-text"><b data-i18n>Display window</b><small data-i18n>Big visuals for a TV or projector: lyrics, dancing mascots or the cover wall. Drag the window to the TV and press F. The sound stays here.</small></span>
+                    <button type="button" class="btn" id="setDisplayOpen" data-display-open><span aria-hidden="true">📺</span> <span data-display-open-label>Open display</span></button>
+                </div>
+                <div class="mg-set-row mg-set-wrap">
+                    <span class="mg-set-text"><b data-i18n>Display mode</b><small data-display-status></small></span>
+                    <div class="mg-seg" role="radiogroup" aria-label="Display mode" data-display-modes>
+                        <button type="button" role="radio" aria-checked="false" data-mode="karaoke"><span aria-hidden="true">🎤</span> <span data-i18n>Karaoke</span></button>
+                        <button type="button" role="radio" aria-checked="false" data-mode="party"><span aria-hidden="true">🕺</span> <span data-i18n>Party</span></button>
+                        <button type="button" role="radio" aria-checked="false" data-mode="ambient"><span aria-hidden="true">🖼</span> <span data-i18n>Ambient</span></button>
                     </div>
                 </div>
 
-                <!-- Streaming links + queue action -->
-                <div id="videoLinks"></div>
-                <div id="videoActions"></div>
+                <h3 class="mg-set-head" data-i18n>Mascots</h3>
+                <div id="mascotHost" class="mascot-host"></div>
+
+                <h3 class="mg-set-head" data-i18n>Help</h3>
+                <div class="mg-set-actions">
+                    <button type="button" class="btn" id="settingsHelp" data-i18n>Keyboard shortcuts</button>
+                    <button type="button" class="btn" id="settingsFull" data-i18n>Fullscreen</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Song list (fixed, right side) — every song in the current section,
-         searchable; hidden until ☰ List is pressed -->
-    <div id="songList" aria-hidden="true">
-        <div class="sl-head">
-            <input type="search" id="songSearch" placeholder="Search songs…" autocomplete="off" spellcheck="false">
-            <button id="songListClose" aria-label="Close list">✕</button>
-        </div>
-        <div class="sl-meta" id="songListMeta"></div>
-        <div class="sl-items" id="songListItems"></div>
-    </div>
-
-    <!-- Help (? or H). Opening it pauses the wall. -->
+    <!-- Help (? or H) -->
     <div class="modal-scrim" id="helpScrim" hidden>
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
             <div class="modal-head">
-                <div><div class="modal-title" id="helpTitle" data-i18n>How the wall works</div><div class="modal-sub">Music</div></div>
+                <div><div class="modal-title" id="helpTitle" data-i18n>How it works</div><div class="modal-sub">Music</div></div>
                 <button type="button" class="modal-x" id="helpX" aria-label="Close">✕</button>
             </div>
             <div class="modal-body">
-                <p class="mg-p" data-i18n>Click a cover to play it. + on a cover adds it to the queue. The buttons in the bar pick a list, a country, a genre or a mood.</p>
-                <div class="mg-touch touch-only">
-                    <div class="modal-sub" data-i18n>Touch</div>
-                    <p class="mg-p" data-i18n>Tap a cover to play it. The filters are under ⋯ in the top bar; Pause in the dock stops the wall.</p>
-                </div>
+                <p class="mg-p" data-i18n>Search at the top, or click a cover to play it. + adds a song to Up next; Up next plays first, then Autoplay carries on with the list on the wall.</p>
+                <p class="mg-p" data-i18n>All, ★ Carino and Lists pick what the wall shows: a party list, a country, a genre or a mood.</p>
                 <dl class="kbd-grid">
-                    <dt><span class="kbd accent">P</span> <span class="kbd accent">Space</span></dt><dd data-i18n>Pause or resume the wall</dd>
+                    <dt><span class="kbd accent">/</span></dt><dd data-i18n>Search</dd>
+                    <dt><span class="kbd">Enter</span></dt><dd data-i18n>In search: play the top song, or add it to Up next while music plays (Shift: the other)</dd>
+                    <dt><span class="kbd accent">Space</span> <span class="kbd">K</span></dt><dd data-i18n>Play or pause</dd>
+                    <dt><span class="kbd">N</span> <span class="kbd">B</span></dt><dd data-i18n>Next or previous song</dd>
+                    <dt><span class="kbd">←</span> <span class="kbd">→</span></dt><dd data-i18n>Back or forward 5 seconds</dd>
+                    <dt><span class="kbd">Q</span></dt><dd data-i18n>Now playing and Up next</dd>
+                    <dt><span class="kbd">L</span></dt><dd data-i18n>Lyrics on or off</dd>
                     <dt><span class="kbd">M</span></dt><dd data-i18n>Sound on or off</dd>
-                    <dt><span class="kbd">L</span></dt><dd data-i18n>Song list and search</dd>
+                    <dt><span class="kbd">P</span></dt><dd data-i18n>Pause or resume the wall</dd>
                     <dt><span class="kbd">F</span></dt><dd data-i18n>Fullscreen</dd>
+                    <dt><span class="kbd">D</span></dt><dd data-i18n>Open the TV display (Shift+D: its next mode)</dd>
                     <dt><span class="kbd">?</span> <span class="kbd">H</span></dt><dd data-i18n>Help</dd>
                     <dt><span class="kbd">Esc</span></dt><dd data-i18n>Close</dd>
                 </dl>
+                <p class="mg-p" data-i18n>Party lock (⚙ Settings → Party): guests can search, add songs to Up next and take out their own, and start the music when nothing plays. Skipping, pausing, seeking, the list, the TV display and the settings show a lock and ask for the PIN. The keys follow the same rule.</p>
+                <p class="mg-p" data-i18n>✨ Party setup (⚙ Settings → Party) sets everything for karaoke, a party or background music in one go. A song that YouTube won't play is skipped by itself; the screen stays on while music plays.</p>
+                <p class="mg-p" data-i18n>📺 opens the TV display: a second window for the TV or projector with big lyrics (Karaoke), the dancing mascots (Party) or the cover wall (Ambient). On the display: F or a click for fullscreen, 1 2 3 switch the mode, Space and N play, pause and skip.</p>
                 <p class="mg-p mg-also" data-i18n>Nothing loads from outside until you play a song. Then the video comes from YouTube (youtube-nocookie.com) and the lyrics from LRCLIB (lrclib.net).</p>
             </div>
             <div class="modal-foot">
-                <button type="button" class="btn" id="helpFull" data-i18n>Fullscreen</button>
-                <button type="button" class="btn btn-primary" id="helpResume" data-i18n>Resume</button>
+                <button type="button" class="btn btn-primary" id="helpOk" data-i18n>Got it</button>
             </div>
         </div>
+    </div>
+
+    <!-- First run: "What's tonight?" (party.js). Shown once per browser,
+         again from ⚙ Settings → Party setup. -->
+    <div class="mg-welcome-scrim" id="welcome" hidden>
+        <div class="mg-welcome" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle" tabindex="-1">
+            <div class="mg-welcome-step" data-step="1">
+                <div class="mg-welcome-kicker" data-i18n>Party setup</div>
+                <h2 class="mg-welcome-title" id="welcomeTitle" data-i18n>What's tonight?</h2>
+                <p class="mg-welcome-sub" data-i18n>Pick one and everything is set. You can change any of it later in ⚙ Settings.</p>
+                <div class="mg-welcome-cards" role="group" aria-labelledby="welcomeTitle">
+                    <button type="button" class="mg-wcard" data-preset="karaoke">
+                        <span class="mg-wcard-icon" aria-hidden="true">🎤</span>
+                        <span class="mg-wcard-name" data-i18n>Karaoke</span>
+                        <span class="mg-wcard-desc" data-i18n>Everyone picks songs and sings along. Lyrics on, songs play in the order they're added.</span>
+                        <span class="mg-wcard-tags" aria-hidden="true"><span data-i18n>Lyrics</span><span data-i18n>In order</span><span>📺 <span data-i18n>Karaoke</span></span></span>
+                    </button>
+                    <button type="button" class="mg-wcard" data-preset="party">
+                        <span class="mg-wcard-icon" aria-hidden="true">🎉</span>
+                        <span class="mg-wcard-name" data-i18n>Party</span>
+                        <span class="mg-wcard-desc" data-i18n>Non-stop music from a list, shuffled, with the mascots dancing. Guests can still add songs.</span>
+                        <span class="mg-wcard-tags" aria-hidden="true"><span data-i18n>Shuffle</span><span data-i18n>Mascots</span><span>📺 <span data-i18n>Party</span></span></span>
+                    </button>
+                    <button type="button" class="mg-wcard" data-preset="background">
+                        <span class="mg-wcard-icon" aria-hidden="true">🎵</span>
+                        <span class="mg-wcard-name" data-i18n>Background</span>
+                        <span class="mg-wcard-desc" data-i18n>Music in the background for dinner or chatting: quieter, shuffled, the covers drifting by.</span>
+                        <span class="mg-wcard-tags" aria-hidden="true"><span data-i18n>Quieter</span><span data-i18n>Moving wall</span><span>📺 <span data-i18n>Ambient</span></span></span>
+                    </button>
+                </div>
+                <button type="button" class="mg-welcome-skip" id="welcomeSkip" data-i18n>Just browse</button>
+            </div>
+
+            <div class="mg-welcome-step" data-step="2" hidden>
+                <div class="mg-welcome-top">
+                    <button type="button" class="mg-text-btn mg-welcome-back" id="welcomeBack"><span aria-hidden="true">←</span> <span data-i18n>Back</span></button>
+                    <button type="button" class="modal-x" id="welcomeX" aria-label="Close">✕</button>
+                </div>
+                <div class="mg-welcome-kicker" id="welcomeKicker2"></div>
+                <h2 class="mg-welcome-title" id="welcomeTitle2" tabindex="-1"></h2>
+                <p class="mg-welcome-sub" id="welcomeSub2"></p>
+                <!-- karaoke: how to queue a song -->
+                <div class="mg-welcome-howto" id="welcomeHowto" hidden>
+                    <div class="mg-howto-demo" aria-hidden="true">
+                        <span class="mg-howto-search"><svg class="mg-i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span data-i18n>Search a song…</span></span>
+                        <span class="mg-howto-plus"><svg class="mg-i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span>
+                    </div>
+                    <p class="mg-howto-text" data-i18n>Search a song and press + to queue it. Up next plays in order; the lyrics follow along.</p>
+                </div>
+                <!-- party / background: which list plays -->
+                <div class="mg-welcome-lists" id="welcomeLists" role="group" hidden></div>
+                <div class="mg-welcome-actions">
+                    <button type="button" class="btn" id="welcomeDisplay" data-display-open><span aria-hidden="true">📺</span> <span data-i18n>Open the TV display</span></button>
+                    <button type="button" class="btn btn-primary" id="welcomeGo"></button>
+                </div>
+                <p class="mg-welcome-tip" id="welcomeTip" data-i18n>Tip: ⚙ Settings → Party lock keeps guests from skipping songs.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Party lock: asks for the PIN (party.js) -->
+    <div class="modal-scrim mg-pin-scrim" id="pinScrim" hidden>
+        <div class="modal mg-pin" role="dialog" aria-modal="true" aria-labelledby="pinTitle" aria-describedby="pinWhy">
+            <div class="mg-pin-head">
+                <span class="mg-pin-badge" aria-hidden="true"><svg class="mg-i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+                <div class="modal-title" id="pinTitle" data-i18n>Party lock is on</div>
+                <button type="button" class="modal-x" id="pinX" aria-label="Close">✕</button>
+            </div>
+            <p class="mg-pin-why" id="pinWhy"></p>
+            <p class="mg-pin-guest" data-i18n>Guests can still search and add songs to Up next.</p>
+            <div class="mg-pin-entry" id="pinEntry">
+                <div class="mg-pin-dots" id="pinDots" role="img" aria-label="PIN"><span></span><span></span><span></span><span></span></div>
+                <div class="mg-pin-msg" id="pinMsg" role="alert"></div>
+                <div class="mg-pin-pad" id="pinPad">
+                    <button type="button" data-d="1">1</button><button type="button" data-d="2">2</button><button type="button" data-d="3">3</button>
+                    <button type="button" data-d="4">4</button><button type="button" data-d="5">5</button><button type="button" data-d="6">6</button>
+                    <button type="button" data-d="7">7</button><button type="button" data-d="8">8</button><button type="button" data-d="9">9</button>
+                    <span></span><button type="button" data-d="0">0</button><button type="button" data-d="back" aria-label="Delete">⌫</button>
+                </div>
+            </div>
+            <div class="mg-pin-hold" id="pinHold" hidden>
+                <button type="button" class="btn mg-hold-btn" id="pinHoldBtn"><span class="mg-hold-fill" aria-hidden="true"></span><span class="mg-hold-label" data-i18n>Hold to unlock</span></button>
+                <p class="mg-pin-small" data-i18n>No PIN is set. The host holds the button for two seconds.</p>
+            </div>
+            <p class="mg-pin-small mg-pin-note" data-i18n>A light house-party lock, not security.</p>
+        </div>
+    </div>
+
+    <div class="sr-only" id="mgAnnounce" aria-live="polite" aria-atomic="true"></div>
+    <div class="mg-toast" id="toast" role="status" aria-live="polite" hidden></div>
+    <div data-carino-about hidden>
+        <p data-i18n>A personal project, for home and house parties with friends. It is not made or meant for commercial or public use.</p>
+        <p data-i18n>Songs play through YouTube's own embedded player and lyrics are fetched from LRCLIB while a song plays; neither is hosted here. Playing music in a business or at a public event needs its own licences.</p>
     </div>
 </body>
 </html>

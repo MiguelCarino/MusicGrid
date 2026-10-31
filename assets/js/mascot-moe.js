@@ -273,7 +273,13 @@
         sing:  { 6: ".ossddsso.", 7: "..osllso.." },
         laugh: Object.assign({}, SHUT, { 5: "osbssSsbso", 6: ".osiiiiso.", 7: "..osddso.." }),
         blush: { 4: "osiessieso", 5: "oBBssSsBBo", 6: ".osllllso." },
+        /* sad faces (melancholic songs); q = a tear / raindrop */
+        sad:         { 2: "ossrssrsso", 3: "osssssssso", 4: "osaassaaso", 5: "oseesSeeso", 6: ".osSllSso.", 7: "..olsslo.." },
+        heartbroken: { 2: "ossrssrsso", 3: "osssssssso", 4: "osaassaaso", 5: "osqssSsqso", 6: ".osSllSso.", 7: "..olsslo.." },
+        pensive:     { 4: "ossessseso", 6: ".osssllso." },
+        skyward:     { 3: "osiessieso", 4: "osssssssso", 5: "osbssSsqso", 6: ".ossddsso." },
     };
+    const SAD_FACES = ['sad', 'heartbroken', 'pensive'];
     function faceRows(face) {
         const swap = FACE_ROWS[face] || FACE_ROWS.smile;
         return FACE.map((r, i) => swap[i] || r);
@@ -422,8 +428,8 @@
             ".ouuUuuUuuo.",
             "owwwwwwwwwwo",
             "owwwwwwwwwwo",
-            "owwWwwwwWwwo",
-            ".oWxxwwxxWo.",
+            "owwwwWWwwwwo",
+            ".oWWWWWWWWo.",
             "..ommmmmmo..",
             "..omMmmMmo..",
         ],
@@ -432,8 +438,8 @@
             ".ouuuuzuuuo.",
             "owwwwwwzwwwo",
             "owwwwwwwzwwo",
-            "owwWwwwwWzwo",
-            ".oWxxwwxxWo.",
+            "owwwwWWwwzwo",
+            ".oWWWWWWWWo.",
             "..ommmmmmo..",
             "..omMmmMmo..",
         ],
@@ -545,7 +551,7 @@
             "owwYwwwwYwwo",
             "oYwwwYYwwwYo",
             "owwWYwwYWwwo",
-            ".oYxxwwxxYo.",
+            ".oYWWWWWWYo.",
             "..ommmmmmo..",
             "..omMmmMmo..",
         ],
@@ -1037,7 +1043,7 @@
         variant: variant,
         restyle: restyle,
         parts: parts,
-        faces: FACES,
+        faces: FACES, sadFaces: SAD_FACES, extraFaces: ['skyward'],
         outfits: OUTFITS,
         views: { back: true, look: false, side: false },
         twerk: false,

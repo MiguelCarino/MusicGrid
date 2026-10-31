@@ -9,34 +9,101 @@ collection **by country**, queue songs, and follow along with synced lyrics.
 ![mpv-shot0002](https://github.com/MiguelCarino/MusicGrid/assets/6355310/175d165f-b21e-4361-8afa-e77a104764be)
 
 ## Features
-- **Carino navbar** — the shared `carino-navbar.js` (it slides away in fullscreen or
-  when idle); the filters and the 🕺 *Mascots* gallery ride in it.
-- **Help and keys** — `?`/`H` help, `P`/`Space` pause the wall, `M` sound, `L` list,
-  `F` fullscreen. Under reduced motion the wall starts paused. YouTube and LRCLIB load
-  only after you play a song.
-- **Navbar lists** — **★ Carino** (Miguel's personal picks, `carino: true`), **All**, and
-  **📚 Lists**: one popup with every specific list, in tabs — *Lists* (🎉 Party per country,
-  😂 Meme), *Country*, *Genre* and *Mood* — each with song counts, built from the catalog, plus
-  a search box across all of them (Enter picks the first match). The button shows the list
-  you're on. Party = the songs every party plays, per country; a song lists every country
-  it's a staple in (`party: ["mexico", "colombia"]`), and party songs aren't personal picks
-  (`carino: false`). Memes are `meme: true`.
-- **List** — opens every song in the current section — the shuffle playlist (songs still to
-  come first) or, with shuffle off, A–Z — with a search box (accent-insensitive; matches
-  title, artist, country, genre and mood). Click a song to play it, **+** to queue it; ↑/↓ and
-  Enter work from the search box, Escape closes it. It sits on the left; the player card,
-  compact or the lyrics stage, is always on the right.
-- **Shuffle** (🔀 in the dock, on by default) — Next, Autoplay and the List walk a shuffled
-  playlist of the section, so no song repeats until all of it has played. Off: any random song.
-- **Lyrics** are off by default; the choice is remembered.
-- **Layout** — the lists live in the navbar; playback lives in a floating dock at the bottom
-  center.
-- **Transport** — ⏮ ▶/❚❚ ⏭ at the start of the dock. Previous restarts a song
-  that's more than 3 s in, else steps back through what you played (the current song goes to
-  the front of the queue); Next plays the queue, else a random song from the section. The
-  queue sits right after them as small covers (hover one for × to remove it).
-- **Autoplay** — toggle in the dock; when on, a fresh song keeps playing after each
-  one ends even with an empty queue (preference saved in `localStorage`).
+One screen, four parts: **search** at the top, the **cover wall** to browse, **Now playing
++ Up next** beside it, and the **player bar** at the foot. Every switch lives in ⚙ Settings.
+
+- **Search first** — the box under the navbar (`/` jumps to it) searches every song in the
+  catalog, accent-insensitive, by title, artist, country, genre and mood. Matching lists
+  (★ Carino, a party list, a country, a genre, a mood) show as chips on top; a chip puts that
+  list on the wall. Each song has **Play next** and **+ Add to queue**; a click plays it.
+  ↑/↓ choose, **Enter** plays the top song when nothing is playing and adds it to Up next
+  once music is on (**Shift+Enter** does the other), Esc closes. With the box empty it lists
+  the songs of the list on the wall (in shuffle order, songs still to come first; A–Z with
+  shuffle off).
+- **Browse** — the auto-scrolling cover wall. Click a cover to play it, **+** on a cover to add
+  it to Up next. Beside the search: **All**, **★ Carino** (Miguel's personal picks,
+  `carino: true`) and **Lists**, one dialog with All / ★ Carino on top and every other list in
+  tabs — *Lists* (🎉 Party per country, 😂 Meme), *Country*, *Genre* and *Mood* — with song
+  counts and a search box (Enter picks the first match). Party = the songs every party
+  plays, per country (`party: ["mexico", "colombia"]`, never personal picks); memes are
+  `meme: true`. The wall stops while the pointer rests on it, under reduced motion, and
+  with *Moving wall* off.
+- **Player bar** — the song (click it for Now playing), ⏮ ▶/❚❚ ⏭, elapsed / length with a
+  seek bar, 🎤 lyrics, Up next (with a count) and volume. Previous restarts a song more than
+  3 s in, else steps back through what you played (the current song goes to the front of Up
+  next). On a phone: cover, title, ⏮ ▶ ⏭ and Up next, with a thin seek line on top.
+- **Now playing + Up next** — a panel beside the wall (a sheet over it on a phone): the
+  video, title, artist, chips that put that country / genre / mood / party list on the
+  wall, YouTube / Spotify / Apple Music links, then **Up next**. Up next plays first, then
+  Autoplay carries on with the list on the wall; the panel says which. Reorder by dragging
+  (desktop), with ↑/↓ (touch, or Alt+↑/↓ from the keyboard), remove with × (or Delete),
+  **Clear** empties it. Up to 200 songs. Hiding the panel keeps the music playing.
+- **Settings** (⚙ in the navbar) — Autoplay, Shuffle (no song repeats until the whole list
+  has played; off: any random song), Smooth transitions, sound and volume, Party setup and
+  Party lock, Lyrics, Moving wall, the TV display, the mascots and how they dance, keyboard
+  shortcuts and fullscreen. All remembered in this browser.
+- **Party setup — "What's tonight?"** — the first visit in a browser opens one screen with
+  three big choices (again any time from ⚙ Settings → Party → Choose; `?welcome=1` forces it):
+  - 🎤 **Karaoke** — lyrics on, Autoplay on, Shuffle off (people pick songs: Up next plays in
+    order), TV display in Karaoke mode. Step two shows how to queue a song (search, then +),
+    offers the TV display and puts the cursor in the search box.
+  - 🎉 **Party** — Autoplay and Shuffle on, lyrics off on this page, TV display in Party mode
+    (the mascots). Step two lists ★ Carino, the party lists per country and the biggest
+    genres; a click puts that list on the wall and starts the music (that click is the
+    gesture browsers need before they play sound).
+  - 🎵 **Background** — Autoplay and Shuffle on, lyrics off, TV display Ambient, Moving wall
+    on, volume down to 40 % (if it was higher). Step two lists All, ★ Carino and moods.
+  - **Just browse** (or Esc) changes nothing. Each preset only flips switches: everything
+    stays editable in Settings, and the choice is remembered (`mg_tonight`). A shared link
+    (`?v=`, `?q=`, `?s=`) skips the setup; with `?cat=` that list is offered first.
+- **Party lock** (⚙ Settings → Party) — a light house-party lock, not security. While it is
+  on, guests can search, add songs to Up next (Play next joins the end of the line), take out
+  songs they added themselves, and start the music when nothing plays (a cover or search
+  "play" while music plays goes to Up next instead). Skipping, previous, pausing, seeking,
+  the volume and mute, lyrics, the list (All / ★ Carino / Lists / chips), reordering,
+  removing or clearing other people's songs, the TV display and Settings show a small
+  padlock and ask for the PIN; the keyboard shortcuts and the TV display's keys follow the
+  same rule, and closing the tab asks first. The right PIN does what was asked and unlocks
+  for a minute (the 🔒 chip in the navbar counts down; click it to lock again). The PIN is
+  optional (4 digits, set before turning the lock on); without one the host holds a button
+  for two seconds. Five wrong tries wait 30 s. The lock and PIN are kept in this browser
+  (`mg_lock`, `mg_lock_pin`), so a reload doesn't undo it.
+- **Party polish** — the screen stays on while music plays (Screen Wake Lock, taken again
+  when the tab comes back). A video YouTube won't play (embedding off, removed, private:
+  `onError` 2, 5, 100, 101, 150) is skipped with a toast ("Skipped — … not available") and
+  remembered for the session, so the shuffle and Up next pass it over; a video whose clock
+  stops for 15 s while playing (40 s at 0:00, where an ad may be running) is reloaded where
+  it stopped once, then skipped. After five failures in a row the music stops ("check the
+  connection") instead of racing through the list. *Smooth transitions* (on by default)
+  fades a song out over 0.35 s when you skip and fades every song in over 0.9 s (only the
+  player's volume moves, never your setting). A song that starts by itself gets a "Now
+  playing" toast; screen readers hear every new song, and the tab title reads
+  ▶ Song — Artist (❚❚ when paused).
+- **Keys** — `/` search · `Space`/`K` play or pause · `N` next · `B` previous · `←`/`→` 5 s ·
+  `Q` Now playing · `L` lyrics · `M` sound · `P` pause the wall · `F` fullscreen · `D` TV
+  display (`Shift+D` its next mode) · `?`/`H` help · `Esc` close. Under the party lock `N`
+  `B` `←` `→` `Space` (pause) `L` `M` `P` `D` ask for the PIN. YouTube and LRCLIB load only
+  after you play a song.
+- **TV display** — for a house party: 📺 in the player bar (or ⚙ Settings → TV display, or
+  `D`) opens `display.html` in its own window. Drag it to the TV or projector and press `F`
+  (or click it) for fullscreen. The sound and the YouTube player stay on the music page; the
+  display shows pictures only and follows the music page live (same browser, same machine).
+  Three modes, picked in the 📺 pop-up, in Settings or with `1` `2` `3` on the display:
+  - **Karaoke** — the line being sung, huge, its words turning gold as it goes; the next
+    line under it, the last one faded, a translation if the lyrics carry one. Before the
+    singing starts: the cover, title and artist big, then a 3-2-1 of dots; long breaks show
+    notes and count in the next line the same way. The song and Up next sit in the corners.
+    The lyrics timing set with ⏱ on the music page applies here too. A song with no lyrics
+    shows the Party screen with a "No lyrics for this song" note.
+  - **Party** — the mascots dancing big (the same cast and Settings → Mascots choice, sad
+    moves for melancholic songs), the cover blurred behind them, the song, a progress bar
+    and the next three songs.
+  - **Ambient** — the cover wall drifting slowly in columns, with a small now-playing tag.
+
+  On the display, `Space`/`K`, `N` and `B` play, pause and skip on the music page. It needs
+  no navbar, hides the cursor after 3 s, keeps the screen awake, works from 1280×720 to 4K
+  and on a portrait screen, and stands still under reduced motion. With no music page open
+  it waits ("Waiting for the music…") and picks up again by itself.
 - **Dancer** — when a song has no lyrics (or LRCLIB can't be reached), a mascot dances on
   the lyrics stage instead, picking random moves from its genre (headbang for rock, robot
   for electronic, salsa for Latin, twerk for reggaeton…). The cast is original pixel art:
@@ -47,19 +114,41 @@ collection **by country**, queue songs, and follow along with synced lyrics.
   part is baked into one pixelated image in the browser, so no hairlines show between
   pixel rows when the parts turn. Reggaeton twerks facing away, looking back over the
   shoulder or from the side (Moe never twerks); 40-odd moves in all, each with a random
-  tempo and sometimes mirrored. **🕺 Mascots** in the navbar shows them all dancing: pick one (or
+  tempo and sometimes mirrored. **Settings → Mascots** shows them all dancing: pick one (or
   Random, or Everyone: the whole cast at once on a song with no lyrics) and how they dance
-  (the song's genre, random moves, or one genre's moves). On a song with lyrics the mascot
-  dances on the right of the stage, behind the lyrics. ✕ on the lyrics stage only leaves
-  lyrics mode; the song keeps playing in the compact card. It
-  pauses with the song and stands still under reduced motion (`assets/js/dancer.js`). Lyrics fetched once are kept in the visitor's own
-  `localStorage`, and a busy LRCLIB is retried.
-- Randomizer, auto-scrolling wall, a 10-song queue, synced karaoke lyrics from LRCLIB, and a
-  redesigned now-playing panel with clickable country/genre/mood chips.
-- Everything is shareable via URL params (`?v=` play, `?q=` queue, `?cat=` filter). Filters
-  encode as `?cat=country:japan`, `?cat=genre:rock`, `?cat=mood:chill`,
-  `?cat=party:mexico` or `?cat=meme` (a bare
-  `?cat=japan` still works as a country).
+  (the song's genre, random moves, or one genre's moves). A melancholic song gets sad, slow
+  moves instead (moping, hugging themselves, a hand on the heart, a hand to the chin,
+  looking up at the sky in the rain) and sad, heartbroken or pensive faces. On a song with
+  lyrics the mascot dances on the right of the stage, behind the lyrics. It pauses with the
+  song and stands still under reduced motion (`assets/js/dancer.js`).
+- **Shareable** — the URL carries the state: `?v=` the song (it waits for Play), `?q=` Up
+  next, `?cat=` the list on the wall (`carino`, `meme`, `party:mexico`, `country:japan`,
+  `genre:rock`, `mood:chill`; a bare `?cat=japan` still works as a country), `?s=` the
+  search box.
+- **Two themes** — Gold & Black and Colourful (the fleet's theme switch); the choice carries
+  across carino.systems.
+
+### For later pieces: the bus
+`assets/js/mg-core.js` defines `window.MusicGrid`, which every part of the page talks
+through, so a TV display window, party modes or guest requests can plug in without touching
+`grid.js`. `MusicGrid.on(type, fn)` subscribes to `ready`, `track`, `playstate`, `time`,
+`queue`, `filter`, `lyrics`, `lyricline`, `lyricsoffset`, `ended`, `settings`, `display`,
+`unavailable` (a song was skipped: `reason` `error` / `stall`, YouTube `code`), `stall` and
+`lock` (`{ locked, host }`); the actions are `play`,
+`toggle`, `next`, `prev`, `seek`, `enqueue(song, { next, from })`, `removeAt`, `move`,
+`clearQueue`, `setFilter`, `setVolume`, `setMuted`, `search`, `state()` and
+`settings.get/set` (keys include `smooth`, `partyLock` and `tonight`; `set(key, value,
+'preset')` tags a change made by the party setup). `MusicGrid.lock` (`locked()`,
+`ask(what, then)`, `lock(pin)`, `unlock()`, `relock()`) and `MusicGrid.setup.open()` come
+from `assets/js/party.js`, which also holds the wake lock and the now-playing title. The
+header of `mg-core.js` lists every event's fields.
+
+The TV display is the first piece built on it: `assets/js/display-link.js` (on the music
+page) passes the bus events to `display.html` over `BroadcastChannel('musicgrid')` and
+answers the display's `hello` with a full snapshot (`state()`, the mode, theme and
+language); a `beat` each way every second or two tells each side the other is still there.
+`assets/js/display.js` draws it, `assets/css/display.css` styles it. The message list is in
+the header of `display-link.js`.
 
 ## Adding music
 
@@ -137,14 +226,14 @@ each match yourself; the front page of `tools/addsong_web.py` is the same flow i
 Lyrics are copyrighted, so this repository does not store them. A song's catalog entry
 carries `"lrclib": <id>`, the id of its record on [LRCLIB](https://lrclib.net), and the
 player fetches that record's synced lyrics from lrclib.net when the song plays. The add-song
-tools look the record up and fill in the id. The ♪ Lyrics toggle appears once lyrics arrive.
-On a desktop screen the lyrics turn the player card into a stage on the left half of
-the screen: lyrics on top, the video and song details merged below. It always starts under
-the queue strip, so the two never overlap.
+tools look the record up and fill in the id. Turn lyrics on with 🎤 in the player bar,
+`L`, or Settings (off by default; remembered): they take the stage over the wall, beside the
+Now playing panel, full screen on a phone.
 Click any line to jump the song there; it keeps playing from that line.
-In its corner, **⏱ − ±0.00s +** fixes lyrics that run early or late: each press moves them
+In the stage's corner, **⏱ − ±0.00s +** fixes lyrics that run early or late: each press moves them
 0.25s (+ shows lines sooner, up to ±10s). It's remembered per song, since different uploads
-of a song drift differently; click the number to reset.
+of a song drift differently; click the number to reset. Lyrics fetched once are kept in the
+visitor's own `localStorage` (the last 150 songs), and a busy LRCLIB is retried.
 
 ## Licensing
 
