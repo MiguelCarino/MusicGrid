@@ -869,4 +869,5 @@ const albums = [
   {"url":"oD5f55ohsc4","image":"mu_516.webp","tag":"Feid — Normal","country":"colombia","genre":"latin","mood":"upbeat","carino":false,"party":["colombia"],"spotifyurl":"","applemusicurl":"","lrclib":35309805},
   {"url":"QaXhVryxVBk","image":"mu_517.webp","tag":"Karol G — Bichota","country":"colombia","genre":"latin","mood":"energetic","carino":false,"party":["colombia"],"spotifyurl":"","applemusicurl":"","lrclib":37080894},
   {"url":"TiM_TFpT_DE","image":"mu_518.webp","tag":"Manuel Turizo — La Bachata","country":"colombia","genre":"latin","mood":"romantic","carino":false,"party":["colombia"],"spotifyurl":"","applemusicurl":"us/album/la-bachata/1624563280?i=1624563284","lrclib":36848252},
+  {"url":"-9Pp14ASe7s","image":"mu_519.webp","tag":"La Factoría — Todavía","country":"panama","genre":"latin","mood":"melancholic","carino":false,"party":["mexico"],"spotifyurl":"","applemusicurl":""},
 ];
