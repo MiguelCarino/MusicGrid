@@ -70,6 +70,17 @@
     <link rel="stylesheet" href="carino-theme.css">
 </head>
 <body class="play-body">
+<!-- Key words: the navbar shows them, translated, under its Language tab. -->
+<ul data-carino-words hidden>
+  <li>Now playing</li>
+  <li>Up next</li>
+  <li>Karaoke</li>
+  <li>Party</li>
+  <li>Lyrics</li>
+  <li>TV display</li>
+  <li>Shuffle</li>
+</ul>
+
     <!-- Navbar controls: carino-navbar.js moves this group into its right
          cluster. Only Settings rides there; browsing lives in the toolbar
          under the navbar, playing in the player bar at the foot. -->
@@ -315,50 +326,13 @@
                 <h3 class="mg-set-head" data-i18n>Mascots</h3>
                 <div id="mascotHost" class="mascot-host"></div>
 
-                <h3 class="mg-set-head" data-i18n>Help</h3>
                 <div class="mg-set-actions">
-                    <button type="button" class="btn" id="settingsHelp" data-i18n>Keyboard shortcuts</button>
                     <button type="button" class="btn" id="settingsFull" data-i18n>Fullscreen</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Help (? or H) -->
-    <div class="modal-scrim" id="helpScrim" hidden>
-        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
-            <div class="modal-head">
-                <div><div class="modal-title" id="helpTitle" data-i18n>How it works</div><div class="modal-sub">Music</div></div>
-                <button type="button" class="modal-x" id="helpX" aria-label="Close">✕</button>
-            </div>
-            <div class="modal-body">
-                <p class="mg-p" data-i18n>Search at the top, or click a cover: the first click plays it, and once music is on a click adds the song to Up next. Up next plays first, then Autoplay carries on with the list on the wall.</p>
-                <p class="mg-p" data-i18n>All, ★ Carino and Lists pick what the wall shows: a party list, a country, a genre or a mood.</p>
-                <dl class="kbd-grid">
-                    <dt><span class="kbd accent">/</span></dt><dd data-i18n>Search</dd>
-                    <dt><span class="kbd">Enter</span></dt><dd data-i18n>In search: play the top song, or add it to Up next while music plays (Shift: the other)</dd>
-                    <dt><span class="kbd accent">Space</span> <span class="kbd">K</span></dt><dd data-i18n>Play or pause</dd>
-                    <dt><span class="kbd">N</span> <span class="kbd">B</span></dt><dd data-i18n>Next or previous song</dd>
-                    <dt><span class="kbd">←</span> <span class="kbd">→</span></dt><dd data-i18n>Back or forward 5 seconds</dd>
-                    <dt><span class="kbd">Q</span></dt><dd data-i18n>Now playing and Up next</dd>
-                    <dt><span class="kbd">L</span></dt><dd data-i18n>Lyrics on or off</dd>
-                    <dt><span class="kbd">M</span></dt><dd data-i18n>Sound on or off</dd>
-                    <dt><span class="kbd">P</span></dt><dd data-i18n>Pause or resume the wall</dd>
-                    <dt><span class="kbd">F</span></dt><dd data-i18n>Fullscreen</dd>
-                    <dt><span class="kbd">D</span></dt><dd data-i18n>Open the TV display (Shift+D: its next mode)</dd>
-                    <dt><span class="kbd">?</span> <span class="kbd">H</span></dt><dd data-i18n>Help</dd>
-                    <dt><span class="kbd">Esc</span></dt><dd data-i18n>Close</dd>
-                </dl>
-                <p class="mg-p" data-i18n>Party lock (⚙ Settings → Party): guests can search, add songs to Up next and take out their own, and start the music when nothing plays. Skipping, pausing, seeking, the list, the TV display and the settings show a lock and ask for the PIN. The keys follow the same rule.</p>
-                <p class="mg-p" data-i18n>✨ Party setup (⚙ Settings → Party) sets everything for karaoke, a party or background music in one go. A song that YouTube won't play is skipped by itself; the screen stays on while music plays.</p>
-                <p class="mg-p" data-i18n>📺 opens the TV display: a second window for the TV or projector with big lyrics (Karaoke), the dancing mascots (Party) or the cover wall (Ambient). On the display: F or a click for fullscreen, 1 2 3 switch the mode, Space and N play, pause and skip.</p>
-                <p class="mg-p mg-also" data-i18n>Nothing loads from outside until you play a song. Then the video comes from YouTube (youtube-nocookie.com) and the lyrics from LRCLIB (lrclib.net).</p>
-            </div>
-            <div class="modal-foot">
-                <button type="button" class="btn btn-primary" id="helpOk" data-i18n>Got it</button>
-            </div>
-        </div>
-    </div>
 
     <!-- First run: "What's tonight?" (party.js). Shown once per browser,
          again from ⚙ Settings → Party setup. -->
@@ -448,7 +422,32 @@
 
     <div class="sr-only" id="mgAnnounce" aria-live="polite" aria-atomic="true"></div>
     <div class="mg-toast" id="toast" role="status" aria-live="polite" hidden></div>
+    <!-- How to use (? or H opens it): the navbar's About window, How to use tab. -->
+    <div data-carino-howto hidden>
+        <p class="mg-p" data-i18n>Search at the top, or click a cover: the first click plays it, and once music is on a click adds the song to Up next. Up next plays first, then Autoplay carries on with the list on the wall.</p>
+        <p class="mg-p" data-i18n>All, ★ Carino and Lists pick what the wall shows: a party list, a country, a genre or a mood.</p>
+        <dl class="kbd-grid">
+            <dt><span class="kbd accent">/</span></dt><dd data-i18n>Search</dd>
+            <dt><span class="kbd">Enter</span></dt><dd data-i18n>In search: play the top song, or add it to Up next while music plays (Shift: the other)</dd>
+            <dt><span class="kbd accent">Space</span> <span class="kbd">K</span></dt><dd data-i18n>Play or pause</dd>
+            <dt><span class="kbd">N</span> <span class="kbd">B</span></dt><dd data-i18n>Next or previous song</dd>
+            <dt><span class="kbd">←</span> <span class="kbd">→</span></dt><dd data-i18n>Back or forward 5 seconds</dd>
+            <dt><span class="kbd">Q</span></dt><dd data-i18n>Now playing and Up next</dd>
+            <dt><span class="kbd">L</span></dt><dd data-i18n>Lyrics on or off</dd>
+            <dt><span class="kbd">M</span></dt><dd data-i18n>Sound on or off</dd>
+            <dt><span class="kbd">P</span></dt><dd data-i18n>Pause or resume the wall</dd>
+            <dt><span class="kbd">F</span></dt><dd data-i18n>Fullscreen</dd>
+            <dt><span class="kbd">D</span></dt><dd data-i18n>Open the TV display (Shift+D: its next mode)</dd>
+            <dt><span class="kbd">?</span> <span class="kbd">H</span></dt><dd data-i18n>Help</dd>
+            <dt><span class="kbd">Esc</span></dt><dd data-i18n>Close</dd>
+        </dl>
+        <p class="mg-p" data-i18n>Party lock (⚙ Settings → Party): guests can search, add songs to Up next and take out their own, and start the music when nothing plays. Skipping, pausing, seeking, the list, the TV display and the settings show a lock and ask for the PIN. The keys follow the same rule.</p>
+        <p class="mg-p" data-i18n>✨ Party setup (⚙ Settings → Party) sets everything for karaoke, a party or background music in one go. A song that YouTube won't play is skipped by itself; the screen stays on while music plays.</p>
+        <p class="mg-p" data-i18n>📺 opens the TV display: a second window for the TV or projector with big lyrics (Karaoke), the dancing mascots (Party) or the cover wall (Ambient). On the display: F or a click for fullscreen, 1 2 3 switch the mode, Space and N play, pause and skip.</p>
+    </div>
+
     <div data-carino-about hidden>
+        <p data-i18n>Nothing loads from outside until you play a song. Then the video comes from YouTube (youtube-nocookie.com) and the lyrics from LRCLIB (lrclib.net).</p>
         <p data-i18n>A personal project, for home and house parties with friends. It is not made or meant for commercial or public use.</p>
         <p data-i18n>Songs play through YouTube's own embedded player and lyrics are fetched from LRCLIB while a song plays; neither is hosted here. Playing music in a business or at a public event needs its own licences.</p>
     </div>

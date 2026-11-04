@@ -1052,7 +1052,6 @@ const I18N_ATTRS = [
     ['#setVolume',       'aria-label', 'Volume'],
     ['#setSound',        'aria-label', 'Sound'],
     ['#settingsX',       'aria-label', 'Close'],
-    ['#helpX',           'aria-label', 'Close'],
     ['#welcomeX',        'aria-label', 'Close'],
     ['#pinX',            'aria-label', 'Close'],
     ['#pinPad [data-d="back"]', 'aria-label', 'Delete'],

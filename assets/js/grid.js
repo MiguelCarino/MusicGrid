@@ -1648,7 +1648,13 @@
             syncSettings();
             if (window.MGDancer && MGDancer.mount) MGDancer.mount($('mascotHost'));
             $('settingsX').focus();
-        } else $('helpOk').focus();
+        }
+    }
+    /* How to use lives in the navbar's About window (How to use tab) */
+    function helpOpen() { const p = document.getElementById('cnAbout'); return !!p && !p.hidden; }
+    function toggleHelp() {
+        if (helpOpen()) { const b = document.getElementById('cnLegal'); if (b) b.click(); return; }
+        if (window.CarinoNav && CarinoNav.about) CarinoNav.about('howto');
     }
     function closeModal(id) {
         const scrim = $(id);
@@ -1658,7 +1664,7 @@
         if (id === 'settingsScrim' && window.MGDancer && MGDancer.unmount) MGDancer.unmount();
         if (!anyModalOpen() && lastFocus && lastFocus.focus && lastFocus !== document.body && document.contains(lastFocus)) lastFocus.focus();
     }
-    function anyModalOpen() { return !$('settingsScrim').hidden || !$('helpScrim').hidden; }
+    function anyModalOpen() { return !$('settingsScrim').hidden || helpOpen(); }
     function syncSettings() {
         $('setAutoplay').checked = S.get('autoplay');
         $('setShuffle').checked = S.get('shuffle');
@@ -1670,7 +1676,7 @@
     /* keep Tab inside an open dialog */
     function trapFocus(e) {
         if (e.key !== 'Tab') return;
-        const scrim = !$('helpScrim').hidden ? $('helpScrim') : !$('settingsScrim').hidden ? $('settingsScrim')
+        const scrim = !$('settingsScrim').hidden ? $('settingsScrim')
                     : listsOpen() ? listsUI.panel : null;
         if (!scrim) return;
         const f = Array.prototype.filter.call(scrim.querySelectorAll('button,input,a[href],[tabindex]:not([tabindex="-1"])'),
@@ -1725,7 +1731,7 @@
                            !(tg.type === 'range' || tg.type === 'checkbox');
             const k = e.key;
             if (k === 'Escape') {
-                if (!$('helpScrim').hidden) { closeModal('helpScrim'); return; }
+                if (helpOpen()) return;   // the navbar closes its own window
                 if (!$('settingsScrim').hidden) { closeModal('settingsScrim'); return; }
                 if (listsOpen()) { closeLists(); return; }
                 if (searchOpen()) { closeSearch(); return; }
@@ -1734,13 +1740,13 @@
             }
             if (typing || e.repeat && k !== 'ArrowLeft' && k !== 'ArrowRight') return;
             if (anyModalOpen()) {
-                if (!$('helpScrim').hidden && (k === '?' || k === 'h' || k === 'H')) { e.preventDefault(); closeModal('helpScrim'); }
+                if (helpOpen() && (k === '?' || k === 'h' || k === 'H')) { e.preventDefault(); toggleHelp(); }
                 return;
             }
             if (listsOpen()) return;
             const onControl = tg && /^(BUTTON|A|INPUT)$/.test(tg.tagName || '');
             if (k === '/') { e.preventDefault(); $('searchInput').focus(); $('searchInput').select(); openSearch(); }
-            else if (k === '?' || k === 'h' || k === 'H') { e.preventDefault(); openModal('helpScrim'); }
+            else if (k === '?' || k === 'h' || k === 'H') { e.preventDefault(); toggleHelp(); }
             /* under the party lock, what guests may not do asks for the PIN */
             else if ((k === ' ' && !onControl) || k === 'k' || k === 'K') { e.preventDefault(); userToggle(); }
             else if (k === 'n' || k === 'N') userNext();
@@ -1889,7 +1895,6 @@
         $('settingsBtn').addEventListener('click', function () { if (guard('settings', openSettings)) openSettings(); });
         $('settingsX').addEventListener('click', function () { closeModal('settingsScrim'); });
         $('settingsScrim').addEventListener('click', function (e) { if (e.target === e.currentTarget) closeModal('settingsScrim'); });
-        $('settingsHelp').addEventListener('click', function () { closeModal('settingsScrim'); openModal('helpScrim'); });
         $('settingsFull').addEventListener('click', function () { closeModal('settingsScrim'); toggleFullscreen(); });
         $('setAutoplay').addEventListener('change', function (e) { S.set('autoplay', e.target.checked); });
         $('setSmooth').addEventListener('change', function (e) { S.set('smooth', e.target.checked); });
@@ -1898,9 +1903,6 @@
         $('setWall').addEventListener('change', function (e) { S.set('wallMotion', e.target.checked); });
         $('setSound').addEventListener('change', function (e) { S.set('muted', !e.target.checked); });
         $('setVolume').addEventListener('input', function (e) { setVolume(+e.target.value); });
-        $('helpX').addEventListener('click', function () { closeModal('helpScrim'); });
-        $('helpOk').addEventListener('click', function () { closeModal('helpScrim'); });
-        $('helpScrim').addEventListener('click', function (e) { if (e.target === e.currentTarget) closeModal('helpScrim'); });
 
         MG.on('settings', function (d) {
             if (d.key === 'muted' || d.key === 'volume' || d.key === 'smooth') applySound();
