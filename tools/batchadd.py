@@ -17,6 +17,11 @@ Two steps, with a reviewable inbox in between:
                            (or edit tools/inbox/inbox.jsonl by hand), then:
   batchadd.py commit       move every ready entry into the catalog + assets;
                            entries that still have a "?" stay in the inbox
+  batchadd.py library FILE stage a music library export (Apple Music JSON:
+                           [{n, ar, al, ms, g, cat}]) in tools/inbox/library.json,
+                           with a suggested mood per song; approve songs, albums
+                           or artists on addsong_web.py's /library page, which
+                           fetches the approved ones into this inbox
   batchadd.py lyrics       look again for synced lyrics for catalog songs that
                            have none (native-script titles, matched by length);
                            --apply links the sure matches, the rest are listed
@@ -137,6 +142,9 @@ def album_id(applemusicurl):
 def expand(items, log=print):
     """Yield {id, title, channel, _check?} for each input item."""
     for raw in items:
+        if isinstance(raw, dict):      # a staged library song: {q, secs, apple, mood}
+            yield pick_video(raw, log)
+            continue
         raw = raw.strip()
         if not raw or raw.startswith("#"):
             continue
@@ -177,6 +185,44 @@ def expand(items, log=print):
         yield {"id": hits[0]["id"], "title": hits[0]["title"], "secs": hits[0].get("secs", 0),
                "channel": hits[0]["channel"], "check": f"video picked by search '{raw}'",
                "searched": True}
+
+
+def pick_video(item, log=print):
+    """The YouTube upload for a library song: the one as long as the track
+    (±3 s), the artist's "- Topic" art track first; else the top result, flagged."""
+    hits = addsong.yt_search(item["q"], 8)
+    secs = item.get("secs") or 0
+    best = None
+    for h in hits:
+        if not secs or not h.get("secs") or abs(h["secs"] - secs) > 3:
+            continue
+        rank = 2 if h["channel"].endswith(" - Topic") else 1 if re.search(r"audio", h["title"], re.I) else 0
+        if not best or rank > best[0]:
+            best = (rank, h)
+    out = {"searched": True, "apple": item.get("apple"), "mood": item.get("mood")}
+    if best:
+        h = best[1]
+    elif hits:
+        h = hits[0]
+        out["check"] = (f"no upload as long as the track ({int(secs // 60)}:{int(secs % 60):02d}):"
+                        f" picked the top result for '{item['q']}', check it's the song")
+    else:
+        log(f"  warn: no YouTube result for '{item['q']}', skipped")
+        return {"id": None, "title": item["q"], "channel": ""}
+    return {**out, "id": h["id"], "title": h["title"], "channel": h["channel"], "secs": h.get("secs", 0)}
+
+
+def itunes_by_id(track_id):
+    """The exact iTunes track (the library export carries its id). -> hit or None"""
+    wait = 3.1 - (time.time() - _last_itunes[0])
+    if wait > 0:
+        time.sleep(wait)
+    _last_itunes[0] = time.time()
+    try:
+        r = json.loads(addsong.fetch(f"https://itunes.apple.com/lookup?id={track_id}"))
+        return next((h for h in r.get("results", []) if h.get("wrapperType") == "track"), None)
+    except Exception:
+        return None
 
 
 # ── enrichment ───────────────────────────────────────────────────────────
@@ -281,7 +327,10 @@ def fetch_items(items, country=None, genre=None, mood=None, carino=True, lyrics=
         checks = [v["check"]] if v.get("check") else []
         log(f"• {vid}  {v['title'][:70]}")
 
-        hit, sure = itunes_best(v["title"], v["channel"])
+        hit = itunes_by_id(v["apple"]) if v.get("apple") else None
+        sure = bool(hit)
+        if not hit:
+            hit, sure = itunes_best(v["title"], v["channel"])
         tag, apple, art, it_album, it_dur, genre = "", "", None, "", 0, ""
         if hit:
             tag = f"{hit['artistName']} — {addsong.clean_title(hit['trackName'])}"
@@ -366,7 +415,7 @@ def fetch_items(items, country=None, genre=None, mood=None, carino=True, lyrics=
             "url": vid, "image": (image or f"inbox:{vid}") if (image or art) else UNSET,
             "tag": tag, "country": country,
             "genre": genre_default or genre or UNSET,
-            "mood": mood or UNSET,
+            "mood": v.get("mood") or mood or UNSET,
             "carino": carino, **({"party": list(party)} if party else {}),
             "spotifyurl": "", "applemusicurl": apple,
             **({"lrclib": lrclib_id} if lrclib_id else {}),
@@ -374,6 +423,7 @@ def fetch_items(items, country=None, genre=None, mood=None, carino=True, lyrics=
             "_itunes": (f"{hit['artistName']} — {hit['trackName']} · {it_album}"
                         f" · {hit.get('primaryGenreName', '')}") if hit else "",
             "_lyrics": bool(lrclib_id), "_check": checks,
+            **({"_apple": v["apple"]} if v.get("apple") else {}),
         }
         with LOCK:                   # save as we go: a crash loses nothing
             save_inbox(load_inbox() + [entry])
@@ -531,6 +581,142 @@ def cmd_commit(args):
         cmd_check(args)
 
 
+# ── a music library, staged for approval ─────────────────────────────────
+
+LIBRARY = INBOX / "library.json"
+
+# Apple Music genre -> a first guess at the mood
+GENRE_MOOD = {
+    "soundtrack": "epic", "original score": "epic", "anime": "epic", "video game": "epic",
+    "musicals": "romantic", "classical": "dreamy", "jazz": "chill", "vocal jazz": "romantic",
+    "ambient": "chill", "new age": "dreamy", "instrumental": "chill", "electronic": "energetic",
+    "dance": "energetic", "house": "energetic", "metal": "energetic", "rock": "energetic",
+    "hard rock": "energetic", "punk": "energetic", "alternative": "melancholic",
+    "indie rock": "melancholic", "indie pop": "dreamy", "singer/songwriter": "melancholic",
+    "folk": "nostalgic", "folk-rock": "nostalgic", "kayokyoku": "nostalgic", "worldwide": "nostalgic",
+    "arabic": "nostalgic", "pop": "upbeat", "j-pop": "upbeat", "k-pop": "upbeat", "comedy": "upbeat",
+    "reggae": "chill", "hip-hop/rap": "energetic", "r&b/soul": "romantic", "latin": "upbeat",
+    "christmas": "nostalgic", "blues": "melancholic", "country": "nostalgic",
+}
+# words in a title that say more than the genre (checked first)
+TITLE_MOOD = [
+    ("romantic", r"\b(love|lover|amor|amour|kiss|beso|querida|corazón|heart|darling)\b|恋|愛|любов|люблю|поцел"),
+    ("melancholic", r"\b(sad|cry|crying|tears?|alone|solo|lonely|goodbye|adiós|farewell|gone|lost|miss|rain|blue)\b|涙|さよなら|一人|ひとり|слёз|слез|прощ|один"),
+    ("dark", r"\b(dark|death|dead|die|blood|demon|devil|hell|kill|black|night ?mare|shadow)\b|死|闇|悪魔|смерт|тьм|кров"),
+    ("dreamy", r"\b(dream|dreams|sky|stars?|moon|cloud|float|heaven|angel)\b|夢|空|星|月|сон|мечт|небо|звёзд|звезд|луна"),
+    ("upbeat", r"\b(dance|party|baila|fiesta|summer|sunshine|happy|fun|disco)\b|ダンス|夏|танц|лето"),
+    ("epic", r"\b(battle|war|fight|theme|victory|legend|king|queen|hero)\b|戦|伝説|битв|война|легенд"),
+]
+
+
+def suggest_mood(song, artist_moods):
+    """-> (mood, why): the artist's usual mood on the site, else the title,
+    else the genre."""
+    import collections
+    moods = artist_moods.get(norm(song["ar"]))
+    if moods:
+        m = collections.Counter(moods).most_common(1)[0][0]
+        return m, "the artist's songs on the site"
+    for m, pat in TITLE_MOOD:
+        if re.search(pat, song["n"] or "", re.I):
+            return m, "the title"
+    g = (song.get("g") or "").lower()
+    if g in GENRE_MOOD:
+        return GENRE_MOOD[g], f"the genre ({song.get('g')})"
+    return "chill", "a default"
+
+
+def _lib_key(s):
+    return re.sub(r"\s+", " ", norm(re.sub(r"\s*[\(\[][^\)\]]*[\)\]]", "", s or "")))
+
+
+def library_import(path, log=print):
+    """Stage an exported library; keeps the approvals of an earlier import."""
+    lib = json.loads(Path(path).expanduser().read_text(encoding="utf-8"))
+    src, _, _ = addsong.load_catalog(CATALOG)
+    existing = catalog_entries(src)
+    artist_moods = {}
+    for e in existing:
+        artist_moods.setdefault(norm(e["tag"].partition(" — ")[0]), []).append(e["mood"])
+    old = {}
+    if LIBRARY.is_file():
+        old = {x["id"]: x for x in json.loads(LIBRARY.read_text(encoding="utf-8"))}
+    items = []
+    for i, s in enumerate(lib):
+        sid = str(s.get("cat") or f"x{abs(hash((s.get('ar'), s.get('n')))) % 10**9}")
+        mood, why = suggest_mood(s, artist_moods)
+        prev = old.get(sid, {})
+        items.append({
+            "id": sid, "title": s.get("n") or "", "artist": s.get("ar") or "", "album": s.get("al") or "",
+            "secs": round((s.get("ms") or 0) / 1000), "genre": s.get("g") or "",
+            "apple": str(s["cat"]) if s.get("cat") else "",
+            "mood": prev.get("mood") if prev.get("moodSet") else mood, "moodWhy": why,
+            "moodSet": bool(prev.get("moodSet")),
+            "status": prev.get("status", "pending"),
+        })
+    with LOCK:
+        INBOX.mkdir(parents=True, exist_ok=True)
+        LIBRARY.write_text(json.dumps(items, ensure_ascii=False, indent=0), encoding="utf-8")
+    log(f"staged {len(items)} songs in {LIBRARY.relative_to(REPO)}")
+    return items
+
+
+def library_state():
+    """The staged songs, each with where it is: pending / approved / skipped
+    (your choice), and onsite / inbox (found in the catalog or the inbox)."""
+    if not LIBRARY.is_file():
+        return []
+    items = json.loads(LIBRARY.read_text(encoding="utf-8"))
+    src, _, _ = addsong.load_catalog(CATALOG)
+    existing = catalog_entries(src)
+    on_ids = {addsong.track_id_from_apple(e.get("applemusicurl")) for e in existing} - {""}
+    on_keys = {}
+    for e in existing:
+        ar, _, t = e["tag"].partition(" — ")
+        on_keys.setdefault(_lib_key(t), set()).add(_lib_key(ar))
+    inbox = load_inbox()
+    in_ids = {str(e.get("_apple")) for e in inbox if e.get("_apple")}
+    for it in items:
+        where = ""
+        if it["apple"] and it["apple"] in on_ids:
+            where = "onsite"
+        else:
+            arts = on_keys.get(_lib_key(it["title"]))
+            ka = _lib_key(it["artist"])
+            if arts and (any(a and (a in ka or ka in a or similar(a, ka) > 0.8) for a in arts)
+                         or len(_lib_key(it["title"])) >= 14):
+                where = "onsite"
+        if not where and it["apple"] in in_ids:
+            where = "inbox"
+        it["where"] = where
+    return items
+
+
+def library_update(ids, status=None, mood=None):
+    ids = set(ids)
+    with LOCK:
+        items = json.loads(LIBRARY.read_text(encoding="utf-8"))
+        for it in items:
+            if it["id"] in ids:
+                if status in ("pending", "approved", "skipped"):
+                    it["status"] = status
+                if mood:
+                    it["mood"], it["moodSet"] = mood, True
+        LIBRARY.write_text(json.dumps(items, ensure_ascii=False, indent=0), encoding="utf-8")
+
+
+def library_to_fetch():
+    """The approved songs not yet on the site or in the inbox, as fetch items."""
+    return [{"q": f"{it['artist']} {it['title']}", "secs": it["secs"], "apple": it["apple"] or None,
+             "mood": it["mood"]}
+            for it in library_state() if it["status"] == "approved" and not it["where"]]
+
+
+def cmd_library(args):
+    library_import(args.file)
+    print("review it on the /library page of tools/addsong_web.py")
+
+
 def set_field(src, vid, key, value):
     """The catalog line of a song, with key set to value (None removes it)."""
     lines = src.split("\n")
@@ -620,6 +806,8 @@ def main():
     r = sub.add_parser("review", help="answer only the missing fields, one entry at a time")
     r.add_argument("--all", action="store_true",
                    help="also step through entries with a 'check' note (fix tag / delete)")
+    lb = sub.add_parser("library", help="stage a music library export for approval")
+    lb.add_argument("file", help="the export, e.g. ~/Downloads/applemusic-library.json")
     ly = sub.add_parser("lyrics", help="find synced lyrics for catalog songs without any")
     ly.add_argument("ids", nargs="*", help="only these video ids")
     ly.add_argument("--apply", action="store_true", help="link the sure matches")
@@ -627,7 +815,8 @@ def main():
     c.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
     {"fetch": cmd_fetch, "check": cmd_check, "review": cmd_review,
-     "commit": cmd_commit, "lyrics": cmd_lyrics}[args.cmd](args)
+     "commit": cmd_commit, "lyrics": cmd_lyrics,
+     "library": cmd_library}[args.cmd](args)
 
 
 if __name__ == "__main__":

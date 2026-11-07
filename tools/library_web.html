@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MusicGrid — Library</title>
+<!-- The staged music library (batchadd.py library FILE). Approve or skip by
+     artist, album or song, fix the suggested moods, then "Fetch approved"
+     sends them to the /batch inbox for the last check before they're written. -->
+<style>
+  :root { --tool-bg:#050505; --card:#0d0d0d; --tool-border:#262626; --dim:#71717a; --gold:#eab308; --bright:#fbbf24; --red:#ef4444; --green:#22c55e; --blue:#8ab4f8; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--tool-bg); color:#d4d4d8; font-family:system-ui,sans-serif; padding:20px; max-width:1100px; margin:0 auto; }
+  h1 { font-size:1.15rem; color:var(--gold); letter-spacing:.05em; margin-bottom:2px; }
+  .sub { font-family:monospace; font-size:.7rem; color:var(--dim); margin-bottom:14px; }
+  a { color:var(--gold); }
+  section { background:var(--card); border:1px solid var(--tool-border); border-radius:10px; padding:12px 14px; margin-bottom:12px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .spacer { flex:1; }
+  input[type=text], select { background:#111; border:1px solid var(--tool-border); border-radius:6px; color:#fff; padding:7px 10px; font-size:.82rem; outline:none; }
+  input[type=text]:focus, select:focus { border-color:var(--gold); }
+  button { background:transparent; border:1px solid var(--tool-border); color:#d4d4d8; padding:7px 12px; border-radius:6px; cursor:pointer; font-size:.78rem; }
+  button:hover { border-color:var(--gold); color:var(--gold); }
+  button.primary { border-color:var(--gold); color:var(--gold); }
+  button.ok:hover { border-color:var(--green); color:var(--green); }
+  button:disabled { opacity:.35; cursor:default; border-color:var(--tool-border); color:#d4d4d8; }
+  label { font-size:.76rem; color:#a1a1aa; display:inline-flex; align-items:center; gap:5px; }
+  .counts { font-size:.8rem; display:flex; gap:12px; flex-wrap:wrap; }
+  .counts b { color:#fff; }
+  #bar { height:6px; background:#111; border-radius:3px; overflow:hidden; margin-top:10px; display:none; }
+  #bar div { height:100%; width:0; background:var(--gold); transition:width .3s; }
+  #log { font-family:monospace; font-size:.68rem; color:var(--dim); white-space:pre-wrap; max-height:110px; overflow:auto; margin-top:6px; display:none; }
+  #sel { position:sticky; top:0; z-index:5; background:#101010; border:1px solid var(--gold); border-radius:10px; padding:8px 12px; margin-bottom:12px; display:none; }
+  .artist { border:1px solid var(--tool-border); border-radius:8px; margin-bottom:6px; background:#0b0b0b; }
+  .artist > summary, .album > summary { list-style:none; cursor:pointer; display:flex; align-items:center; gap:8px; padding:8px 10px; }
+  .artist > summary::-webkit-details-marker, .album > summary::-webkit-details-marker { display:none; }
+  .artist > summary .nm { font-weight:600; color:#fff; }
+  .album { margin:0 8px 6px 26px; border-left:2px solid var(--tool-border); }
+  .album > summary { padding:5px 8px; font-size:.82rem; }
+  .meta { color:var(--dim); font-size:.72rem; }
+  .chips { display:inline-flex; gap:4px; flex-wrap:wrap; }
+  .chip { font-size:.64rem; padding:1px 6px; border-radius:99px; border:1px solid var(--tool-border); color:var(--dim); white-space:nowrap; }
+  .chip.approved { color:var(--green); border-color:rgba(34,197,94,.4); }
+  .chip.skipped { color:#a1a1aa; }
+  .chip.onsite { color:var(--blue); border-color:rgba(138,180,248,.4); }
+  .chip.inbox { color:var(--gold); border-color:rgba(234,179,8,.4); }
+  .acts { display:inline-flex; gap:4px; }
+  .acts button { padding:2px 8px; font-size:.68rem; white-space:nowrap; }
+  table { width:100%; border-collapse:collapse; margin:2px 0 6px; }
+  td { padding:4px 8px; font-size:.8rem; border-top:1px solid #161616; vertical-align:middle; }
+  td.t { width:100%; }
+  td.n { color:var(--dim); font-family:monospace; font-size:.72rem; white-space:nowrap; }
+  td select { padding:3px 6px; font-size:.74rem; }
+  td select.set { border-color:var(--gold); }
+  tr.skipped td.t { color:#52525b; text-decoration:line-through; }
+  tr.approved td.t { color:var(--green); }
+  tr.done td { opacity:.5; }
+  .why { color:#52525b; font-size:.66rem; }
+  .empty { color:var(--dim); font-size:.8rem; padding:12px 4px; }
+  #more { margin:10px auto; display:none; }
+  @media (max-width:640px) { body { padding:12px; } .album { margin-left:10px; } td.n:nth-child(4) { display:none; } }
+</style>
+</head>
+<body>
+<h1>MusicGrid — Library</h1>
+<div class="sub"><span id="stateLine">loading…</span> · <a href="/batch">batch inbox →</a> · <a href="/">one song →</a></div>
+
+<section>
+  <div class="row">
+    <div class="counts" id="counts"></div>
+    <div class="spacer"></div>
+    <button id="btnStop" disabled>Stop</button>
+    <button class="primary" id="btnFetch">Fetch approved</button>
+  </div>
+  <div id="bar"><div></div></div>
+  <div id="log"></div>
+</section>
+
+<section>
+  <div class="row">
+    <input type="text" id="q" placeholder="Search artist, album or song…" style="flex:1; min-width:200px">
+    <select id="genre"><option value="">All genres</option></select>
+    <select id="sort"><option value="name">A–Z</option><option value="count">Most songs</option></select>
+  </div>
+  <div class="row" style="margin-top:8px">
+    <label><input type="checkbox" data-show="pending" checked> pending</label>
+    <label><input type="checkbox" data-show="approved" checked> approved</label>
+    <label><input type="checkbox" data-show="skipped"> skipped</label>
+    <label><input type="checkbox" data-show="inbox"> in the inbox</label>
+    <label><input type="checkbox" data-show="onsite"> on the site</label>
+    <label><input type="checkbox" id="short"> short cues (&lt;75 s)</label>
+  </div>
+</section>
+
+<div id="sel" class="row">
+  <span id="selN"></span>
+  <button class="ok" data-do="approved">Approve</button>
+  <button data-do="skipped">Skip</button>
+  <button data-do="pending">Undecided</button>
+  <select id="selMood"><option value="">Set mood…</option></select>
+  <div class="spacer"></div>
+  <button id="selClear">Clear selection</button>
+</div>
+
+<div id="list"></div>
+<button id="more">Show more artists</button>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+let items = [], moods = {}, job = {}, sel = new Set(), shownArtists = 60;
+const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const state = it => it.where || it.status;          // onsite / inbox beat your choice
+const done = it => !!it.where;
+/* search ignores the alphabet: "pelageya" finds Пелагея */
+const CYR = { а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'kh',ц:'ts',ч:'ch',ш:'sh',щ:'shch',ъ:'',ы:'y',ь:'',э:'e',ю:'yu',я:'ya' };
+const latin = s => s.toLowerCase().replace(/[а-яё]/g, c => CYR[c] ?? c);
+const fold = s => latin(s).normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
+
+async function api(path, body) {
+  const r = await fetch(path, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {});
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.error || r.status);
+  return d;
+}
+async function load() {
+  const d = await api('/api/library');
+  items = d.items; moods = d.moods; job = d.job;
+  if (!items.length) { $('stateLine').textContent = 'nothing staged: run batchadd.py library ~/Downloads/applemusic-library.json'; return; }
+  fillSelects();
+  render();
+  renderJob();
+}
+
+function fillSelects() {
+  if ($('selMood').options.length < 2) {
+    for (const [k, v] of Object.entries(moods)) $('selMood').add(new Option(`${v.icon || ''} ${v.name}`, k));
+    const genres = [...new Set(items.map(i => i.genre).filter(Boolean))].sort();
+    for (const g of genres) $('genre').add(new Option(g, g));
+  }
+}
+
+function visible() {
+  const q = $('q').value.trim().toLowerCase(), g = $('genre').value, short = $('short').checked;
+  const show = new Set([...document.querySelectorAll('[data-show]')].filter(c => c.checked).map(c => c.dataset.show));
+  return items.filter(it => show.has(state(it)) && (short || it.secs >= 75 || !it.secs) && (!g || it.genre === g)
+    && (!q || (it._hay ||= fold(it.artist + ' ' + it.album + ' ' + it.title)).includes(fold(q))));
+}
+
+function render() {
+  const c = { pending: 0, approved: 0, skipped: 0, inbox: 0, onsite: 0 };
+  items.forEach(it => c[state(it)]++);
+  $('counts').innerHTML = `<span><b>${c.approved}</b> approved</span><span><b>${c.pending}</b> pending</span>`
+    + `<span><b>${c.skipped}</b> skipped</span><span><b>${c.inbox}</b> in the inbox</span><span><b>${c.onsite}</b> on the site</span>`;
+  $('stateLine').textContent = `${items.length} songs staged from your library`;
+  const toFetch = items.filter(it => it.status === 'approved' && !it.where).length;
+  $('btnFetch').textContent = `Fetch approved (${toFetch})`;
+  $('btnFetch').disabled = !toFetch || job.running;
+
+  const vis = visible();
+  const byArtist = new Map();
+  for (const it of vis) {
+    if (!byArtist.has(it.artist)) byArtist.set(it.artist, new Map());
+    const al = byArtist.get(it.artist);
+    if (!al.has(it.album)) al.set(it.album, []);
+    al.get(it.album).push(it);
+  }
+  let artists = [...byArtist.keys()];
+  artists.sort($('sort').value === 'count'
+    ? (a, b) => count(byArtist.get(b)) - count(byArtist.get(a))
+    : (a, b) => a.localeCompare(b));
+  const open = new Set([...document.querySelectorAll('details[open]')].map(d => d.dataset.key));
+  const list = $('list');
+  list.innerHTML = '';
+  if (!artists.length) list.innerHTML = '<div class="empty">Nothing matches.</div>';
+  for (const a of artists.slice(0, shownArtists)) list.appendChild(artistEl(a, byArtist.get(a), open));
+  $('more').style.display = artists.length > shownArtists ? 'block' : 'none';
+  $('more').textContent = `Show more artists (${artists.length - shownArtists} more)`;
+  renderSel();
+}
+const count = al => [...al.values()].reduce((n, s) => n + s.length, 0);
+const songsOf = al => [...al.values()].flat();
+
+function chips(songs) {
+  const c = {};
+  songs.forEach(s => { c[state(s)] = (c[state(s)] || 0) + 1; });
+  return Object.entries(c).map(([k, v]) => `<span class="chip ${k}">${v} ${k === 'onsite' ? 'on site' : k === 'inbox' ? 'in inbox' : k}</span>`).join('');
+}
+function box(songs) {
+  const free = songs.filter(s => !done(s));
+  const n = free.filter(s => sel.has(s.id)).length;
+  const cb = document.createElement('input');
+  cb.type = 'checkbox';
+  cb.disabled = !free.length;
+  cb.checked = free.length > 0 && n === free.length;
+  cb.indeterminate = n > 0 && n < free.length;
+  cb.addEventListener('click', e => {
+    e.stopPropagation();
+    const on = !(n === free.length && free.length);
+    free.forEach(s => on ? sel.add(s.id) : sel.delete(s.id));
+    render();
+  });
+  return cb;
+}
+function acts(songs) {
+  const span = document.createElement('span');
+  span.className = 'acts';
+  const free = songs.filter(s => !done(s)).map(s => s.id);
+  if (!free.length) return span;
+  [['approved', '✓ all'], ['skipped', '✕ all']].forEach(([st, label]) => {
+    const b = document.createElement('button');
+    b.textContent = label;
+    b.className = st === 'approved' ? 'ok' : '';
+    b.title = st === 'approved' ? 'Approve all of these' : 'Skip all of these';
+    b.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); setStatus(free, st); });
+    span.appendChild(b);
+  });
+  return span;
+}
+
+function artistEl(name, albums, open) {
+  const d = document.createElement('details');
+  d.className = 'artist'; d.dataset.key = 'a:' + name;
+  const songs = songsOf(albums);
+  const s = document.createElement('summary');
+  s.appendChild(box(songs));
+  s.insertAdjacentHTML('beforeend', `<span class="nm">${esc(name)}</span><span class="meta">${songs.length} · ${albums.size} album${albums.size > 1 ? 's' : ''}</span><span class="chips">${chips(songs)}</span><span class="spacer"></span>`);
+  s.appendChild(acts(songs));
+  d.appendChild(s);
+  const fill = () => {
+    if (d.childElementCount > 1) return;
+    for (const [al, ss] of albums) d.appendChild(albumEl(name, al, ss, open));
+  };
+  if (open.has(d.dataset.key)) { d.open = true; fill(); }
+  d.addEventListener('toggle', () => { if (d.open) fill(); });
+  return d;
+}
+function albumEl(artist, name, songs, open) {
+  const d = document.createElement('details');
+  d.className = 'album'; d.dataset.key = 'b:' + artist + '\u0000' + name;
+  const s = document.createElement('summary');
+  s.appendChild(box(songs));
+  s.insertAdjacentHTML('beforeend', `<span>${esc(name || '(no album)')}</span><span class="meta">${songs.length}</span><span class="chips">${chips(songs)}</span><span class="spacer"></span>`);
+  s.appendChild(acts(songs));
+  d.appendChild(s);
+  const fill = () => {
+    if (d.childElementCount > 1) return;
+    const t = document.createElement('table');
+    songs.forEach(it => t.appendChild(songEl(it)));
+    d.appendChild(t);
+  };
+  if (open.has(d.dataset.key)) { d.open = true; fill(); }
+  d.addEventListener('toggle', () => { if (d.open) fill(); });
+  return d;
+}
+function songEl(it) {
+  const tr = document.createElement('tr');
+  tr.className = state(it) + (done(it) ? ' done' : '');
+  const td0 = document.createElement('td');
+  const cb = document.createElement('input');
+  cb.type = 'checkbox'; cb.checked = sel.has(it.id); cb.disabled = done(it);
+  cb.addEventListener('change', () => { cb.checked ? sel.add(it.id) : sel.delete(it.id); render(); });
+  td0.appendChild(cb);
+  tr.appendChild(td0);
+  tr.insertAdjacentHTML('beforeend', `<td class="t">${esc(it.title)} <span class="chip ${state(it)}">${state(it) === 'onsite' ? 'on site' : state(it) === 'inbox' ? 'in inbox' : state(it)}</span></td><td class="n">${it.secs ? fmt(it.secs) : ''}</td><td class="n">${esc(it.genre)}</td>`);
+  const td = document.createElement('td');
+  const ms = document.createElement('select');
+  for (const [k, v] of Object.entries(moods)) ms.add(new Option(`${v.icon || ''} ${v.name}`, k));
+  ms.value = it.mood; ms.disabled = done(it);
+  ms.className = it.moodSet ? 'set' : '';
+  ms.title = it.moodSet ? 'your choice' : 'suggested from ' + it.moodWhy;
+  ms.addEventListener('change', async () => { await api('/api/library/update', { ids: [it.id], mood: ms.value }); it.mood = ms.value; it.moodSet = true; ms.className = 'set'; });
+  td.appendChild(ms);
+  tr.appendChild(td);
+  const td2 = document.createElement('td');
+  if (!done(it)) td2.appendChild(acts([it]));
+  td2.querySelectorAll('button').forEach(b => { b.textContent = b.textContent.replace(' all', ''); });
+  tr.appendChild(td2);
+  return tr;
+}
+
+async function setStatus(ids, status) {
+  await api('/api/library/update', { ids, status });
+  const s = new Set(ids);
+  items.forEach(it => { if (s.has(it.id)) it.status = status; });
+  ids.forEach(id => sel.delete(id));
+  render();
+}
+function renderSel() {
+  $('sel').style.display = sel.size ? 'flex' : 'none';
+  $('selN').textContent = `${sel.size} selected`;
+}
+document.querySelectorAll('#sel [data-do]').forEach(b => b.addEventListener('click', () => setStatus([...sel], b.dataset.do)));
+$('selMood').addEventListener('change', async () => {
+  const m = $('selMood').value;
+  if (!m) return;
+  await api('/api/library/update', { ids: [...sel], mood: m });
+  items.forEach(it => { if (sel.has(it.id)) { it.mood = m; it.moodSet = true; } });
+  $('selMood').value = '';
+  render();
+});
+$('selClear').addEventListener('click', () => { sel.clear(); render(); });
+let qTimer;
+$('q').addEventListener('input', () => { clearTimeout(qTimer); qTimer = setTimeout(() => { shownArtists = 60; render(); }, 200); });
+['genre', 'sort', 'short'].forEach(id => $(id).addEventListener('change', () => { shownArtists = 60; render(); }));
+document.querySelectorAll('[data-show]').forEach(c => c.addEventListener('change', render));
+$('more').addEventListener('click', () => { shownArtists += 60; render(); });
+
+/* fetching the approved songs into the /batch inbox */
+$('btnFetch').addEventListener('click', async () => {
+  try { const d = await api('/api/library/fetch', {}); job = { running: true, done: 0, total: d.count, log: [] }; renderJob(); poll(); }
+  catch (e) { alert(e.message); }
+});
+$('btnStop').addEventListener('click', () => api('/api/library/stop', {}));
+function renderJob() {
+  const on = job.running || (job.log && job.log.length);
+  $('bar').style.display = $('log').style.display = on ? 'block' : 'none';
+  $('bar').firstElementChild.style.width = job.total ? (100 * job.done / job.total) + '%' : '0';
+  $('log').textContent = (job.log || []).slice(-40).join('\n');
+  $('log').scrollTop = 1e9;
+  $('btnStop').disabled = !job.running;
+}
+async function poll() {
+  const d = await api('/api/library');
+  job = d.job;
+  renderJob();
+  if (job.running) setTimeout(poll, 1500);
+  else { items = d.items; render(); }
+}
+load().then(() => { if (job.running) poll(); }).catch(e => { $('stateLine').textContent = 'error: ' + e.message; });
+</script>
+</body>
+</html>

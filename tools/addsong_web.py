@@ -4,6 +4,8 @@
 Run:  python3 tools/addsong_web.py            (opens http://localhost:8765)
 Pages: /       one song, picking each match yourself
        /batch  many songs at once (links, ids, a playlist) — see batchadd.py
+       /library  a staged music library (batchadd.py library FILE): approve
+               artists, albums or songs, then fetch them into /batch
 Flags: --port N  --json PATH  --covers PATH  --no-browser
 """
 
@@ -22,6 +24,7 @@ import batchadd  # noqa: E402
 
 PAGE = Path(__file__).parent / "addsong_web.html"
 BATCH_PAGE = Path(__file__).parent / "batch_web.html"
+LIBRARY_PAGE = Path(__file__).parent / "library_web.html"
 
 # one background fetch at a time; the page polls /api/batch for progress
 JOB = {"running": False, "stop": False, "log": [], "total": 0, "done": 0}
@@ -84,6 +87,11 @@ def make_handler(catalog, covers):
                     self.send_bytes(BATCH_PAGE.read_bytes(), "text/html; charset=utf-8")
                 elif u.path == "/api/batch":
                     self.send_json(batch_state())
+                elif u.path == "/library":
+                    self.send_bytes(LIBRARY_PAGE.read_bytes(), "text/html; charset=utf-8")
+                elif u.path == "/api/library":
+                    _, regs, _ = addsong.load_catalog(batchadd.CATALOG)
+                    self.send_json({"items": batchadd.library_state(), "job": JOB, "moods": regs["MOODS"]})
                 elif u.path.startswith("/inbox/"):
                     f = batchadd.INBOX / "covers" / Path(u.path).name
                     if f.is_file():
@@ -136,6 +144,8 @@ def make_handler(catalog, covers):
                 self.send_json({"error": str(e)}, 500)
 
         def do_POST(self):
+            if self.path.startswith("/api/library/"):
+                return self.library_post()
             if self.path.startswith("/api/batch/"):
                 return self.batch_post()
             if self.path != "/api/add":
@@ -186,6 +196,31 @@ def make_handler(catalog, covers):
                 self.send_json({"ok": True, "line": line, "cover": wrote_cover,
                                 "image": image, "lrclib": entry.get("lrclib"),
                                 "catalog": str(catalog)})
+            except Exception as e:
+                self.send_json({"error": str(e)}, 500)
+
+        def library_post(self):
+            try:
+                n = int(self.headers.get("Content-Length", "0"))
+                d = json.loads(self.rfile.read(n) or b"{}")
+                action = self.path.rsplit("/", 1)[-1]
+                if action == "update":     # {ids, status?, mood?}
+                    batchadd.library_update(d.get("ids") or [], d.get("status"), d.get("mood"))
+                    return self.send_json({"ok": True})
+                if action == "fetch":      # the approved songs -> the /batch inbox
+                    if JOB["running"]:
+                        return self.send_json({"error": "a fetch is already running"}, 409)
+                    items = batchadd.library_to_fetch()
+                    if not items:
+                        return self.send_json({"error": "no approved songs left to fetch"}, 400)
+                    JOB.update(running=True, stop=False, log=[], total=len(items), done=0)
+                    threading.Thread(target=run_fetch, args=(items, {"carino": True, "lyrics": True}),
+                                     daemon=True).start()
+                    return self.send_json({"ok": True, "count": len(items)})
+                if action == "stop":
+                    JOB["stop"] = True
+                    return self.send_json({"ok": True})
+                self.send_json({"error": "not found"}, 404)
             except Exception as e:
                 self.send_json({"error": str(e)}, 500)
 
@@ -260,7 +295,7 @@ def main():
     srv = ThreadingHTTPServer(("127.0.0.1", args.port),
                               make_handler(args.catalog, covers))
     url = f"http://localhost:{args.port}"
-    print(f"MusicGrid add-song GUI: {url}   (batch: {url}/batch)")
+    print(f"MusicGrid add-song GUI: {url}   (batch: {url}/batch · library: {url}/library)")
     print(f"catalog: {args.catalog}\ncovers:  {covers}\nCtrl+C to stop")
     if not args.no_browser:
         threading.Timer(0.4, webbrowser.open, [url]).start()

@@ -188,6 +188,20 @@ look (a guessed iTunes match, a possible duplicate) so you can fix the tag or de
 You can also edit `tools/inbox/inbox.jsonl` by hand; fields starting with `_` are hints
 that are dropped when you commit.
 
+### A whole music library — `tools/batchadd.py library` → **/library**
+Export the library (for Apple Music: a JSON list of `{n, ar, al, ms, g, cat}` — title, artist,
+album, length in ms, genre, catalog id — read from music.apple.com with MusicKit), then
+`python3 tools/batchadd.py library ~/Downloads/applemusic-library.json` stages every song in
+`tools/inbox/library.json` (not committed) with a suggested mood: the artist's usual mood
+on the site, else a word in the title, else the genre. Open
+**http://localhost:8765/library** (`python3 tools/addsong_web.py`): artists → albums → songs,
+each with a checkbox and ✓/✕ for all of it; songs already on the site or in the inbox are
+marked and can't be picked twice; search ignores the alphabet (pelageya finds Пелагея).
+Approve, skip or re-mood what you like, then **Fetch approved**: each song gets its exact
+iTunes match (the catalog id), the YouTube upload as long as the track (the artist's
+"- Topic" track first) and its lyrics, and lands in the **/batch** inbox for the last look
+before **Write ready songs**. Importing again keeps your choices.
+
 ### Lyrics for songs that have none — `tools/batchadd.py lyrics`
 `python3 tools/batchadd.py lyrics` looks again for every catalog song without lyrics and
 lists what it finds; `--apply` links the sure matches (or give it video ids). Like `fetch`,
