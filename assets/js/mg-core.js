@@ -13,7 +13,9 @@
  *                                 'settings' { key, value, from }. Keys:
  *                                 autoplay, shuffle, lyrics, muted, volume,
  *                                 wallMotion, displayMode ('karaoke' | 'party' |
- *                                 'ambient'), smooth (fade songs in and out),
+ *                                 'ambient'), lyricsAnim (how lyric lines move:
+ *                                 'mix' (a style per song) | 'rise' | 'fade' |
+ *                                 'zoom' | 'roll'), smooth (fade songs in and out),
  *                                 partyLock (the guest lock is on), tonight
  *                                 (the party setup picked: '' | 'karaoke' |
  *                                 'party' | 'background' | 'browse').
@@ -76,6 +78,8 @@
         wallMotion: ['mg_wall',     true,  'flagOff'],
         /* what the TV display window (display.html) shows */
         displayMode: ['mg_display_mode', 'party', ['karaoke', 'party', 'ambient']],
+        /* how lyric lines move, here and on the display */
+        lyricsAnim: ['mg_lyrics_anim', 'mix', ['mix', 'rise', 'fade', 'zoom', 'roll']],
         /* house-party pieces (party.js) */
         smooth:     ['mg_smooth',   true,  'flagOff'],   /* fade songs in and out */
         partyLock:  ['mg_lock',     false, 'flag'],      /* guests can't skip / change */

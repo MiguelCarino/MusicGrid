@@ -1281,7 +1281,9 @@
         currentAlbum = album;
         markPlayed(album);
         clearLyrics();
-        setLyricsOffset(readOffsets()[album.url] || 0, false);
+        const savedOffset = readOffsets()[album.url];
+        setLyricsOffset(typeof savedOffset === 'number' ? savedOffset : songOffset(album), false);
+        syncLyricsAnim();
         mediaDeferred = opts.defer ? album : null;
         /* by hand while something plays: fade out first (opts.fade false:
            the song ended or failed) */
@@ -1524,13 +1526,52 @@
         const container = $('lyricsContainer');
         const prev = container.querySelector('.lyric-line.current');
         if (prev) prev.classList.remove('current');
+        /* lines already sung: each style lets them go its own way (CSS) */
+        Array.prototype.forEach.call(container.children, function (l, i) { l.classList.toggle('past', i < idx); });
         const el = idx >= 0 ? container.children[idx] : null;
         if (!el || !el.classList.contains('lyric-line')) return;
         el.classList.add('current');
         const box = container.getBoundingClientRect(), r = el.getBoundingClientRect();
         if (!box.height) return;
-        container.scrollTo({ top: container.scrollTop + r.top - box.top - (box.height - r.height) / 2,
-                             behavior: reduced() ? 'auto' : 'smooth' });
+        easeScroll(container, container.scrollTop + r.top - box.top - (box.height - r.height) / 2);
+    }
+    /* The browser's smooth scroll lurches and differs per browser: an eased
+       glide instead, so the lines float up together */
+    let lyricsScrollRaf = 0;
+    function easeScroll(c, top) {
+        cancelAnimationFrame(lyricsScrollRaf);
+        top = Math.max(0, Math.min(top, c.scrollHeight - c.clientHeight));
+        if (reduced() || document.hidden) { c.scrollTop = top; return; }
+        const from = c.scrollTop, d = top - from, t0 = performance.now(), D = 720;
+        if (Math.abs(d) < 1) return;
+        (function step(now) {
+            const p = Math.min(1, (now - t0) / D);
+            const e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+            c.scrollTop = from + d * e;
+            if (p < 1) lyricsScrollRaf = requestAnimationFrame(step);
+        })(t0);
+    }
+
+    /* How lyric lines move (setting lyricsAnim). Mix picks one per song,
+       the same one the TV display picks. */
+    const LYRICS_ANIMS = ['mix', 'rise', 'fade', 'zoom', 'roll'];
+    const LYRICS_ANIM_NAMES = { mix: 'Mix', rise: 'Rise', fade: 'Fade', zoom: 'Zoom', roll: 'Roll' };
+    function lyricsAnimFor(album) {
+        const s = S.get('lyricsAnim');
+        if (s !== 'mix') return s;
+        const u = (album && album.url) || '';
+        let h = 0;
+        for (let i = 0; i < u.length; i++) h = (h * 31 + u.charCodeAt(i)) | 0;
+        return LYRICS_ANIMS[1 + Math.abs(h) % 4];
+    }
+    function syncLyricsAnim() {
+        $('lyricsSection').dataset.anim = lyricsAnimFor(currentAlbum);
+        $('lyricsAnimName').textContent = tr(LYRICS_ANIM_NAMES[S.get('lyricsAnim')]);
+    }
+    function cycleLyricsAnim() {
+        const i = LYRICS_ANIMS.indexOf(S.get('lyricsAnim'));
+        S.set('lyricsAnim', LYRICS_ANIMS[(i + 1) % LYRICS_ANIMS.length]);
+        toast('✨ ' + tr('Lyrics animation') + ': ' + tr(LYRICS_ANIM_NAMES[S.get('lyricsAnim')]));
     }
     /* Jump the song to a lyric line (lyrics time, so the offset comes off;
        a hair past the cue so the sync lands on this line) */
@@ -1555,8 +1596,16 @@
         updateGap(time);
     }
 
-    /* Lyrics timing, remembered per song. Step 0.25 s, ±10 s. */
-    const LYRICS_OFFSET_STEP = 0.25, LYRICS_OFFSET_MAX = 10;
+    /* Lyrics timing, remembered per song. Step 0.25 s (Shift: 1 s), ±60 s.
+       A song's own timing (catalog "lrcoffset") is where it starts and
+       what a reset goes back to; one set on this browser overrides it. */
+    const LYRICS_OFFSET_STEP = 0.25, LYRICS_OFFSET_BIG = 1, LYRICS_OFFSET_MAX = 60;
+    function songOffset(album) { return (album && +album.lrcoffset) || 0; }
+    function nudgeLyrics(delta) {
+        if (delta === 0) setLyricsOffset(songOffset(currentAlbum), true);
+        else setLyricsOffset(lyricsOffset + delta, true);
+        if (currentAlbum) toast('⏱ ' + tr('Lyrics timing') + ' ' + $('lyricsOffsetVal').textContent);
+    }
     function readOffsets() {
         try { return JSON.parse(localStorage.getItem('mg_lyrics_offsets') || '{}') || {}; } catch (e) { return {}; }
     }
@@ -1569,7 +1618,7 @@
         $('lyricsSooner').disabled = sec >= LYRICS_OFFSET_MAX;
         if (save && currentAlbum) {
             const all = readOffsets();
-            if (sec) all[currentAlbum.url] = sec; else delete all[currentAlbum.url];
+            if (sec !== songOffset(currentAlbum)) all[currentAlbum.url] = sec; else delete all[currentAlbum.url];
             try { localStorage.setItem('mg_lyrics_offsets', JSON.stringify(all)); } catch (e) {}
         }
         MG.emit('lyricsoffset', { offset: sec });
@@ -1720,7 +1769,9 @@
     /* ── Keys ───────────────────────────────────────────────── */
     /* / search · Space or K play/pause · N next · B previous · ←/→ 5 s ·
        Q Now playing · L lyrics · M sound · P the wall · F fullscreen ·
-       D the TV display (Shift+D: its next mode) ·
+       D the TV display (Shift+D: its next mode) · [ ] lyrics later or
+       sooner (Shift: 1 s), \ back to the song's timing · A how lyric
+       lines move ·
        ? or H help · Esc closes. Never while typing. */
     function wireKeys() {
         document.addEventListener('keydown', function (e) {
@@ -1759,6 +1810,12 @@
             else if (k === 'm' || k === 'M') { if (guard('sound', toggleMute)) toggleMute(); }
             else if (k === 'p' || k === 'P') { if (guard('settings')) S.set('wallMotion', !S.get('wallMotion')); }
             else if (k === 'f' || k === 'F') toggleFullscreen();
+            else if (k === 'a' || k === 'A') { if (guard('settings', cycleLyricsAnim)) cycleLyricsAnim(); }
+            else if (k === '[' || k === ']' || k === '{' || k === '}' || k === '\\' || k === '|') {
+                const d = (k === '\\' || k === '|') ? 0 : ((k === ']' || k === '}') ? 1 : -1) * (e.shiftKey ? LYRICS_OFFSET_BIG : LYRICS_OFFSET_STEP);
+                const go = function () { nudgeLyrics(d); };
+                if (guard('settings', go)) go();
+            }
             else if ((k === 'd' || k === 'D') && MG.display) {   /* the TV display; Shift: its next mode */
                 const sh = e.shiftKey;
                 const go = function () { if (sh) MG.display.cycleMode(); else MG.display.open(); };
@@ -1774,6 +1831,7 @@
         $('nextBtn').title = tr('Next') + ' (N)';
         $('queueBtn').title = tr('Up next') + ' (Q)';
         $('npHide').title = tr('Hide the player panel') + ' (Q)';
+        syncLyricsAnim();
         syncScopeUI();
         syncLyricsUI();
         applySound();
@@ -1885,10 +1943,17 @@
         $('queueClear').addEventListener('click', function () { if (guard('queue', clearQueue)) clearQueue(); });
 
         /* lyrics timing — per song; the number resets it */
-        const offsetBy = function (d) { return function go() { if (guard('settings', go)) setLyricsOffset(d === 0 ? 0 : lyricsOffset + d, true); }; };
+        const offsetBy = function (d) {
+            return function (e) {
+                const step = d * (e && e.shiftKey ? LYRICS_OFFSET_BIG / LYRICS_OFFSET_STEP : 1);
+                const go = function () { setLyricsOffset(step === 0 ? songOffset(currentAlbum) : lyricsOffset + step, true); };
+                if (guard('settings', go)) go();
+            };
+        };
         $('lyricsSooner').addEventListener('click', offsetBy(LYRICS_OFFSET_STEP));
         $('lyricsLater').addEventListener('click', offsetBy(-LYRICS_OFFSET_STEP));
         $('lyricsOffsetVal').addEventListener('click', offsetBy(0));
+        $('lyricsAnimBtn').addEventListener('click', function go() { if (guard('settings', go)) cycleLyricsAnim(); });
 
         /* settings + help */
         const openSettings = function () { openModal('settingsScrim'); };
@@ -1908,6 +1973,7 @@
             if (d.key === 'muted' || d.key === 'volume' || d.key === 'smooth') applySound();
             else if (d.key === 'partyLock') renderQueue();
             else if (d.key === 'lyrics') syncLyricsUI();
+            else if (d.key === 'lyricsAnim') syncLyricsAnim();
             else if (d.key === 'shuffle') {
                 playlist = { key: '', order: [], played: new Set() };   /* a fresh pass */
                 renderThen();
@@ -1951,10 +2017,12 @@
         setPanel(!!currentAlbum && !isPhone());
         setPlaying(false, currentAlbum ? 'paused' : 'idle');
 
+        syncLyricsAnim();
         /* ── Public API (see mg-core.js) ── */
         Object.assign(MG, {
             play: function (x, o) { play(x, Object.assign({ from: 'api' }, o || {})); },
             toggle: togglePlay, next: playNext, prev: playPrevious, seek: seek,
+            nudgeLyrics: nudgeLyrics, cycleLyricsAnim: cycleLyricsAnim,
             enqueue: function (x, o) { return enqueue(x, Object.assign({ from: 'api' }, o || {})); },
             removeAt: removeAt, move: moveQueue, clearQueue: clearQueue,
             setFilter: applyFilter, setVolume: setVolume,

@@ -138,6 +138,9 @@
                     <button type="button" id="lyricsOffsetVal" title="Lyrics timing for this song — + shows lines sooner, click to reset">±0.00s</button>
                     <button type="button" id="lyricsSooner" aria-label="Show lyrics sooner">+</button>
                 </div>
+                <div class="lyrics-ctl" data-lock>
+                    <button type="button" id="lyricsAnimBtn" title="Lyrics animation (A)"><span aria-hidden="true">✨</span> <span id="lyricsAnimName">Mix</span></button>
+                </div>
             </div>
             <button type="button" class="mg-stage-x" id="lyricsClose" data-lock aria-label="Hide lyrics" title="Hide lyrics">
                 <svg class="mg-i" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
@@ -434,6 +437,8 @@
             <dt><span class="kbd">←</span> <span class="kbd">→</span></dt><dd data-i18n>Back or forward 5 seconds</dd>
             <dt><span class="kbd">Q</span></dt><dd data-i18n>Now playing and Up next</dd>
             <dt><span class="kbd">L</span></dt><dd data-i18n>Lyrics on or off</dd>
+            <dt><span class="kbd">A</span></dt><dd data-i18n>How lyric lines move: Mix, Rise, Fade, Zoom, Roll</dd>
+            <dt><span class="kbd">[</span> <span class="kbd">]</span> <span class="kbd">\</span></dt><dd data-i18n>Lyrics later or sooner (Shift: 1 second), \ resets. Works on the TV display too</dd>
             <dt><span class="kbd">M</span></dt><dd data-i18n>Sound on or off</dd>
             <dt><span class="kbd">P</span></dt><dd data-i18n>Pause or resume the wall</dd>
             <dt><span class="kbd">F</span></dt><dd data-i18n>Fullscreen</dd>

@@ -23,6 +23,9 @@
  *     beat                                     every 2 s: a display is open
  *     mode { mode }                            1 2 3 pressed on the display
  *     cmd  { action: 'toggle'|'next'|'prev' }  Space / N / B on the display
+ *     cmd  { action: 'offset', delta }         [ ] \ on the display: lyrics
+ *                                              timing (delta 0 = the song's own)
+ *     cmd  { action: 'lyricsanim' }            A on the display: the next style
  *     bye                                      the display is closing
  *
  * MusicGrid.display: open() · connected() · setMode(mode) · cycleMode().
@@ -91,6 +94,8 @@
                 if (m.action === 'toggle' && MG.toggle) MG.toggle();
                 else if (m.action === 'next' && MG.next) MG.next();
                 else if (m.action === 'prev' && MG.prev) MG.prev();
+                else if (m.action === 'offset' && MG.nudgeLyrics) MG.nudgeLyrics(+m.delta || 0);
+                else if (m.action === 'lyricsanim' && MG.cycleLyricsAnim) MG.cycleLyricsAnim();
             }
             if (!wasConnected) syncUI();
         };

@@ -687,7 +687,32 @@ div.mg-set-row { cursor: default; }
      * rather than clipped at the top or bottom.
      */
     padding: 42cqh 8%;
-    scroll-behavior: smooth;
+    /* scrolled by an eased glide (grid.js easeScroll); lines fade out as
+       they rise past the top and fade in at the bottom */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 22%, #000 80%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 22%, #000 80%, transparent 100%);
+}
+
+/* How the lines move (#lyricsSection[data-anim], setting lyricsAnim).
+   rise: the plain scroll, sung lines dim · fade: sung lines dissolve,
+   the ones to come soft · zoom: the line being sung comes forward ·
+   roll: the lines turn on a drum */
+.lyric-line {
+    transition: padding 0.3s ease, opacity 0.6s ease, filter 0.6s ease,
+                transform 0.7s cubic-bezier(0.22, 0.8, 0.24, 1);
+}
+.lyric-line.past { opacity: 0.55; }
+#lyricsSection[data-anim="fade"] .lyric-line.past { opacity: 0; filter: blur(6px); }
+#lyricsSection[data-anim="fade"] .lyric-line:not(.past):not(.current) { opacity: 0.8; filter: blur(1px); }
+#lyricsSection[data-anim="zoom"] .lyric-line { transform: scale(0.9); }
+#lyricsSection[data-anim="zoom"] .lyric-line.current { transform: scale(1.04); }
+#lyricsSection[data-anim="zoom"] .lyric-line.past { transform: scale(0.78); opacity: 0.3; }
+#lyricsSection[data-anim="roll"] #lyricsContainer { perspective: 700px; }
+#lyricsSection[data-anim="roll"] .lyric-line.past { transform: rotateX(55deg); transform-origin: center bottom; opacity: 0.3; }
+#lyricsSection[data-anim="roll"] .lyric-line:not(.past):not(.current) { transform: rotateX(-28deg); transform-origin: center top; opacity: 0.7; }
+@media (prefers-reduced-motion: reduce) {
+    .lyric-line { transition: none; }
+    #lyricsSection .lyric-line { transform: none !important; filter: none !important; }
 }
 
 #lyricsContainer::-webkit-scrollbar { display: none; }

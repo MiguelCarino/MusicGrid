@@ -45,6 +45,12 @@
 
     <!-- Ambient (and idle): the slow cover wall -->
     <div class="dp-wall" id="wall" aria-hidden="true"></div>
+    <!-- Ambient: the line being sung, over the wall (L hides it) -->
+    <div class="dp-amb" id="amb" aria-hidden="true">
+        <div class="dp-amb-cur" id="ambCur"></div>
+        <div class="dp-amb-trans" id="ambTrans"></div>
+        <div class="dp-amb-next" id="ambNext"></div>
+    </div>
 
     <!-- Party: the mascots big, the song beside them -->
     <section class="dp-party" id="party" aria-label="Party">
@@ -123,6 +129,9 @@
         <span><span class="kbd">1</span> <span data-i18n>Karaoke</span></span>
         <span><span class="kbd">2</span> <span data-i18n>Party</span></span>
         <span><span class="kbd">3</span> <span data-i18n>Ambient</span></span>
+        <span><span class="kbd">L</span> <span data-i18n>Lyrics</span></span>
+        <span><span class="kbd">[</span> <span class="kbd">]</span> <span data-i18n>Lyrics timing</span></span>
+        <span><span class="kbd">A</span> <span data-i18n>Lyrics animation</span></span>
         <span><span class="kbd">Space</span> <span data-i18n>Play or pause</span></span>
         <span><span class="kbd">N</span> <span data-i18n>Next</span></span>
     </div>

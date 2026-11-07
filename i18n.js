@@ -8,6 +8,17 @@
 
 const I18N = {
     es: {
+        "Lyrics animation": "Animación de la letra",
+        "Mix": "Mezcla",
+        "Rise": "Subir",
+        "Fade": "Fundido",
+        "Zoom": "Zoom",
+        "Roll": "Rodillo",
+        "How lyric lines move: Mix, Rise, Fade, Zoom, Roll": "Cómo se mueven las líneas de la letra: Mezcla, Subir, Fundido, Zoom, Rodillo",
+        "Lyrics timing": "Sincronía de la letra",
+        "Lyrics later or sooner (Shift: 1 second), \\ resets. Works on the TV display too": "Letra después o antes (Mayús: 1 segundo), \\ restablece. También funciona en la pantalla de TV",
+        "Lyrics shown": "Letra visible",
+        "Lyrics hidden": "Letra oculta",
         // Lists popup
         "Lists": "Listas",
         "Search lists…": "Buscar listas…",
@@ -260,6 +271,17 @@ const I18N = {
         "Personal picks": "Selección personal",
     },
     'pt-BR': {
+        "Lyrics animation": "Animação da letra",
+        "Mix": "Mistura",
+        "Rise": "Subir",
+        "Fade": "Esmaecer",
+        "Zoom": "Zoom",
+        "Roll": "Rolo",
+        "How lyric lines move: Mix, Rise, Fade, Zoom, Roll": "Como as linhas da letra se movem: Mistura, Subir, Esmaecer, Zoom, Rolo",
+        "Lyrics timing": "Sincronia da letra",
+        "Lyrics later or sooner (Shift: 1 second), \\ resets. Works on the TV display too": "Letra depois ou antes (Shift: 1 segundo), \\ redefine. Também funciona na tela da TV",
+        "Lyrics shown": "Letra visível",
+        "Lyrics hidden": "Letra oculta",
         // Lists popup
         "Lists": "Listas",
         "Search lists…": "Buscar listas…",
@@ -507,6 +529,17 @@ const I18N = {
         "Personal picks": "Seleção pessoal",
     },
     ja: {
+        "Lyrics animation": "歌詞のアニメーション",
+        "Mix": "ミックス",
+        "Rise": "上昇",
+        "Fade": "フェード",
+        "Zoom": "ズーム",
+        "Roll": "ロール",
+        "How lyric lines move: Mix, Rise, Fade, Zoom, Roll": "歌詞の行の動き：ミックス、上昇、フェード、ズーム、ロール",
+        "Lyrics timing": "歌詞のタイミング",
+        "Lyrics later or sooner (Shift: 1 second), \\ resets. Works on the TV display too": "歌詞を遅く／早く（Shift：1秒）、\\ でリセット。テレビ画面でも使えます",
+        "Lyrics shown": "歌詞を表示",
+        "Lyrics hidden": "歌詞を非表示",
         // Lists popup
         "Lists": "リスト",
         "Search lists…": "リストを検索…",
@@ -754,6 +787,17 @@ const I18N = {
         "Personal picks": "個人セレクト",
     },
     ru: {
+        "Lyrics animation": "Анимация текста",
+        "Mix": "Микс",
+        "Rise": "Вверх",
+        "Fade": "Затухание",
+        "Zoom": "Зум",
+        "Roll": "Барабан",
+        "How lyric lines move: Mix, Rise, Fade, Zoom, Roll": "Как движутся строки текста: Микс, Вверх, Затухание, Зум, Барабан",
+        "Lyrics timing": "Синхронизация текста",
+        "Lyrics later or sooner (Shift: 1 second), \\ resets. Works on the TV display too": "Текст позже или раньше (Shift: 1 секунда), \\ сбрасывает. Работает и на ТВ-экране",
+        "Lyrics shown": "Текст показан",
+        "Lyrics hidden": "Текст скрыт",
         // Lists popup
         "Lists": "Списки",
         "Search lists…": "Поиск списков…",

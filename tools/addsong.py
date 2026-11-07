@@ -68,6 +68,7 @@ def yt_search(query, n=8):
             "title": d.get("title") or "?",
             "channel": d.get("channel") or d.get("uploader") or "?",
             "dur": f"{int(dur // 60)}:{int(dur % 60):02d}" if dur else "?",
+            "secs": float(dur) if dur else 0.0,
         })
     return vids
 
@@ -94,6 +95,270 @@ def itunes_search(term, n=8):
 def apple_path(track_view_url):
     p = track_view_url.split("music.apple.com/", 1)[-1]
     return re.sub(r"&uo=\d+$", "", p)
+
+
+# ── Lyrics matching (LRCLIB) ─────────────────────────────────────────────
+# The catalog writes Russian and Japanese titles in Latin letters ("Padat' v
+# gryaz'", "Yoru ni Kakeru") while LRCLIB mostly has them in their own script
+# ("Падать в грязь", "夜に駆ける"). lrclib_find() searches with every form it
+# has (the tag, a Cyrillic spelling of it, native titles from the iTunes
+# store of the artist's country) and compares in Latin letters, so either
+# side may be in either script.
+
+LAT2CYR = [  # longest first
+    ("shch", "щ"), ("yo", "ё"), ("zh", "ж"), ("kh", "х"), ("ts", "ц"), ("ch", "ч"),
+    ("sh", "ш"), ("yu", "ю"), ("ya", "я"), ("ye", "е"), ("iy", "ий"), ("yy", "ый"),
+    ("y", "ы"), ("'", "ь"), ("a", "а"), ("b", "б"), ("v", "в"), ("g", "г"), ("d", "д"),
+    ("e", "е"), ("z", "з"), ("i", "и"), ("j", "й"), ("k", "к"), ("l", "л"), ("m", "м"),
+    ("n", "н"), ("o", "о"), ("p", "п"), ("r", "р"), ("s", "с"), ("t", "т"), ("u", "у"),
+    ("f", "ф"), ("h", "х"), ("c", "к"), ("w", "в"), ("x", "кс"), ("q", "к"),
+]
+CYR2LAT = {"а": "a", "б": "b", "в": "v", "г": "g", "д": "d", "е": "e", "ё": "yo", "ж": "zh",
+           "з": "z", "и": "i", "й": "y", "к": "k", "л": "l", "м": "m", "н": "n", "о": "o",
+           "п": "p", "р": "r", "с": "s", "т": "t", "у": "u", "ф": "f", "х": "kh", "ц": "ts",
+           "ч": "ch", "ш": "sh", "щ": "shch", "ъ": "", "ы": "y", "ь": "", "э": "e", "ю": "yu",
+           "я": "ya", "і": "i", "ї": "yi", "є": "ye", "ґ": "g"}
+
+
+def to_cyrillic(text):
+    """Latin transliteration of Russian back to Cyrillic, best effort
+    ("Padat' v gryaz'" -> "падать в грязь"). A vowel-initial y + vowel at a
+    word start ("Yolka") comes out right; rarer spellings may not."""
+    out, t, i = [], text.lower().replace("’", "'"), 0
+    while i < len(t):
+        for lat, cyr in LAT2CYR:
+            if t.startswith(lat, i):
+                out.append(cyr)
+                i += len(lat)
+                break
+        else:
+            out.append(t[i])
+            i += 1
+    return "".join(out)
+
+
+def to_latin(text):
+    """Cyrillic -> Latin (other scripts pass through)."""
+    return "".join(CYR2LAT.get(c, CYR2LAT.get(c.lower(), c)) for c in text)
+
+
+def _norm(s):
+    import unicodedata
+    s = unicodedata.normalize("NFKD", to_latin((s or "").lower()))
+    s = "".join(c for c in s if not unicodedata.combining(c))
+    return re.sub(r"[\W_]+", " ", s).strip()
+
+
+def _sim(a, b):
+    import difflib
+    a, b = _norm(a), _norm(b)
+    if not a or not b:
+        return 0.0
+    if a == b:
+        return 1.0
+    if len(a) >= 4 and len(b) >= 4 and (a in b or b in a):
+        return 0.92
+    return difflib.SequenceMatcher(None, a, b).ratio()
+
+
+def is_latin(text):
+    return bool(text) and all(ord(c) < 0x250 for c in text)
+
+
+def video_length(vid):
+    """Seconds, from the watch page (no download); 0 if unknown."""
+    try:
+        html = fetch(f"https://www.youtube.com/watch?v={vid}", timeout=20).decode("utf-8", "replace")
+        m = re.search(r'"lengthSeconds":"(\d+)"', html)
+        return int(m.group(1)) if m else 0
+    except Exception:
+        return 0
+
+
+STORE_FOR = {"japan": "jp", "russia": "ru", "korea": "kr", "ukraine": "ua", "china": "cn",
+             "taiwan": "tw", "greece": "gr", "israel": "il", "thailand": "th"}
+
+
+def itunes_native(track_id, country):
+    """The same iTunes track as the store of the artist's country lists it:
+    native-script titles ("Yoru ni Kakeru" -> "夜に駆ける"). -> (artist, track) or None"""
+    store = STORE_FOR.get(country or "")
+    if not track_id or not store:
+        return None
+    try:
+        r = json.loads(fetch(f"https://itunes.apple.com/lookup?id={track_id}&country={store}"))
+        hit = (r.get("results") or [None])[0]
+        if hit and hit.get("trackName"):
+            return hit.get("artistName", ""), clean_title(hit["trackName"])
+    except Exception:
+        pass
+    return None
+
+
+def itunes_native_search(artist, track, country, seconds=0):
+    """No iTunes track id: search the store of the artist's country, first
+    for "artist title" (it knows many romaji titles), then among the
+    artist's songs for one of the same length. -> (artist, track, by_length) or None"""
+    import time
+    store = STORE_FOR.get(country or "")
+    if not store:
+        return None
+    def search(term, n):
+        time.sleep(3.1)   # iTunes allows ~20 calls a minute
+        try:
+            return json.loads(fetch("https://itunes.apple.com/search?media=music&entity=song"
+                                    f"&country={store}&limit={n}&term=" + urllib.parse.quote(term))).get("results", [])
+        except Exception:
+            return []
+    artists = [artist]
+    for who in artists:
+        for h in search(f"{who} {track}", 5):
+            secs = (h.get("trackTimeMillis") or 0) / 1000
+            if not seconds or abs(secs - seconds) <= 8:
+                return h.get("artistName", ""), clean_title(h.get("trackName", "")), False
+        if seconds:
+            near = [h for h in search(who, 200)
+                    if abs((h.get("trackTimeMillis") or 0) / 1000 - seconds) <= 1.5
+                    and _sim(h.get("artistName"), who) >= 0.6]
+            names = {clean_title(h.get("trackName", "")) for h in near}
+            if len(names) == 1:     # one song of that length: a hint, not proof
+                return near[0].get("artistName", ""), names.pop(), True
+        if who is artist:
+            native = mb_native_artist(artist)   # the store may only know カネコアヤノ
+            if native:
+                artists.append(native)
+    return None
+
+
+def mb_native_artist(artist):
+    """The artist's name in its own script, from MusicBrainz (its aliases
+    hold the romaji / Latin spellings). -> name or ''"""
+    import time
+    time.sleep(1.1)   # MusicBrainz: one request a second
+    try:
+        req = urllib.request.Request(
+            "https://musicbrainz.org/ws/2/artist/?fmt=json&limit=3&query=" + urllib.parse.quote(f'"{artist}"'),
+            headers={"User-Agent": "MusicGrid-addsong/1.0 ( https://music.carino.systems )", "Accept": "application/json"})
+        with urllib.request.urlopen(req, timeout=15) as r:
+            for a in json.loads(r.read()).get("artists", []):
+                names = [a.get("name", ""), a.get("sort-name", "")] + [x.get("name", "") for x in a.get("aliases") or []]
+                if a.get("score", 0) >= 90 and max(_sim(n, artist) for n in names) >= 0.9 \
+                        and not is_latin(a.get("name", "")):
+                    return a["name"]
+    except Exception:
+        pass
+    return ""
+
+
+def native_titles(video_title, artists=()):
+    """Song titles in their own script, read off the video's title: Japanese
+    and Russian uploads usually carry them ("ネクライトーキーMV「北上のススメ」",
+    "カネコアヤノ - ロマンス宣言 / Kaneko Ayano - Romance sengen"). -> [titles]"""
+    t = video_title or ""
+    quoted = re.findall(r"[「『](.+?)[」』]", t)
+    parts = quoted or re.split(r"\s+[-–—/|／]\s+|\s*[／|]\s*|\s-\s|^-|-$", t)
+    out = []
+    for p in parts:
+        p = clean_title(re.sub(r"(?i)\b(MV|PV|M/V|music video|official)\b|-music video-", "", p)).strip(" -–—/|／\u3000")
+        for a in artists:
+            if a and p.startswith(a):
+                p = p[len(a):].strip(" -–—/|／")
+        if p and not is_latin(p) and p not in out:
+            out.append(p)
+            short = re.split(r"\s*[～〜~(（]", p)[0].strip()
+            if short and short != p and short not in out:
+                out.append(short)
+    return out
+
+
+def track_id_from_apple(path):
+    m = re.search(r"[?&]i=(\d+)", path or "")
+    return m.group(1) if m else ""
+
+
+def _lrclib(path, params):
+    import time
+    for attempt in range(3):
+        try:
+            return json.loads(fetch("https://lrclib.net/api/" + path + "?" + urllib.parse.urlencode(params),
+                                    timeout=15))
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                return None
+            time.sleep(2 + attempt * 3)
+        except Exception:
+            time.sleep(2 + attempt * 3)
+    return None
+
+
+def lrclib_find(artist, track, duration=0, alts=(), country=""):
+    """Best synced LRCLIB record for a song, or None.
+
+    duration: what the record should last (the iTunes track, else the
+    video); alts: more (artist, track) spellings, e.g. itunes_native().
+    Returns {id, lyrics, duration, artist, track, sure, why}: sure is False
+    for a match worth a look (a title that only matches through the length,
+    or a record 8-20 s off)."""
+    import time
+    weak = {(a[0], a[1]) for a in alts if a and len(a) > 2 and a[2]}
+    names = [(artist, track)] + [(a[0], a[1]) for a in alts if a and a[1]]
+    if country in ("russia", "ukraine") and is_latin(track):
+        names.append((to_cyrillic(artist), to_cyrillic(track)))
+    queries = []
+    for a, t in names:
+        queries += [{"artist_name": a, "track_name": t}, {"q": f"{a} {t}"}, {"q": t}]
+    queries += [{"q": a} for a, _ in names]   # last: everything by the artist, matched by length
+    seen = {}
+    for q in queries:
+        for r in _lrclib("search", q) or []:
+            if r.get("syncedLyrics") and not r.get("instrumental"):
+                seen.setdefault(r["id"], r)
+        time.sleep(0.3)
+    best = None
+    for r in seen.values():
+        st_by = {(a, t): _sim(t, r.get("trackName")) for a, t in names}
+        via = max(st_by, key=st_by.get)
+        st = st_by[via]
+        sa = max(_sim(a, r.get("artistName")) for a, _ in names)
+        dd = abs((r.get("duration") or 0) - duration) if duration and r.get("duration") else None
+        if sa < 0.6:
+            continue
+        if st >= 0.85 and via in weak and (dd is None or dd <= 7):
+            tier, why = 2, "title found in the iTunes store by length only: confirm it is the song"
+        elif st >= 0.85 and (dd is None or dd <= 7):
+            tier, why = 3, "title, artist and length match"
+        elif st >= 0.85 and dd is not None and dd <= 20:
+            tier, why = 2, f"same song, {dd:.0f}s longer or shorter: check the timing"
+        elif st < 0.85 and sa >= 0.85 and dd is not None and dd <= 1.5 and not is_latin(r.get("trackName", "")):
+            tier, why = 2, "same artist and length, title in another script: confirm it is the song"
+        else:
+            continue
+        key = (tier, sa + st, -(dd or 0))
+        if not best or key > best[0]:
+            best = (key, r, why)
+    if not best:
+        return None
+    (tier, _, _), r, why = best
+    return {"id": r["id"], "lyrics": r["syncedLyrics"], "duration": r.get("duration") or 0,
+            "artist": r.get("artistName", ""), "track": r.get("trackName", ""),
+            "sure": tier == 3, "why": why}
+
+
+def official_audio(artist, track, seconds):
+    """A YouTube upload whose length matches the lyrics record (the "Artist -
+    Topic" art track or an official audio): no intro, so no offset. -> hit or None"""
+    if not seconds:
+        return None
+    best = None
+    for h in yt_search(f"{artist} {track} audio", 8):
+        if not h.get("secs") or abs(h["secs"] - seconds) > 2:
+            continue
+        rank = 2 if h["channel"].endswith(" - Topic") else 1 if re.search(r"audio", h["title"], re.I) else 0
+        if _sim(track, h["title"]) < 0.5 and rank < 2:
+            continue
+        if not best or rank > best[0]:
+            best = (rank, h)
+    return best[1] if best else None
 
 
 def lrclib_lyrics(artist, track, album="", duration=0):

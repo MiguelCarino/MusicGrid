@@ -226,13 +226,7 @@ body:not(.dp-playing) .dp-gap span { animation-play-state: paused; }
 @keyframes dpNote { 0%, 100% { transform: translateY(0); opacity: 0.55; } 50% { transform: translateY(-1.6vmin); opacity: 1; } }
 .dp-karaoke.in-gap .dp-prev { opacity: 0.6; }
 
-/* a new line: everything steps up */
-.dp-lines.step .dp-cur { animation: dpIn 0.42s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
-.dp-lines.step .dp-prev { animation: dpOut 0.42s ease both; }
-.dp-lines.step .dp-next-line { animation: dpFadeIn 0.6s ease both; }
-@keyframes dpIn { from { opacity: 0.3; transform: translateY(4vmin) scale(0.92); } }
-@keyframes dpOut { from { opacity: 1; transform: translateY(3vmin); } }
-@keyframes dpFadeIn { from { opacity: 0; } }
+/* a new line: the lines travel (display.js moveLines, Web Animations) */
 @keyframes dpRise { from { opacity: 0; transform: translateY(3vmin); } }
 
 /* ── Corners: the song, Up next, the progress line ────────────── */
@@ -298,6 +292,40 @@ body[data-view="ambient"] .dp-upnext {
 }
 .dp-wall .dp-strip { filter: brightness(0.72) saturate(1.05); }
 body[data-view="ready"] .dp-wall .dp-strip { filter: brightness(0.4) saturate(0.9); }
+/* a cover swapping in (display.js replenish): the new one fades over the old */
+.dp-cell { position: relative; }
+.dp-cell-in { position: absolute; inset: 0; background-size: cover; background-position: center; animation: dpCellIn 1.6s ease both; }
+@keyframes dpCellIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ── Ambient lyrics: the line being sung, over the wall ───────── */
+.dp-amb {
+    position: fixed; left: 50%; top: 44%; z-index: 4;
+    /* a fixed size: the band stays put while the lines change (only a line
+       longer than two rows, or a translation, makes it grow) */
+    width: min(84vw, 140vmin); box-sizing: border-box;
+    display: flex; flex-direction: column; align-items: center; gap: 1.2vmin;
+    padding: 2.6vmin 5vmin; border-radius: 2.6vmin; text-align: center;
+    background: var(--dp-glass); border: 1px solid var(--dp-line);
+    -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+    transform: translate(-50%, -50%);
+    opacity: 0; visibility: hidden;
+    transition: opacity var(--dp-fade) ease, visibility 0s linear var(--dp-fade);
+}
+body[data-view="ambient"].dp-amb-on .dp-amb { opacity: 1; visibility: visible; transition: opacity var(--dp-fade) ease, visibility 0s; }
+.dp-amb-cur {
+    width: 100%; min-height: 12.6vmin;   /* two rows of the normal size kept (in vmin: a long line's smaller font doesn't shrink it); a one-row line sits centred */
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--display); font-weight: 900; font-size: 5.6vmin; line-height: 1.12;
+    text-wrap: balance; overflow-wrap: anywhere;
+    text-shadow: 0 0.3vmin 2vmin rgba(0, 0, 0, 0.6), 0 0 3vmin var(--dp-glow);
+}
+.dp-amb-cur.long { font-size: 4.6vmin; }
+.dp-amb-trans { font-size: 2.8vmin; font-style: italic; color: var(--dp-accent-hi); text-wrap: balance; }
+.dp-amb-trans:empty { display: none; }
+.dp-amb-next {   /* a preview: one row (two on a narrow screen), so the band keeps its height */
+    width: 100%; min-height: 1.25em; font-size: 3vmin; line-height: 1.25; font-weight: 600; color: var(--dp-ink-3);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 
 /* ── Ready: connected, nothing playing ────────────────────────── */
 .dp-ready { inset: 0; z-index: 4; display: flex; align-items: center; justify-content: center; padding: var(--dp-pad); }
@@ -360,12 +388,21 @@ body.dp-idle .dp-hint { opacity: 0; visibility: hidden; transition: opacity 0.8s
     .dp-tag { max-width: calc(100vw - 2 * var(--dp-pad)); }
     .dp-upnext { left: var(--dp-pad); right: auto; bottom: calc(var(--dp-pad) + 12vmin); align-items: flex-start; text-align: left; max-width: calc(100vw - 2 * var(--dp-pad)); }
     body[data-view="ambient"] .dp-upnext { bottom: calc(var(--dp-pad) + 18vmin); }
+    .dp-amb { top: 36%; width: calc(100vw - 2 * var(--dp-pad)); padding: 2.4vmin 3.6vmin; }
+    .dp-amb-cur { min-height: 23.6vmin; }   /* narrow: three rows */
+    .dp-amb-next {
+        min-height: calc(2 * 1.25em); white-space: normal; text-wrap: balance; overflow-wrap: anywhere;
+        display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2;
+    }
+    .dp-amb-cur { font-size: 7vmin; }
+    .dp-amb-cur.long { font-size: 5.4vmin; }
+    .dp-amb-next { font-size: 3.8vmin; }
 }
 
 @media (prefers-reduced-motion: reduce) {
     :root { --dp-fade: 0s; }
-    .dp-bg-img, .dp-strip, .dp-gap span, body.dp-playing .dp-eq i, .dp-waiting .dp-logo { animation: none; }
-    .dp-lines.step .dp-cur, .dp-lines.step .dp-prev, .dp-lines.step .dp-next-line,
+    .dp-bg-img, .dp-strip, .dp-gap span, body.dp-playing .dp-eq i, .dp-waiting .dp-logo,
+    .dp-cell-in { animation: none; }
     .dp-karaoke.has-title .dp-titlecard { animation: none; }
     .dp-bg-img, .dp-flash, .dp-count i, .dp-w { transition: none; }
 }

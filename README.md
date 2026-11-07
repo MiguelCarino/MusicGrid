@@ -80,9 +80,10 @@ One screen, four parts: **search** at the top, the **cover wall** to browse, **N
   playing" toast; screen readers hear every new song, and the tab title reads
   ▶ Song — Artist (❚❚ when paused).
 - **Keys** — `/` search · `Space`/`K` play or pause · `N` next · `B` previous · `←`/`→` 5 s ·
-  `Q` Now playing · `L` lyrics · `M` sound · `P` pause the wall · `F` fullscreen · `D` TV
+  `Q` Now playing · `L` lyrics · `[` `]` lyrics later or sooner (`Shift`: 1 s, `\` resets)
+  · `A` how lyric lines move · `M` sound · `P` pause the wall · `F` fullscreen · `D` TV
   display (`Shift+D` its next mode) · `?`/`H` help · `Esc` close. Under the party lock `N`
-  `B` `←` `→` `Space` (pause) `L` `M` `P` `D` ask for the PIN. YouTube and LRCLIB load only
+  `B` `←` `→` `Space` (pause) `L` `[` `]` `A` `M` `P` `D` ask for the PIN. YouTube and LRCLIB load only
   after you play a song.
 - **TV display** — for a house party: 📺 in the player bar (or ⚙ Settings → TV display, or
   `D`) opens `display.html` in its own window. Drag it to the TV or projector and press `F`
@@ -98,9 +99,13 @@ One screen, four parts: **search** at the top, the **cover wall** to browse, **N
   - **Party** — the mascots dancing big (the same cast and Settings → Mascots choice, sad
     moves for melancholic songs), the cover blurred behind them, the song, a progress bar
     and the next three songs.
-  - **Ambient** — the cover wall drifting slowly in columns, with a small now-playing tag.
+  - **Ambient** — the cover wall drifting slowly in columns (about five covers across the
+    short side, so bigger and wider monitors get more), covers swapping in at random every
+    few seconds so a long night never shows the same wall, the line being sung over it in a
+    glass band (`L` hides or shows it, remembered on that display) and a now-playing tag.
 
-  On the display, `Space`/`K`, `N` and `B` play, pause and skip on the music page. It needs
+  On the display, `Space`/`K`, `N` and `B` play, pause and skip on the music page; `[` `]`
+  `\` set the lyrics timing and `A` the lyrics animation there, for every mode. It needs
   no navbar, hides the cursor after 3 s, keeps the screen awake, works from 1280×720 to 4K
   and on a portrait screen, and stands still under reduced motion. With no music page open
   it waits ("Waiting for the music…") and picks up again by itself.
@@ -183,6 +188,32 @@ look (a guessed iTunes match, a possible duplicate) so you can fix the tag or de
 You can also edit `tools/inbox/inbox.jsonl` by hand; fields starting with `_` are hints
 that are dropped when you commit.
 
+### Lyrics for songs that have none — `tools/batchadd.py lyrics`
+`python3 tools/batchadd.py lyrics` looks again for every catalog song without lyrics and
+lists what it finds; `--apply` links the sure matches (or give it video ids). Like `fetch`,
+it matches the LRCLIB record by title, artist **and length**, and searches with every
+spelling it can get: the tag; a Cyrillic spelling of a romanized Russian title ("Padat' v
+gryaz'" → "падать в грязь"); the title in the video's own title (「北上のススメ」); and the
+native title from the iTunes store of the artist's country (the artist's native name comes
+from MusicBrainz when the store only knows カネコアヤノ). Titles are compared in Latin
+letters, so either side may be in either script. A match found only through its length,
+or 8–20 s longer or shorter than the video, is listed for a look, never linked by itself.
+
+When `fetch` finds the video longer or shorter than the lyrics record (an intro, a skit), a
+video it picked by search is swapped for the official audio upload of the same length (the
+"Artist - Topic" track: no intro, no offset); a video you gave is kept and flagged.
+
+### Lyrics timing — `tools/lyricsync.py`
+`python3 tools/lyricsync.py VIDEO_ID …` (or `--flagged`: every linked song whose video and
+record differ by more than 3 s) listens to the video and measures how far its singing is
+from the lyrics: the audio is downloaded to a temporary folder, transcribed on the CPU with
+faster-whisper (large-v3-turbo by default, from `~/.local/share/voice`; `MG_WHISPER_PY`
+and `MG_WHISPER_MODELS` point elsewhere), matched line by line against the record, and
+deleted. Spoken intros match no lyric line, so they don't count. It reports `fix` (an
+`lrcoffset`), `in time`, `drift` (early and late lines disagree: a pause mid-song, which
+one offset can't fix) or `unsure`; `--apply` writes the fixes. About 1½ minutes a song.
+A length difference alone doesn't mean an offset: it is often an outro.
+
 ### One song, step by step — `tools/addsong.py` / `tools/addsong_web.py`
 `python3 tools/addsong.py "search terms or link"` does the same lookups but lets you pick
 each match yourself; the front page of `tools/addsong_web.py` is the same flow in the browser.
@@ -210,6 +241,8 @@ each match yourself; the front page of `tools/addsong_web.py` is the same flow i
    | `meme`          | optional — `true` for songs that became memes (😂 Meme)         |
    | `spotifyurl`    | Spotify track id, or `""` to link a search by `tag`            |
    | `applemusicurl` | Apple Music path, or `""` to link a search by `tag`           |
+   | `lrclib`        | optional — LRCLIB record id of its synced lyrics (see Lyrics)  |
+   | `lrcoffset`     | optional — seconds; the song's lyrics timing (+ sooner, − later) |
 
 3. New country / genre / mood? Add it to the matching registry at the top of
    `catalog.json` (the menus build themselves from whatever is present):
@@ -232,8 +265,14 @@ tools look the record up and fill in the id. Turn lyrics on with 🎤 in the pla
 Now playing panel, full screen on a phone.
 Click any line to jump the song there; it keeps playing from that line.
 In the stage's corner, **⏱ − ±0.00s +** fixes lyrics that run early or late: each press moves them
-0.25s (+ shows lines sooner, up to ±10s). It's remembered per song, since different uploads
-of a song drift differently; click the number to reset. Lyrics fetched once are kept in the
+0.25s (`Shift`: 1 s; + shows lines sooner, up to ±60s); `[` `]` do the same from the keyboard,
+on the music page and on the TV display in any mode, and `\` resets. It's remembered per song
+on that browser, since different uploads of a song drift differently. A song whose video
+opens with a scene the record doesn't have carries its fix in the catalog as `lrcoffset`
+(1DOSTRES4: −15.8): that is where it starts and what a reset goes back to.
+**✨** beside it (or `A`) picks how the lines move, here and on the display: **Rise** (the
+lines float up, the one sung goes up and away), **Fade**, **Zoom**, **Roll**, or **Mix**
+(the default: a different one per song). Lyrics fetched once are kept in the
 visitor's own `localStorage` (the last 150 songs), and a busy LRCLIB is retried.
 
 ## Licensing

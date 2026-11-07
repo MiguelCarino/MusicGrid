@@ -17,6 +17,14 @@ Two steps, with a reviewable inbox in between:
                            (or edit tools/inbox/inbox.jsonl by hand), then:
   batchadd.py commit       move every ready entry into the catalog + assets;
                            entries that still have a "?" stay in the inbox
+  batchadd.py lyrics       look again for synced lyrics for catalog songs that
+                           have none (native-script titles, matched by length);
+                           --apply links the sure matches, the rest are listed
+
+Lyrics: the LRCLIB record is matched by title, artist and length. When the
+video runs longer or shorter than the record (an intro, a skit), a video
+picked by search is swapped for the official audio upload of the same length;
+a video you gave is kept and flagged — tools/lyricsync.py measures the offset.
 
 Fields starting with "_" are hints for you (video title, iTunes match,
 MusicBrainz area, what to check) and are dropped on commit.
@@ -145,7 +153,8 @@ def expand(items, log=print):
                     continue
                 n += 1
                 yield {"id": d.get("id"), "title": d.get("title") or "",
-                       "channel": d.get("channel") or d.get("uploader") or ""}
+                       "channel": d.get("channel") or d.get("uploader") or "",
+                       "secs": float(d.get("duration") or 0)}
             if not n:
                 log(f"  warn: no videos read from playlist ({out.stderr.strip()[:200]})")
             continue
@@ -165,8 +174,9 @@ def expand(items, log=print):
         if not hits:
             log(f"  warn: no YouTube result for '{raw}', skipped")
             continue
-        yield {"id": hits[0]["id"], "title": hits[0]["title"],
-               "channel": hits[0]["channel"], "check": f"video picked by search '{raw}'"}
+        yield {"id": hits[0]["id"], "title": hits[0]["title"], "secs": hits[0].get("secs", 0),
+               "channel": hits[0]["channel"], "check": f"video picked by search '{raw}'",
+               "searched": True}
 
 
 # ── enrichment ───────────────────────────────────────────────────────────
@@ -325,9 +335,32 @@ def fetch_items(items, country=None, genre=None, mood=None, carino=True, lyrics=
             checks.append(f"country unknown{f' (MusicBrainz says {area})' if area else ''}"
                           " — add it to COUNTRIES if new")
 
-        lyr, lrclib_id = "", None
+        lrclib_id = None
         if lyrics and artist:
-            lyr, lrclib_id = addsong.lrclib_lyrics(artist, tag.partition(" — ")[2], it_album, it_dur)
+            track = tag.partition(" — ")[2]
+            native = addsong.itunes_native(hit.get("trackId"), country) if hit else None
+            vlen = v.get("secs") or addsong.video_length(vid)
+            alts = ([native] if native else []) + [(artist, t) for t in addsong.native_titles(v["title"], [artist])]
+            rec = addsong.lrclib_find(artist, track, it_dur or vlen, alts, country)
+            if rec:
+                lrclib_id = rec["id"]
+                if not rec["sure"]:
+                    checks.append(f"lyrics: {rec['why']} (LRCLIB #{rec['id']} {rec['artist']} — {rec['track']})")
+                diff = vlen - rec["duration"] if vlen and rec["duration"] else 0
+                if abs(diff) > 3:
+                    audio = addsong.official_audio(artist, track, rec["duration"])
+                    if audio and audio["id"] not in in_catalog and v.get("searched"):
+                        checks.append(f"video swapped for the official audio {audio['id']} ({audio['channel']}):"
+                                      f" its length matches the lyrics; the search found {vid}, {diff:+.0f}s")
+                        vid = audio["id"]
+                        v["title"], v["channel"] = audio["title"], audio["channel"]
+                    elif audio:
+                        checks.append(f"video is {diff:+.0f}s against the lyrics: the official audio"
+                                      f" {audio['id']} ({audio['channel']}) matches them; use it, or"
+                                      f" measure the offset: tools/lyricsync.py {vid}")
+                    else:
+                        checks.append(f"video is {diff:+.0f}s against the lyrics: measure the offset"
+                                      f" with tools/lyricsync.py {vid}")
 
         entry = {
             "url": vid, "image": (image or f"inbox:{vid}") if (image or art) else UNSET,
@@ -336,11 +369,11 @@ def fetch_items(items, country=None, genre=None, mood=None, carino=True, lyrics=
             "mood": mood or UNSET,
             "carino": carino, **({"party": list(party)} if party else {}),
             "spotifyurl": "", "applemusicurl": apple,
-            **({"lrclib": lrclib_id} if lyr and lrclib_id else {}),
+            **({"lrclib": lrclib_id} if lrclib_id else {}),
             "_video": f"{v['title']} · {v['channel']}",
             "_itunes": (f"{hit['artistName']} — {hit['trackName']} · {it_album}"
                         f" · {hit.get('primaryGenreName', '')}") if hit else "",
-            "_lyrics": bool(lyr), "_check": checks,
+            "_lyrics": bool(lrclib_id), "_check": checks,
         }
         with LOCK:                   # save as we go: a crash loses nothing
             save_inbox(load_inbox() + [entry])
@@ -498,6 +531,74 @@ def cmd_commit(args):
         cmd_check(args)
 
 
+def set_field(src, vid, key, value):
+    """The catalog line of a song, with key set to value (None removes it)."""
+    lines = src.split("\n")
+    for i, line in enumerate(lines):
+        if line.lstrip().startswith('{"url":"' + vid + '"'):
+            body = line.rstrip()
+            comma = body.endswith(",")
+            e = json.loads(body.rstrip(","))
+            if value is None:
+                e.pop(key, None)
+            else:
+                e[key] = value
+            indent = line[:len(line) - len(line.lstrip())]
+            lines[i] = indent + json.dumps(e, ensure_ascii=False, separators=(",", ":")) + ("," if comma else "")
+            return "\n".join(lines)
+    raise KeyError(vid)
+
+
+def cmd_lyrics(args):
+    """Find synced lyrics for catalog songs without any."""
+    src, _, _ = addsong.load_catalog(CATALOG)
+    songs = [e for e in catalog_entries(src) if not e.get("lrclib")]
+    if args.ids:
+        songs = [e for e in songs if e["url"] in set(args.ids)]
+    print(f"{len(songs)} songs without lyrics")
+    found, maybe = [], []
+    for n, e in enumerate(songs, 1):
+        artist, _, track = e["tag"].partition(" — ")
+        track = addsong.clean_title(re.sub(r"\s*\((?:feat|ft)\.?[^)]*\)", "", track, flags=re.I))
+        native = None
+        tid = addsong.track_id_from_apple(e.get("applemusicurl"))
+        if tid and e.get("country") in addsong.STORE_FOR:
+            wait = 3.1 - (time.time() - _last_itunes[0])
+            if wait > 0:
+                time.sleep(wait)
+            _last_itunes[0] = time.time()
+            native = addsong.itunes_native(tid, e["country"])
+        vlen = addsong.video_length(e["url"])
+        alts = [native] if native else []
+        if addsong.is_latin(track):   # the video's own title often has it in its script
+            alts += [(artist, t) for t in addsong.native_titles(addsong.yt_oembed_title(e["url"]), [artist])]
+        if not alts and e.get("country") in addsong.STORE_FOR and addsong.is_latin(track):
+            native = addsong.itunes_native_search(artist, track, e["country"], vlen)
+            alts = [native] if native else []
+        rec = addsong.lrclib_find(artist, track, vlen, alts, e.get("country"))
+        if not rec:
+            print(f"[{n}/{len(songs)}] -  {e['tag']}")
+            continue
+        diff = vlen - rec["duration"] if vlen and rec["duration"] else 0
+        line = (f"[{n}/{len(songs)}] {'+' if rec['sure'] else '?'}  {e['tag']}  ->  #{rec['id']}"
+                f" {rec['artist']} — {rec['track']}" + (f"  (video {diff:+.0f}s)" if abs(diff) > 3 else ""))
+        print(line if rec["sure"] else line + f"\n      {rec['why']}")
+        (found if rec["sure"] else maybe).append((e, rec, diff))
+    print(f"\n{len(found)} sure, {len(maybe)} to look at, {len(songs) - len(found) - len(maybe)} not found")
+    if args.apply and found:
+        with LOCK:
+            src = CATALOG.read_text(encoding="utf-8")
+            for e, rec, _ in found:
+                src = set_field(src, e["url"], "lrclib", rec["id"])
+            CATALOG.write_text(src, encoding="utf-8")
+        print(f"linked {len(found)} (git diff to review).")
+    elif found:
+        print("run again with --apply to link the sure ones.")
+    off = [(e, d) for e, _, d in found + maybe if abs(d) > 3]
+    if off:
+        print("timing may need an offset (tools/lyricsync.py " + " ".join(e["url"] for e, _ in off) + ")")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0],
                                  formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -519,11 +620,14 @@ def main():
     r = sub.add_parser("review", help="answer only the missing fields, one entry at a time")
     r.add_argument("--all", action="store_true",
                    help="also step through entries with a 'check' note (fix tag / delete)")
+    ly = sub.add_parser("lyrics", help="find synced lyrics for catalog songs without any")
+    ly.add_argument("ids", nargs="*", help="only these video ids")
+    ly.add_argument("--apply", action="store_true", help="link the sure matches")
     c = sub.add_parser("commit", help="move ready inbox entries into the catalog")
     c.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
     {"fetch": cmd_fetch, "check": cmd_check, "review": cmd_review,
-     "commit": cmd_commit}[args.cmd](args)
+     "commit": cmd_commit, "lyrics": cmd_lyrics}[args.cmd](args)
 
 
 if __name__ == "__main__":
