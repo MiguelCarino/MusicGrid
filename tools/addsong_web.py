@@ -207,6 +207,11 @@ def make_handler(catalog, covers):
                 if action == "update":     # {ids, status?, mood?}
                     batchadd.library_update(d.get("ids") or [], d.get("status"), d.get("mood"))
                     return self.send_json({"ok": True})
+                if action == "video":      # {id, url}: use the video you pasted
+                    try:
+                        return self.send_json({"ok": True, "yt": batchadd.library_video(d.get("id"), d.get("url"))})
+                    except ValueError as e:
+                        return self.send_json({"error": str(e)}, 400)
                 if action == "fetch":      # the approved songs -> the /batch inbox
                     if JOB["running"]:
                         return self.send_json({"error": "a fetch is already running"}, 409)

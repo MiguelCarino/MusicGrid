@@ -49,7 +49,12 @@
   table { width:100%; border-collapse:collapse; margin:2px 0 6px; }
   td { padding:4px 8px; font-size:.8rem; border-top:1px solid #161616; vertical-align:middle; }
   td.t { width:100%; }
+  a.yt { color:#60a5fa; white-space:nowrap; text-decoration:none; }
+  a.yt:hover { text-decoration:underline; }
+  a.yt.check { color:#f59e0b; }
+  .yt.none { color:#52525b; }
   td.n { color:var(--dim); font-family:monospace; font-size:.72rem; white-space:nowrap; }
+  input.paste { font-family:system-ui,sans-serif; }
   td select { padding:3px 6px; font-size:.74rem; }
   td select.set { border-color:var(--gold); }
   tr.skipped td.t { color:#52525b; text-decoration:line-through; }
@@ -57,8 +62,19 @@
   tr.done td { opacity:.5; }
   .why { color:#52525b; font-size:.66rem; }
   .empty { color:var(--dim); font-size:.8rem; padding:12px 4px; }
-  #more { margin:10px auto; display:none; }
-  @media (max-width:640px) { body { padding:12px; } .album { margin-left:10px; } td.n:nth-child(4) { display:none; } }
+  button.mood { padding:3px 8px; font-size:.74rem; white-space:nowrap; }
+  button.mood.set { border-color:var(--gold); }
+  a.yt.search { color:#a1a1aa; }
+  button.pen { padding:0 5px; font-size:.7rem; border-color:transparent; color:var(--dim); }
+  button.pen:hover { border-color:var(--gold); }
+  input.paste { width:260px; max-width:70vw; padding:4px 8px; font-size:.74rem; }
+  input.paste.bad { border-color:var(--red); }
+  @media (max-width:640px) { body { padding:12px; } .album { margin-left:10px; } td.g { display:none; }
+    #list table, #list tbody { display:block; }
+    #list tr { display:flex; flex-wrap:wrap; align-items:center; gap:2px 6px; padding:5px 0; border-top:1px solid #161616; }
+    #list td { border:0; padding:2px 4px; width:auto; }
+    #list td.t { flex:1 1 calc(100% - 40px); }
+    #list tr td:nth-child(3) { margin-left:26px; } }
 </style>
 </head>
 <body>
@@ -103,20 +119,25 @@
 </div>
 
 <div id="list"></div>
-<button id="more">Show more artists</button>
 
 <script>
 'use strict';
+/* The whole library is drawn at once as one HTML string (no per-row listeners:
+   one delegated handler on #list), artists and albums open. The mood menu is a
+   plain button until clicked. Video links refresh in place while
+   `batchadd.py youtube` is still looking them up. */
 const $ = id => document.getElementById(id);
-let items = [], moods = {}, job = {}, sel = new Set(), shownArtists = 60;
-const fmt = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+let items = [], byId = new Map(), moods = {}, job = {}, sel = new Set(), groups = [];
+const closed = new Set();          // artists / albums you folded
+const fmt = s => Math.floor(s / 60) + ':' + String(Math.round(s) % 60).padStart(2, '0');
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const state = it => it.where || it.status;          // onsite / inbox beat your choice
 const done = it => !!it.where;
+const LABEL = { onsite: 'on site', inbox: 'in inbox' };
 /* search ignores the alphabet: "pelageya" finds Пелагея */
 const CYR = { а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'kh',ц:'ts',ч:'ch',ш:'sh',щ:'shch',ъ:'',ы:'y',ь:'',э:'e',ю:'yu',я:'ya' };
 const latin = s => s.toLowerCase().replace(/[а-яё]/g, c => CYR[c] ?? c);
-const fold = s => latin(s).normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
+const fold = s => latin(s).normalize('NFKD').replace(/[̀-ͯ]/g, '');
 
 async function api(path, body) {
   const r = await fetch(path, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {});
@@ -124,13 +145,19 @@ async function api(path, body) {
   if (!r.ok) throw new Error(d.error || r.status);
   return d;
 }
+function take(list) {
+  items = list;
+  byId = new Map(items.map(it => [it.id, it]));
+  for (const it of items) it._hay = fold(it.artist + ' ' + it.album + ' ' + it.title);
+}
 async function load() {
   const d = await api('/api/library');
-  items = d.items; moods = d.moods; job = d.job;
+  take(d.items); moods = d.moods; job = d.job;
   if (!items.length) { $('stateLine').textContent = 'nothing staged: run batchadd.py library ~/Downloads/applemusic-library.json'; return; }
   fillSelects();
   render();
   renderJob();
+  watchVideos();
 }
 
 function fillSelects() {
@@ -142,142 +169,182 @@ function fillSelects() {
 }
 
 function visible() {
-  const q = $('q').value.trim().toLowerCase(), g = $('genre').value, short = $('short').checked;
+  const q = fold($('q').value.trim()), g = $('genre').value, short = $('short').checked;
   const show = new Set([...document.querySelectorAll('[data-show]')].filter(c => c.checked).map(c => c.dataset.show));
   return items.filter(it => show.has(state(it)) && (short || it.secs >= 75 || !it.secs) && (!g || it.genre === g)
-    && (!q || (it._hay ||= fold(it.artist + ' ' + it.album + ' ' + it.title)).includes(fold(q))));
+    && (!q || it._hay.includes(q)));
 }
 
-function render() {
+function renderCounts() {
   const c = { pending: 0, approved: 0, skipped: 0, inbox: 0, onsite: 0 };
-  items.forEach(it => c[state(it)]++);
+  let found = 0, need = 0;
+  for (const it of items) {
+    c[state(it)]++;
+    if (!done(it) && it.status !== 'skipped') { need++; if (it.yt) found++; }
+  }
   $('counts').innerHTML = `<span><b>${c.approved}</b> approved</span><span><b>${c.pending}</b> pending</span>`
-    + `<span><b>${c.skipped}</b> skipped</span><span><b>${c.inbox}</b> in the inbox</span><span><b>${c.onsite}</b> on the site</span>`;
+    + `<span><b>${c.skipped}</b> skipped</span><span><b>${c.inbox}</b> in the inbox</span><span><b>${c.onsite}</b> on the site</span>`
+    + (found < need ? `<span class="meta">videos found ${found}/${need}</span>` : '');
   $('stateLine').textContent = `${items.length} songs staged from your library`;
   const toFetch = items.filter(it => it.status === 'approved' && !it.where).length;
   $('btnFetch').textContent = `Fetch approved (${toFetch})`;
   $('btnFetch').disabled = !toFetch || job.running;
+}
 
+function render() {
+  renderCounts();
   const vis = visible();
   const byArtist = new Map();
   for (const it of vis) {
-    if (!byArtist.has(it.artist)) byArtist.set(it.artist, new Map());
-    const al = byArtist.get(it.artist);
-    if (!al.has(it.album)) al.set(it.album, []);
-    al.get(it.album).push(it);
+    let al = byArtist.get(it.artist);
+    if (!al) byArtist.set(it.artist, al = new Map());
+    let ss = al.get(it.album);
+    if (!ss) al.set(it.album, ss = []);
+    ss.push(it);
   }
-  let artists = [...byArtist.keys()];
-  artists.sort($('sort').value === 'count'
-    ? (a, b) => count(byArtist.get(b)) - count(byArtist.get(a))
-    : (a, b) => a.localeCompare(b));
-  const open = new Set([...document.querySelectorAll('details[open]')].map(d => d.dataset.key));
-  const list = $('list');
-  list.innerHTML = '';
-  if (!artists.length) list.innerHTML = '<div class="empty">Nothing matches.</div>';
-  for (const a of artists.slice(0, shownArtists)) list.appendChild(artistEl(a, byArtist.get(a), open));
-  $('more').style.display = artists.length > shownArtists ? 'block' : 'none';
-  $('more').textContent = `Show more artists (${artists.length - shownArtists} more)`;
+  const artists = [...byArtist.keys()];
+  const total = a => { let n = 0; for (const s of byArtist.get(a).values()) n += s.length; return n; };
+  artists.sort($('sort').value === 'count' ? (a, b) => total(b) - total(a) : (a, b) => a.localeCompare(b));
+
+  groups = [];
+  const out = [];
+  for (const a of artists) {
+    const albums = byArtist.get(a);
+    const songs = [...albums.values()].flat();
+    const ka = 'a:' + a;
+    out.push(`<details class="artist"${closed.has(ka) ? '' : ' open'} data-key="${esc(ka)}"><summary>${box(songs)}`
+      + `<span class="nm">${esc(a)}</span><span class="meta">${songs.length} · ${albums.size} album${albums.size > 1 ? 's' : ''}</span>`
+      + `<span class="chips">${chips(songs)}</span><span class="spacer"></span>${acts(songs, ' all')}</summary>`);
+    for (const [al, ss] of albums) {
+      const kb = 'b:' + a + '\u0000' + al;
+      out.push(`<details class="album"${closed.has(kb) ? '' : ' open'} data-key="${esc(kb)}"><summary>${box(ss)}`
+        + `<span>${esc(al || '(no album)')}</span><span class="meta">${ss.length}</span>`
+        + `<span class="chips">${chips(ss)}</span><span class="spacer"></span>${acts(ss, ' all')}</summary><table>`);
+      for (const it of ss) out.push(songRow(it));
+      out.push('</table></details>');
+    }
+    out.push('</details>');
+  }
+  $('list').innerHTML = out.join('') || '<div class="empty">Nothing matches.</div>';
   renderSel();
 }
-const count = al => [...al.values()].reduce((n, s) => n + s.length, 0);
-const songsOf = al => [...al.values()].flat();
 
 function chips(songs) {
   const c = {};
-  songs.forEach(s => { c[state(s)] = (c[state(s)] || 0) + 1; });
-  return Object.entries(c).map(([k, v]) => `<span class="chip ${k}">${v} ${k === 'onsite' ? 'on site' : k === 'inbox' ? 'in inbox' : k}</span>`).join('');
+  for (const s of songs) c[state(s)] = (c[state(s)] || 0) + 1;
+  return Object.entries(c).map(([k, v]) => `<span class="chip ${k}">${v} ${LABEL[k] || k}</span>`).join('');
+}
+/* a group = the free (not on the site / inbox) ids of an artist, album or song */
+function group(songs) {
+  groups.push(songs.filter(s => !done(s)).map(s => s.id));
+  return groups.length - 1;
 }
 function box(songs) {
-  const free = songs.filter(s => !done(s));
-  const n = free.filter(s => sel.has(s.id)).length;
-  const cb = document.createElement('input');
-  cb.type = 'checkbox';
-  cb.disabled = !free.length;
-  cb.checked = free.length > 0 && n === free.length;
-  cb.indeterminate = n > 0 && n < free.length;
-  cb.addEventListener('click', e => {
-    e.stopPropagation();
-    const on = !(n === free.length && free.length);
-    free.forEach(s => on ? sel.add(s.id) : sel.delete(s.id));
-    render();
-  });
-  return cb;
+  const g = group(songs), free = groups[g];
+  const n = free.filter(id => sel.has(id)).length;
+  const all = free.length > 0 && n === free.length;
+  return `<input type="checkbox" data-box="${g}"${free.length ? '' : ' disabled'}${all ? ' checked' : ''}${n && !all ? ' data-ind' : ''}>`;
 }
-function acts(songs) {
-  const span = document.createElement('span');
-  span.className = 'acts';
-  const free = songs.filter(s => !done(s)).map(s => s.id);
-  if (!free.length) return span;
-  [['approved', '✓ all'], ['skipped', '✕ all']].forEach(([st, label]) => {
-    const b = document.createElement('button');
-    b.textContent = label;
-    b.className = st === 'approved' ? 'ok' : '';
-    b.title = st === 'approved' ? 'Approve all of these' : 'Skip all of these';
-    b.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); setStatus(free, st); });
-    span.appendChild(b);
-  });
-  return span;
+function acts(songs, suffix) {
+  const g = group(songs);
+  if (!groups[g].length) return '<span class="acts"></span>';
+  return `<span class="acts"><button class="ok" data-set="approved" data-g="${g}" title="Approve">✓${suffix}</button>`
+    + `<button data-set="skipped" data-g="${g}" title="Skip">✕${suffix}</button></span>`;
+}
+function ytLink(it) {
+  const y = it.yt;
+  if (y && y.id) {
+    const src = { topic: 'official (YouTube Music track)', artist: "official (the artist's channel)", verified: 'verified channel (label / publisher)' }[y.official];
+    const tip = esc(`${y.manual ? 'your link: ' : src ? src + ': ' : ''}${y.title || y.id}${y.channel ? ' · ' + y.channel : ''}${y.secs ? ' · ' + fmt(y.secs) : ''}${y.check ? '\n⚠ ' + y.check : ''}`);
+    return `<a class="yt${y.check ? ' check' : ''}" href="https://www.youtube.com/watch?v=${encodeURIComponent(y.id)}" target="_blank" rel="noopener" title="${tip}">${y.check ? '⚠ ' : ''}▶ YouTube${y.manual ? ' ✓' : ''}</a>`;
+  }
+  const q = encodeURIComponent(it.artist + ' ' + it.title);
+  const why = y ? 'nothing found by the lookup' : done(it) ? 'already on the site' : 'not looked up yet';
+  return `<a class="yt search" href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener" title="${why}: search YouTube">🔍 search</a>`;
+}
+function ytCell(it) {
+  return ytLink(it) + (done(it) ? '' : ` <button class="pen" data-pen="${esc(it.id)}" title="Paste a different YouTube link">✎</button>`);
+}
+function songRow(it) {
+  const st = state(it), m = moods[it.mood] || {};
+  const mood = done(it) ? `<span class="meta">${esc(m.name || it.mood || '')}</span>`
+    : `<button class="mood${it.moodSet ? ' set' : ''}" data-mood="${esc(it.id)}" title="${it.moodSet ? 'your choice' : 'suggested from ' + esc(it.moodWhy || '')}">${m.icon || ''} ${esc(m.name || it.mood || 'mood')}</button>`;
+  return `<tr class="${st}${done(it) ? ' done' : ''}" data-id="${esc(it.id)}">`
+    + `<td><input type="checkbox" data-song="${esc(it.id)}"${sel.has(it.id) ? ' checked' : ''}${done(it) ? ' disabled' : ''}></td>`
+    + `<td class="t">${esc(it.title)} <span class="chip ${st}">${LABEL[st] || st}</span></td>`
+    + `<td class="n">${ytCell(it)}</td><td class="n">${it.secs ? fmt(it.secs) : ''}</td><td class="n g">${esc(it.genre)}</td>`
+    + `<td>${mood}</td><td>${done(it) ? '' : acts([it], '')}</td></tr>`;
+}
+function fixIndeterminate() {
+  for (const cb of $('list').querySelectorAll('[data-ind]')) cb.indeterminate = true;
 }
 
-function artistEl(name, albums, open) {
-  const d = document.createElement('details');
-  d.className = 'artist'; d.dataset.key = 'a:' + name;
-  const songs = songsOf(albums);
-  const s = document.createElement('summary');
-  s.appendChild(box(songs));
-  s.insertAdjacentHTML('beforeend', `<span class="nm">${esc(name)}</span><span class="meta">${songs.length} · ${albums.size} album${albums.size > 1 ? 's' : ''}</span><span class="chips">${chips(songs)}</span><span class="spacer"></span>`);
-  s.appendChild(acts(songs));
-  d.appendChild(s);
-  const fill = () => {
-    if (d.childElementCount > 1) return;
-    for (const [al, ss] of albums) d.appendChild(albumEl(name, al, ss, open));
+/* one handler for the whole list */
+$('list').addEventListener('click', e => {
+  const t = e.target;
+  if (t.dataset.box !== undefined) {
+    e.preventDefault(); e.stopPropagation();
+    const free = groups[+t.dataset.box];
+    const on = !free.every(id => sel.has(id));
+    free.forEach(id => on ? sel.add(id) : sel.delete(id));
+    syncBoxes();
+  } else if (t.dataset.song !== undefined) {
+    t.checked ? sel.add(t.dataset.song) : sel.delete(t.dataset.song);
+    syncBoxes();
+  } else if (t.dataset.set) {
+    e.preventDefault(); e.stopPropagation();
+    setStatus(groups[+t.dataset.g], t.dataset.set);
+  } else if (t.dataset.pen !== undefined) {
+    e.preventDefault(); e.stopPropagation();
+    pasteBox(t);
+  } else if (t.dataset.mood !== undefined) {
+    e.preventDefault(); e.stopPropagation();
+    moodMenu(t);
+  }
+});
+$('list').addEventListener('toggle', e => {
+  const d = e.target;
+  if (!d.dataset || !d.dataset.key) return;
+  d.open ? closed.delete(d.dataset.key) : closed.add(d.dataset.key);
+}, true);
+function pasteBox(btn) {
+  const it = byId.get(btn.dataset.pen), td = btn.parentElement;
+  td.innerHTML = '<input type="text" class="paste" placeholder="Paste a YouTube link, Enter to save, Esc to cancel">';
+  const inp = td.firstElementChild;
+  inp.focus();
+  let gone = false;                  // the blur that removing the box fires
+  const back = () => { if (gone) return; gone = true; td.innerHTML = ytCell(it); };
+  const save = async () => {
+    const url = inp.value.trim();
+    if (!url) return back();
+    inp.disabled = true;
+    try {
+      const d = await api('/api/library/video', { id: it.id, url });
+      it.yt = d.yt;
+      back();
+    } catch (e) {
+      inp.disabled = false; inp.value = ''; inp.placeholder = e.message; inp.classList.add('bad'); inp.focus();
+    }
   };
-  if (open.has(d.dataset.key)) { d.open = true; fill(); }
-  d.addEventListener('toggle', () => { if (d.open) fill(); });
-  return d;
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') save(); else if (e.key === 'Escape') back(); });
+  inp.addEventListener('paste', () => setTimeout(save, 0));
+  inp.addEventListener('blur', () => { if (!inp.disabled && !inp.value.trim()) back(); });
 }
-function albumEl(artist, name, songs, open) {
-  const d = document.createElement('details');
-  d.className = 'album'; d.dataset.key = 'b:' + artist + '\u0000' + name;
-  const s = document.createElement('summary');
-  s.appendChild(box(songs));
-  s.insertAdjacentHTML('beforeend', `<span>${esc(name || '(no album)')}</span><span class="meta">${songs.length}</span><span class="chips">${chips(songs)}</span><span class="spacer"></span>`);
-  s.appendChild(acts(songs));
-  d.appendChild(s);
-  const fill = () => {
-    if (d.childElementCount > 1) return;
-    const t = document.createElement('table');
-    songs.forEach(it => t.appendChild(songEl(it)));
-    d.appendChild(t);
-  };
-  if (open.has(d.dataset.key)) { d.open = true; fill(); }
-  d.addEventListener('toggle', () => { if (d.open) fill(); });
-  return d;
-}
-function songEl(it) {
-  const tr = document.createElement('tr');
-  tr.className = state(it) + (done(it) ? ' done' : '');
-  const td0 = document.createElement('td');
-  const cb = document.createElement('input');
-  cb.type = 'checkbox'; cb.checked = sel.has(it.id); cb.disabled = done(it);
-  cb.addEventListener('change', () => { cb.checked ? sel.add(it.id) : sel.delete(it.id); render(); });
-  td0.appendChild(cb);
-  tr.appendChild(td0);
-  tr.insertAdjacentHTML('beforeend', `<td class="t">${esc(it.title)} <span class="chip ${state(it)}">${state(it) === 'onsite' ? 'on site' : state(it) === 'inbox' ? 'in inbox' : state(it)}</span></td><td class="n">${it.secs ? fmt(it.secs) : ''}</td><td class="n">${esc(it.genre)}</td>`);
-  const td = document.createElement('td');
+function moodMenu(btn) {
+  const it = byId.get(btn.dataset.mood);
   const ms = document.createElement('select');
   for (const [k, v] of Object.entries(moods)) ms.add(new Option(`${v.icon || ''} ${v.name}`, k));
-  ms.value = it.mood; ms.disabled = done(it);
-  ms.className = it.moodSet ? 'set' : '';
-  ms.title = it.moodSet ? 'your choice' : 'suggested from ' + it.moodWhy;
-  ms.addEventListener('change', async () => { await api('/api/library/update', { ids: [it.id], mood: ms.value }); it.mood = ms.value; it.moodSet = true; ms.className = 'set'; });
-  td.appendChild(ms);
-  tr.appendChild(td);
-  const td2 = document.createElement('td');
-  if (!done(it)) td2.appendChild(acts([it]));
-  td2.querySelectorAll('button').forEach(b => { b.textContent = b.textContent.replace(' all', ''); });
-  tr.appendChild(td2);
-  return tr;
+  ms.value = it.mood;
+  btn.replaceWith(ms);
+  ms.focus();
+  try { ms.showPicker(); } catch (_) {}
+  const back = () => { const m = moods[it.mood] || {}; btn.textContent = `${m.icon || ''} ${m.name || it.mood}`; btn.className = 'mood' + (it.moodSet ? ' set' : ''); ms.replaceWith(btn); };
+  ms.addEventListener('change', async () => {
+    await api('/api/library/update', { ids: [it.id], mood: ms.value });
+    it.mood = ms.value; it.moodSet = true;
+    back();
+  });
+  ms.addEventListener('blur', back);
 }
 
 async function setStatus(ids, status) {
@@ -285,11 +352,48 @@ async function setStatus(ids, status) {
   const s = new Set(ids);
   items.forEach(it => { if (s.has(it.id)) it.status = status; });
   ids.forEach(id => sel.delete(id));
-  render();
+  refresh(ids);
+}
+/* update the touched rows and their artist / album headers in place, so the page doesn't move
+   (a song you skip stays in view until the filters change) */
+function refresh(ids) {
+  renderCounts();
+  const heads = new Set(), rows = [];
+  for (const id of ids) {
+    const tr = $('list').querySelector(`tr[data-id="${CSS.escape(id)}"]`);
+    if (tr) rows.push([tr, id]);
+  }
+  /* keep the first on-screen row where it is: sizing the folded-away artists can move the page */
+  const pin = rows.map(r => r[0]).find(tr => { const b = tr.getBoundingClientRect(); return b.bottom > 0 && b.top < innerHeight; });
+  const top0 = pin && pin.getBoundingClientRect().top;
+  for (const [tr, id] of rows) {
+    for (let d = tr.closest('details'); d; d = d.parentElement.closest('details')) heads.add(d);
+    const t = document.createElement('tbody');
+    t.innerHTML = songRow(byId.get(id));
+    tr.className = t.firstElementChild.className;          // same row element, new cells
+    tr.replaceChildren(...t.firstElementChild.childNodes);
+  }
+  for (const d of heads) {
+    const songs = [...d.querySelectorAll('tr[data-id]')].map(r => byId.get(r.dataset.id));
+    d.querySelector(':scope > summary > .chips').innerHTML = chips(songs);
+  }
+  syncBoxes();
+  if (pin) window.scrollBy(0, pin.getBoundingClientRect().top - top0);
+}
+/* tick the song boxes and the artist / album boxes from the selection */
+function syncBoxes() {
+  for (const cb of $('list').querySelectorAll('[data-song]')) cb.checked = sel.has(cb.dataset.song);
+  for (const cb of $('list').querySelectorAll('[data-box]')) {
+    const free = groups[+cb.dataset.box], n = free.filter(id => sel.has(id)).length;
+    cb.checked = free.length > 0 && n === free.length;
+    cb.indeterminate = n > 0 && n < free.length;
+  }
+  renderSel();
 }
 function renderSel() {
   $('sel').style.display = sel.size ? 'flex' : 'none';
   $('selN').textContent = `${sel.size} selected`;
+  fixIndeterminate();
 }
 document.querySelectorAll('#sel [data-do]').forEach(b => b.addEventListener('click', () => setStatus([...sel], b.dataset.do)));
 $('selMood').addEventListener('change', async () => {
@@ -298,14 +402,34 @@ $('selMood').addEventListener('change', async () => {
   await api('/api/library/update', { ids: [...sel], mood: m });
   items.forEach(it => { if (sel.has(it.id)) { it.mood = m; it.moodSet = true; } });
   $('selMood').value = '';
-  render();
+  refresh([...sel]);
 });
-$('selClear').addEventListener('click', () => { sel.clear(); render(); });
+$('selClear').addEventListener('click', () => { sel.clear(); syncBoxes(); });
 let qTimer;
-$('q').addEventListener('input', () => { clearTimeout(qTimer); qTimer = setTimeout(() => { shownArtists = 60; render(); }, 200); });
-['genre', 'sort', 'short'].forEach(id => $(id).addEventListener('change', () => { shownArtists = 60; render(); }));
+$('q').addEventListener('input', () => { clearTimeout(qTimer); qTimer = setTimeout(render, 200); });
+['genre', 'sort', 'short'].forEach(id => $(id).addEventListener('change', render));
 document.querySelectorAll('[data-show]').forEach(c => c.addEventListener('change', render));
-$('more').addEventListener('click', () => { shownArtists += 60; render(); });
+
+/* while the lookup runs, swap in the videos it has found (no full redraw) */
+function watchVideos() {
+  const missing = () => items.some(it => !it.yt && !done(it) && it.status !== 'skipped');
+  if (!missing()) return;
+  setTimeout(async () => {
+    try {
+      const d = await api('/api/library');
+      let changed = false;
+      for (const n of d.items) {
+        const it = byId.get(n.id);
+        if (!it || !n.yt || (it.yt && it.yt.id === n.yt.id)) continue;
+        it.yt = n.yt; changed = true;
+        const tr = $('list').querySelector(`tr[data-id="${CSS.escape(it.id)}"] td:nth-child(3)`);
+        if (tr && !tr.querySelector('input')) tr.innerHTML = ytCell(it);
+      }
+      if (changed) renderCounts();
+    } catch (_) {}
+    watchVideos();
+  }, 30000);
+}
 
 /* fetching the approved songs into the /batch inbox */
 $('btnFetch').addEventListener('click', async () => {
@@ -326,7 +450,7 @@ async function poll() {
   job = d.job;
   renderJob();
   if (job.running) setTimeout(poll, 1500);
-  else { items = d.items; render(); }
+  else { take(d.items); render(); }
 }
 load().then(() => { if (job.running) poll(); }).catch(e => { $('stateLine').textContent = 'error: ' + e.message; });
 </script>

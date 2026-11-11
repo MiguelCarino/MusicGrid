@@ -17,6 +17,7 @@ import argparse
 import json
 import re
 import subprocess
+import time
 import sys
 import urllib.error
 import urllib.parse
@@ -52,10 +53,18 @@ def video_id_from(arg):
     return None
 
 
-def yt_search(query, n=8):
-    out = subprocess.run(
-        ["yt-dlp", f"ytsearch{n}:{query}", "--flat-playlist", "--dump-json"],
-        capture_output=True, text=True, timeout=60)
+def yt_search(query, n=8, _retry=True):
+    try:
+        out = subprocess.run(
+            ["yt-dlp", f"ytsearch{n}:{query}", "--flat-playlist", "--dump-json"],
+            capture_output=True, text=True, timeout=60)
+    except subprocess.TimeoutExpired:
+        out = None
+    if (out is None or not out.stdout.strip()) and _retry:
+        time.sleep(4)                  # YouTube sometimes answers nothing under load
+        return yt_search(query, n, _retry=False)
+    if out is None:
+        return []
     vids = []
     for line in out.stdout.splitlines():
         try:
@@ -69,6 +78,8 @@ def yt_search(query, n=8):
             "channel": d.get("channel") or d.get("uploader") or "?",
             "dur": f"{int(dur // 60)}:{int(dur % 60):02d}" if dur else "?",
             "secs": float(dur) if dur else 0.0,
+            "verified": bool(d.get("channel_is_verified")),
+            "views": d.get("view_count") or 0,
         })
     return vids
 

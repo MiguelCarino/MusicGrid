@@ -187,29 +187,117 @@ def expand(items, log=print):
                "searched": True}
 
 
+# another version of the song: ranked down and flagged, wherever it's from
+_VERSION = re.compile(r"\b(live|en vivo|ao vivo|en directo|cover|karaoke|instrumental|nightcore|sped ?up|"
+                      r"slowed|reverb|8d|remix|mix|extended|edit|acoustic|piano version|bootleg|mashup|"
+                      r"concert|концерт|performed|performance|tv show|full album|album completo|"
+                      r"полный альбом|from .+ original motion picture)\b", re.I)
+# fan-made extras: ranked down unless the channel is official (official lyric videos are fine)
+_FAN = re.compile(r"\b(lyrics?|letra|legendado|tradu[cç][aã]o|subtitulad[oa]|reaction|tutorial|lesson|"
+                  r"fan ?made)\b", re.I)
+
+
+def _extra(rx, video_title, title):
+    return {m.lower() for m in rx.findall(video_title or "")} - {m.lower() for m in rx.findall(title or "")}
+
+
+def _fold(s):
+    s = unicodedata.normalize("NFKD", (s or "").lower())
+    return re.sub(r"[^\w]+", "", "".join(c for c in s if not unicodedata.combining(c)))
+
+
+_CH_EXTRA = re.compile(r"official|oficial|officiel|offiziell|オフィシャル|официальн\w*|канал|channel|music|"
+                       r"musica|música|band|group|группа|records|tv|vevo|\s*-\s*topic$", re.I)
+
+
+def official_kind(h, artist):
+    """Why an upload counts as official: 'topic' (the artist's own YouTube Music
+    art track), 'artist' (the artist's own or VEVO channel), 'verified' (a
+    verified channel: a label, a soundtrack publisher), or '' (anyone else,
+    fan clubs and other artists' Topic tracks included)."""
+    ch = h.get("channel") or ""
+    names = [_fold(x) for x in re.split(r",|&|\bfeat\.?|\bft\.?|\bx\b|\band\b|\bи\b|\by\b", artist or "", flags=re.I)]
+    names = [n for n in names if len(n) >= 2] or [_fold(artist)]
+    fc = _fold(_CH_EXTRA.sub("", ch))
+    exact = bool(fc) and fc in names                       # "ABBA", "ABBA - Topic", "ABBAVEVO", "Glukoza Official"
+    near = bool(fc) and len(fc) >= 4 and any(n in fc or fc in n for n in names)   # "ABBA. FC", "Pelageya fan page"
+    verified = bool(h.get("verified"))
+    if ch.endswith(" - Topic"):
+        return "topic" if exact or near else ""
+    if exact or (near and verified):
+        return "artist"
+    if verified:
+        return "verified"
+    return ""
+
+
+def _score(h, artist, title, secs, alt=()):
+    kind = official_kind(h, artist)
+    sc = {"topic": 60, "artist": 50, "verified": 35, "": 0}[kind]
+    d = abs((h.get("secs") or 0) - secs) if secs and h.get("secs") else None
+    if d is not None:
+        sc += 20 if d <= 3 else 12 if d <= 10 else 4 if d <= 45 else -25
+    vt = _fold(h.get("title"))
+    fts = [f for f in (_fold(re.sub(r"\s*[\(\[（【].*?[\)\]）】]", "", t)) for t in (title, *alt)) if f]
+    named = any(f in vt for f in fts)
+    sc += 15 if named else -45                # an official upload of another song is no use
+    if _extra(_VERSION, h.get("title"), title):
+        sc -= 30
+    if not kind and _extra(_FAN, h.get("title"), title):
+        sc -= 20
+    if re.search(r"official|オフィシャル|официальн|oficial", h.get("title") or "", re.I):
+        sc += 5
+    sc += min(5, len(str(h.get("views") or 0)) - 3) if h.get("views") else 0
+    return sc, kind, d, named
+
+
 def pick_video(item, log=print):
-    """The YouTube upload for a library song: the one as long as the track
-    (±3 s), the artist's "- Topic" art track first; else the top result, flagged."""
-    hits = addsong.yt_search(item["q"], 8)
+    """The YouTube upload for a library song, official first: the artist's
+    "- Topic" art track, then the artist's or VEVO channel, then a verified
+    channel (label, publisher); as long as the track; live / cover / lyric /
+    sped-up uploads ranked down. When the first search has nothing official it
+    asks again for the Topic track. Anything not official or not the length is
+    flagged. A song whose video was already found (library youtube) keeps it."""
+    pre = item.get("yt")
+    if pre and pre.get("id"):
+        out = {"searched": True, "apple": item.get("apple"), "mood": item.get("mood"),
+               "id": pre["id"], "title": pre.get("title", ""), "channel": pre.get("channel", ""),
+               "secs": pre.get("secs", 0)}
+        if pre.get("check"):
+            out["check"] = pre["check"]
+        return out
+    artist, title = item.get("artist") or "", item.get("title") or ""
+    alt = tuple(item.get("alt") or ())
     secs = item.get("secs") or 0
-    best = None
-    for h in hits:
-        if not secs or not h.get("secs") or abs(h["secs"] - secs) > 3:
-            continue
-        rank = 2 if h["channel"].endswith(" - Topic") else 1 if re.search(r"audio", h["title"], re.I) else 0
-        if not best or rank > best[0]:
-            best = (rank, h)
+    hits = addsong.yt_search(item["q"], 10)
+    if alt:                            # the song's own-language title finds the official upload
+        seen = {h["id"] for h in hits}
+        hits += [h for h in addsong.yt_search(f"{artist} {alt[0]}", 8) if h["id"] not in seen]
+    ranked = sorted(((_score(h, artist, title, secs, alt), h) for h in hits), key=lambda x: -x[0][0])
+    if artist and title and not (ranked and ranked[0][0][1] == "topic" and ranked[0][0][3]
+                                 and ranked[0][0][2] is not None and ranked[0][0][2] <= 3):
+        seen = {h["id"] for h in hits}
+        more = [h for h in addsong.yt_search(f"{artist} - Topic {title}", 6) if h["id"] not in seen]
+        ranked = sorted(ranked + [(_score(h, artist, title, secs, alt), h) for h in more], key=lambda x: -x[0][0])
     out = {"searched": True, "apple": item.get("apple"), "mood": item.get("mood")}
-    if best:
-        h = best[1]
-    elif hits:
-        h = hits[0]
-        out["check"] = (f"no upload as long as the track ({int(secs // 60)}:{int(secs % 60):02d}):"
-                        f" picked the top result for '{item['q']}', check it's the song")
-    else:
+    if not ranked:
         log(f"  warn: no YouTube result for '{item['q']}', skipped")
         return {"id": None, "title": item["q"], "channel": ""}
-    return {**out, "id": h["id"], "title": h["title"], "channel": h["channel"], "secs": h.get("secs", 0)}
+    (sc, kind, d, named), h = ranked[0]
+    why = []
+    if not named:
+        why.append("the video title doesn't name the song")
+    if not kind:
+        why.append("not from an official channel")
+    other = _extra(_VERSION, h.get("title"), title)
+    if other:
+        why.append("another version (" + ", ".join(sorted(other)) + ")")
+    if secs and (d is None or d > 10):
+        why.append(f"not as long as the track ({int(secs // 60)}:{int(secs % 60):02d})")
+    if why:
+        out["check"] = " and ".join(why) + ", check it's the song"
+    return {**out, "id": h["id"], "title": h["title"], "channel": h["channel"], "secs": h.get("secs", 0),
+            "official": kind}
 
 
 def itunes_by_id(track_id):
@@ -630,8 +718,10 @@ def _lib_key(s):
     return re.sub(r"\s+", " ", norm(re.sub(r"\s*[\(\[][^\)\]]*[\)\]]", "", s or "")))
 
 
-def library_import(path, log=print):
-    """Stage an exported library; keeps the approvals of an earlier import."""
+def library_import(path, add=False, log=print):
+    """Stage an exported library; keeps the approvals of an earlier import.
+    add=True appends the songs that aren't staged yet (same id, or same artist
+    and title) and leaves every staged song as it is."""
     lib = json.loads(Path(path).expanduser().read_text(encoding="utf-8"))
     src, _, _ = addsong.load_catalog(CATALOG)
     existing = catalog_entries(src)
@@ -654,8 +744,18 @@ def library_import(path, log=print):
             "moodSet": bool(prev.get("moodSet")),
             "status": prev.get("status", "pending"),
         })
+        if prev.get("yt"):
+            items[-1]["yt"] = prev["yt"]
     with LOCK:
         INBOX.mkdir(parents=True, exist_ok=True)
+        if add:
+            # read again right before writing: a running lookup saves into this file
+            staged = json.loads(LIBRARY.read_text(encoding="utf-8")) if LIBRARY.is_file() else []
+            have = {x["id"] for x in staged} | {(_lib_key(x["artist"]), _lib_key(x["title"])) for x in staged}
+            new = [x for x in items
+                   if x["id"] not in have and (_lib_key(x["artist"]), _lib_key(x["title"])) not in have]
+            items = staged + new
+            log(f"added {len(new)} new songs ({len(lib) - len(new)} already staged)")
         LIBRARY.write_text(json.dumps(items, ensure_ascii=False, indent=0), encoding="utf-8")
     log(f"staged {len(items)} songs in {LIBRARY.relative_to(REPO)}")
     return items
@@ -705,15 +805,108 @@ def library_update(ids, status=None, mood=None):
         LIBRARY.write_text(json.dumps(items, ensure_ascii=False, indent=0), encoding="utf-8")
 
 
+def library_video(sid, url):
+    """Use the video you pasted for a staged song. Returns its yt record."""
+    vid = addsong.video_id_from((url or "").strip())
+    if not vid:
+        raise ValueError("not a YouTube link or video id")
+    title, channel = "", ""
+    try:
+        d = json.loads(addsong.fetch(
+            "https://www.youtube.com/oembed?format=json&url="
+            + urllib.parse.quote(f"https://www.youtube.com/watch?v={vid}")))
+        title, channel = d.get("title", ""), d.get("author_name", "")
+    except Exception:
+        pass
+    yt = {"id": vid, "title": title, "channel": channel, "secs": 0, "manual": True}
+    with LOCK:
+        items = json.loads(LIBRARY.read_text(encoding="utf-8"))
+        hit = [it for it in items if it["id"] == sid]
+        if not hit:
+            raise ValueError(f"no staged song {sid}")
+        hit[0]["yt"] = yt
+        LIBRARY.write_text(json.dumps(items, ensure_ascii=False, indent=0), encoding="utf-8")
+    return yt
+
+
 def library_to_fetch():
     """The approved songs not yet on the site or in the inbox, as fetch items."""
     return [{"q": f"{it['artist']} {it['title']}", "secs": it["secs"], "apple": it["apple"] or None,
-             "mood": it["mood"]}
+             "mood": it["mood"], "yt": it.get("yt"), "artist": it["artist"], "title": it["title"],
+             "alt": it.get("alt")}
             for it in library_state() if it["status"] == "approved" and not it["where"]]
 
 
+def _needs(it, redo, unofficial):
+    y = it.get("yt")
+    if not y:
+        return True
+    if y.get("manual"):
+        return False                   # your pasted link always stays
+    if redo:
+        return True
+    if unofficial:
+        return not y.get("id") or official_kind(y, it["artist"]) in ("", "verified") and not y.get("official")
+    return False
+
+
+def library_youtube(workers=4, redo=False, unofficial=False, artist=None, log=print):
+    """Find the YouTube video of every staged song not on the site yet, ahead of
+    review, so the /library page can link it. Resumable: songs that already have
+    one are skipped (--redo looks again). Saves as it goes, keeping your approvals."""
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    todo = [it for it in library_state()
+            if not it["where"] and it["status"] != "skipped" and _needs(it, redo, unofficial)
+            and (not artist or artist.lower() in (it["artist"] + " " + it["title"]).lower())]
+    log(f"looking up {len(todo)} songs on YouTube ({workers} at a time)")
+
+    def one(it):
+        v = pick_video({"q": f"{it['artist']} {it['title']}", "secs": it["secs"],
+                        "artist": it["artist"], "title": it["title"], "alt": it.get("alt")},
+                       log=lambda *_: None)
+        if not v.get("id"):
+            return it["id"], {"id": None}
+        yt = {"id": v["id"], "title": v.get("title", ""), "channel": v.get("channel", ""),
+              "secs": v.get("secs", 0), "official": v.get("official", "")}
+        if v.get("check"):
+            yt["check"] = v["check"]
+        return it["id"], yt
+
+    found, done = {}, 0
+
+    def flush():
+        with LOCK:
+            items = json.loads(LIBRARY.read_text(encoding="utf-8"))
+            for x in items:
+                if x["id"] in found:
+                    x["yt"] = found[x["id"]]
+            LIBRARY.write_text(json.dumps(items, ensure_ascii=False, indent=0), encoding="utf-8")
+
+    with ThreadPoolExecutor(workers) as ex:
+        futs = [ex.submit(one, it) for it in todo]
+        for f in as_completed(futs):
+            try:
+                sid, yt = f.result()
+            except Exception as e:
+                log(f"  error: {e}")
+                continue
+            found[sid] = yt
+            done += 1
+            if done % 25 == 0:
+                flush()
+                log(f"  {done}/{len(todo)}")
+    flush()
+    miss = sum(1 for v in found.values() if not v.get("id"))
+    flag = sum(1 for v in found.values() if v.get("check"))
+    log(f"done: {done} looked up, {flag} to check (no upload of the same length), {miss} not found")
+
+
+def cmd_youtube(args):
+    library_youtube(args.workers, args.redo, args.unofficial, args.artist)
+
+
 def cmd_library(args):
-    library_import(args.file)
+    library_import(args.file, add=args.add)
     print("review it on the /library page of tools/addsong_web.py")
 
 
@@ -808,6 +1001,14 @@ def main():
                    help="also step through entries with a 'check' note (fix tag / delete)")
     lb = sub.add_parser("library", help="stage a music library export for approval")
     lb.add_argument("file", help="the export, e.g. ~/Downloads/applemusic-library.json")
+    lb.add_argument("--add", action="store_true",
+                    help="add the songs that aren't staged yet, keep the rest as it is")
+    yt = sub.add_parser("youtube", help="find the YouTube video of every staged library song")
+    yt.add_argument("--workers", type=int, default=4)
+    yt.add_argument("--redo", action="store_true", help="look again for every song (not your pasted links)")
+    yt.add_argument("--artist", help="only songs by (or featuring) this artist")
+    yt.add_argument("--unofficial", action="store_true",
+                    help="look again for songs whose video isn't from an official channel")
     ly = sub.add_parser("lyrics", help="find synced lyrics for catalog songs without any")
     ly.add_argument("ids", nargs="*", help="only these video ids")
     ly.add_argument("--apply", action="store_true", help="link the sure matches")
@@ -816,7 +1017,7 @@ def main():
     args = ap.parse_args()
     {"fetch": cmd_fetch, "check": cmd_check, "review": cmd_review,
      "commit": cmd_commit, "lyrics": cmd_lyrics,
-     "library": cmd_library}[args.cmd](args)
+     "library": cmd_library, "youtube": cmd_youtube}[args.cmd](args)
 
 
 if __name__ == "__main__":
