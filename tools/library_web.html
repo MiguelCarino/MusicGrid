@@ -42,7 +42,7 @@
   .chip { font-size:.64rem; padding:1px 6px; border-radius:99px; border:1px solid var(--tool-border); color:var(--dim); white-space:nowrap; }
   .chip.approved { color:var(--green); border-color:rgba(34,197,94,.4); }
   .chip.skipped { color:#a1a1aa; }
-  .chip.onsite { color:var(--blue); border-color:rgba(138,180,248,.4); }
+  .chip.onsite, .chip.added { color:var(--blue); border-color:rgba(138,180,248,.4); }
   .chip.inbox { color:var(--gold); border-color:rgba(234,179,8,.4); }
   .acts { display:inline-flex; gap:4px; }
   .acts button { padding:2px 8px; font-size:.68rem; white-space:nowrap; }
@@ -103,6 +103,7 @@
     <label><input type="checkbox" data-show="approved" checked> approved</label>
     <label><input type="checkbox" data-show="skipped"> skipped</label>
     <label><input type="checkbox" data-show="inbox"> in the inbox</label>
+    <label><input type="checkbox" data-show="added"> added</label>
     <label><input type="checkbox" data-show="onsite"> on the site</label>
     <label><input type="checkbox" id="short"> short cues (&lt;75 s)</label>
   </div>
@@ -131,8 +132,9 @@ let items = [], byId = new Map(), moods = {}, job = {}, sel = new Set(), groups 
 const closed = new Set();          // artists / albums you folded
 const fmt = s => Math.floor(s / 60) + ':' + String(Math.round(s) % 60).padStart(2, '0');
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const state = it => it.where || it.status;          // onsite / inbox beat your choice
-const done = it => !!it.where;
+/* added (committed to the site) is final; then onsite / inbox beat your choice */
+const state = it => it.status === 'added' ? 'added' : it.where || it.status;
+const done = it => it.status === 'added' || !!it.where;
 const LABEL = { onsite: 'on site', inbox: 'in inbox' };
 /* search ignores the alphabet: "pelageya" finds Пелагея */
 const CYR = { а:'a',б:'b',в:'v',г:'g',д:'d',е:'e',ё:'e',ж:'zh',з:'z',и:'i',й:'y',к:'k',л:'l',м:'m',н:'n',о:'o',п:'p',р:'r',с:'s',т:'t',у:'u',ф:'f',х:'kh',ц:'ts',ч:'ch',ш:'sh',щ:'shch',ъ:'',ы:'y',ь:'',э:'e',ю:'yu',я:'ya' };
@@ -176,17 +178,18 @@ function visible() {
 }
 
 function renderCounts() {
-  const c = { pending: 0, approved: 0, skipped: 0, inbox: 0, onsite: 0 };
+  const c = { pending: 0, approved: 0, skipped: 0, inbox: 0, onsite: 0, added: 0 };
   let found = 0, need = 0;
   for (const it of items) {
     c[state(it)]++;
     if (!done(it) && it.status !== 'skipped') { need++; if (it.yt) found++; }
   }
   $('counts').innerHTML = `<span><b>${c.approved}</b> approved</span><span><b>${c.pending}</b> pending</span>`
-    + `<span><b>${c.skipped}</b> skipped</span><span><b>${c.inbox}</b> in the inbox</span><span><b>${c.onsite}</b> on the site</span>`
+    + `<span><b>${c.skipped}</b> skipped</span><span><b>${c.inbox}</b> in the inbox</span><span><b>${c.added}</b> added</span>`
+    + (c.onsite ? `<span><b>${c.onsite}</b> on the site</span>` : '')
     + (found < need ? `<span class="meta">videos found ${found}/${need}</span>` : '');
   $('stateLine').textContent = `${items.length} songs staged from your library`;
-  const toFetch = items.filter(it => it.status === 'approved' && !it.where).length;
+  const toFetch = items.filter(it => it.status === 'approved' && !done(it)).length;
   $('btnFetch').textContent = `Fetch approved (${toFetch})`;
   $('btnFetch').disabled = !toFetch || job.running;
 }

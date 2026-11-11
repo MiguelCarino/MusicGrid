@@ -628,7 +628,7 @@ def _commit_ready(dry_run, log):
     src, regs, used = addsong.load_catalog(CATALOG)
     in_catalog = {e["url"] for e in catalog_entries(src)}
     inbox = load_inbox()
-    keep, done = [], 0
+    keep, done, added = [], 0, []
     inbox_image = {}          # inbox:<vid> -> assigned mu_N.webp
     for e in inbox:
         if problems(e, regs, in_catalog):
@@ -650,9 +650,11 @@ def _commit_ready(dry_run, log):
         if not dry_run:
             addsong.append_entry(CATALOG, entry)
         in_catalog.add(e["url"])
+        added.append(e)
         done += 1
     if not dry_run:
         save_inbox(keep)
+        library_mark_added(added)
         # drop covers no remaining inbox entry points at
         wanted = {e["image"][6:] for e in keep if str(e.get("image", "")).startswith("inbox:")}
         for f in (INBOX / "covers").glob("*.webp"):
@@ -761,11 +763,42 @@ def library_import(path, add=False, log=print):
     return items
 
 
+def library_mark_added(entries):
+    """Committed inbox entries -> their staged songs get status "added", for
+    good: an added song can't be approved (or fetched) again."""
+    if not entries or not LIBRARY.is_file():
+        return 0
+    apples = {str(e["_apple"]) for e in entries if e.get("_apple")}
+    keys = set()
+    for e in entries:
+        ar, _, t = (e.get("tag") or "").partition(" — ")
+        keys.add((_lib_key(ar), _lib_key(t)))
+    with LOCK:
+        items = json.loads(LIBRARY.read_text(encoding="utf-8"))
+        n = 0
+        for it in items:
+            if it.get("status") != "added" and (
+                    (it["apple"] and it["apple"] in apples)
+                    or (_lib_key(it["artist"]), _lib_key(it["title"])) in keys):
+                it["status"] = "added"
+                n += 1
+        if n:
+            LIBRARY.write_text(json.dumps(items, ensure_ascii=False, indent=0), encoding="utf-8")
+    return n
+
+
 def library_state():
     """The staged songs, each with where it is: pending / approved / skipped
-    (your choice), and onsite / inbox (found in the catalog or the inbox)."""
+    (your choice), added (committed to the site; final), and onsite / inbox
+    (found in the catalog or the inbox). A song found on the site is saved as
+    "added", so songs added before this, or by another route, lock too."""
     if not LIBRARY.is_file():
         return []
+    with LOCK:
+        return _library_state()
+
+
+def _library_state():
     items = json.loads(LIBRARY.read_text(encoding="utf-8"))
     src, _, _ = addsong.load_catalog(CATALOG)
     existing = catalog_entries(src)
@@ -789,6 +822,12 @@ def library_state():
         if not where and it["apple"] in in_ids:
             where = "inbox"
         it["where"] = where
+    newly = [it for it in items if it["where"] == "onsite" and it.get("status") != "added"]
+    if newly:
+        for it in newly:
+            it["status"] = "added"
+        LIBRARY.write_text(json.dumps([{k: v for k, v in it.items() if k != "where"} for it in items],
+                                      ensure_ascii=False, indent=0), encoding="utf-8")
     return items
 
 
@@ -797,7 +836,7 @@ def library_update(ids, status=None, mood=None):
     with LOCK:
         items = json.loads(LIBRARY.read_text(encoding="utf-8"))
         for it in items:
-            if it["id"] in ids:
+            if it["id"] in ids and it.get("status") != "added":    # added is final
                 if status in ("pending", "approved", "skipped"):
                     it["status"] = status
                 if mood:
@@ -856,7 +895,7 @@ def library_youtube(workers=4, redo=False, unofficial=False, artist=None, log=pr
     one are skipped (--redo looks again). Saves as it goes, keeping your approvals."""
     from concurrent.futures import ThreadPoolExecutor, as_completed
     todo = [it for it in library_state()
-            if not it["where"] and it["status"] != "skipped" and _needs(it, redo, unofficial)
+            if not it["where"] and it["status"] not in ("skipped", "added") and _needs(it, redo, unofficial)
             and (not artist or artist.lower() in (it["artist"] + " " + it["title"]).lower())]
     log(f"looking up {len(todo)} songs on YouTube ({workers} at a time)")
 
