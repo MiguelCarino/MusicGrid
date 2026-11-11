@@ -96,7 +96,10 @@ ITUNES_GENRE = {
 # ── helpers ──────────────────────────────────────────────────────────────
 
 def norm(s):
-    s = unicodedata.normalize("NFKD", s or "").encode("ascii", "ignore").decode() or (s or "")
+    """Lowercase, accents and punctuation off; every script kept. (Dropping to
+    ASCII made "AIGEL — Ит" and "AIGEL — Пыяла" both "aigel": every Cyrillic or
+    Japanese title of an artist matched every other one.)"""
+    s = "".join(c for c in unicodedata.normalize("NFKD", s or "") if not unicodedata.combining(c))
     return re.sub(r"[^\w]+", " ", s.lower()).strip()
 
 
