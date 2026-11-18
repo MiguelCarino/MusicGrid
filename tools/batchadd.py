@@ -723,6 +723,26 @@ def _lib_key(s):
     return re.sub(r"\s+", " ", norm(re.sub(r"\s*[\(\[][^\)\]]*[\)\]]", "", s or "")))
 
 
+VERSION_WORDS = ("reprise", "live", "remix", "mix", "edit", "edition", "version", "acoustic",
+                 "instrumental", "demo", "remaster", "remastered", "cover", "piano", "orchestral",
+                 "unplugged", "extended", "radio", "karaoke", "spec", "ver")
+
+
+def _versions(title):
+    """The version a title names in its brackets: "(Reprise)" -> {"reprise"};
+    "(Full Spec Edition)" -> {"full", "spec", "edition"}. Two titles that only
+    differ in brackets are the same song only when these match."""
+    out = set()
+    for br in re.findall(r"[\(\[]([^\)\]]*)[\)\]]", title or ""):
+        # a remaster is the same recording, and live vs studio counts as the same
+        # song (your call, 2026-11-11): "(2018 Remaster)" and "(Live at Brixton
+        # Academy)" name no version; "(Reprise)" or "(Giga Remix)" do
+        words = [w for w in norm(br).split() if w not in ("remaster", "remastered") and not w.isdigit()]
+        if any(w in VERSION_WORDS and w != "live" for w in words):
+            out |= {w for w in words if w not in ("feat", "ft", "with")}
+    return frozenset(out)
+
+
 def library_import(path, add=False, log=print):
     """Stage an exported library; keeps the approvals of an earlier import.
     add=True appends the songs that aren't staged yet (same id, or same artist
@@ -806,10 +826,10 @@ def _library_state():
     src, _, _ = addsong.load_catalog(CATALOG)
     existing = catalog_entries(src)
     on_ids = {addsong.track_id_from_apple(e.get("applemusicurl")) for e in existing} - {""}
-    on_keys = {}
+    on_keys = {}              # title (brackets off) -> [(artist, version words)]
     for e in existing:
         ar, _, t = e["tag"].partition(" — ")
-        on_keys.setdefault(_lib_key(t), set()).add(_lib_key(ar))
+        on_keys.setdefault(_lib_key(t), []).append((_lib_key(ar), _versions(t)))
     inbox = load_inbox()
     in_ids = {str(e.get("_apple")) for e in inbox if e.get("_apple")}
     for it in items:
@@ -817,10 +837,12 @@ def _library_state():
         if it["apple"] and it["apple"] in on_ids:
             where = "onsite"
         else:
-            arts = on_keys.get(_lib_key(it["title"]))
-            ka = _lib_key(it["artist"])
-            if arts and (any(a and (a in ka or ka in a or similar(a, ka) > 0.8) for a in arts)
-                         or len(_lib_key(it["title"])) >= 14):
+            ka, vs = _lib_key(it["artist"]), _versions(it["title"])
+            long = len(_lib_key(it["title"])) >= 14
+            # same version, a remixer's name aside ("(Remix)" = "(Perturbator Remix)")
+            same = lambda a, v: v - set((a + " " + ka).split()) == vs - set((a + " " + ka).split())
+            if any(same(a, v) and (long or a and (a in ka or ka in a or similar(a, ka) > 0.8))
+                   for a, v in on_keys.get(_lib_key(it["title"]), ())):
                 where = "onsite"
         if not where and it["apple"] in in_ids:
             where = "inbox"
